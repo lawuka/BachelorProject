@@ -1,0 +1,14 @@
+<svg height="400" width="400">
+    <!-- Components -->
+    <!--
+        <rect id="" x="" y="" width="" height="" />
+    -->
+
+    <!-- Flow lines -->
+    <lines>
+        <line x1="0" x2="400" y1="0" y2="400" />
+        <line x1="0" x2="400" y1="400" y2="0" />
+        <line x1="200" x2="200" y1="0" y2="400" />
+    </lines>
+
+</svg>
