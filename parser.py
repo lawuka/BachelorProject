@@ -21,36 +21,32 @@ class Parser():
         self.map['width'] = self.treeRoot.get('width')
         self.map['height'] = self.treeRoot.get('height')
 
-        # Flow lines in canvas
         self.map['lines'] = []
-        tempVal = 0
-        for lines in self.treeRoot:
-            for line in lines:
-                tempList = []
-                tempList.append(line.get('x1'))
-                tempList.append(line.get('y1'))
-                tempList.append(line.get('x2'))
-                tempList.append(line.get('y2'))
-                self.map['lines'].append(tempList)
+        self.map['components'] = []
+        self.map['holes'] = []
 
+        for elements in self.treeRoot:
+            for element in elements:
+                tempList = []
+                # Flow lines in canvas
+                if element.tag == 'line':
+                    tempList.append(element.get('x1'))
+                    tempList.append(element.get('y1'))
+                    tempList.append(element.get('x2'))
+                    tempList.append(element.get('y2'))
+                    self.map['lines'].append(tempList)
+                # Holes for input output of fluid / air
+                elif element.tag == 'hole':
+                    tempList.append(element.get('x'))
+                    tempList.append(element.get('y'))
+                    self.map['holes'].append(tempList)
+                # Components in canvas
+                else:
+                    tempList.append(element.get('id'))
+                    tempList.append(element.get('x'))
+                    tempList.append(element.get('y'))
+                    self.map['components'].append(tempList)
 
     def getMap(self):
 
         return self.map
-
-class Line():
-
-    tag = 'line'
-
-    def __init__(self, element):
-
-        self.P1 = [element.get('x1'),element.get('y1')]
-        self.P2 = [element.get('x2'),element.get('y2')]
-
-    def __repr__(self):
-
-        return {'P1', self.P1 ,
-                'P2', self.P2}
-
-
-
