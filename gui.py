@@ -10,7 +10,10 @@ from tkinter import *
 
 class GUI(Tk):
 
-    def __init__(self, canvasMap):
+    def __init__(self, canvasMap, mainClass):
+
+        #Main class
+        self.mainClass = mainClass
         Tk.__init__(self)
         self.grid()
         self.title('Graphical view of flow layer')
@@ -35,4 +38,7 @@ class GUI(Tk):
         self.mainloop()
 
     def produceGCode(self):
-        print("I DID THIS!")
+        '''
+        Produce G-Code
+        '''
+        self.mainClass.createSimGCode()

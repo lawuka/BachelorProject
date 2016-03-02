@@ -8,7 +8,7 @@ Created 24 feb 2016
 
 import xml.etree.ElementTree as etree
 
-class Parser():
+class svgParser():
 
     def __init__(self,file):
 
