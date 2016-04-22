@@ -19,7 +19,8 @@ class GUI(Tk):
         self.title('Graphical view of flow layer')
 
         self.quitButton = Button(self, text = "Quit", command = self.quit).grid()
-        self.produceG = Button(self, text = "G-Code", command = self.produceGCode).grid()
+        self.produceSimG = Button(self, text = "Sim G-Code", command = self.produceSimGCode).grid()
+        self.produceMMG = Button(self, text = "MM G-Code", command = self.produceMMGCode).grid()
 
         self.canvas = Canvas(self, width = canvasMap['width'], height = canvasMap['height'])
         self.canvas.grid()
@@ -37,8 +38,14 @@ class GUI(Tk):
         self.update()
         self.mainloop()
 
-    def produceGCode(self):
+    def produceSimGCode(self):
         '''
-        Produce G-Code
+        Produce Simulator G-Code
         '''
         self.mainClass.createSimGCode()
+
+    def produceMMGCode(self):
+        '''
+        Produce Micro Milling Machine G-Code
+        '''
+        self.mainClass.createMMGCode()
