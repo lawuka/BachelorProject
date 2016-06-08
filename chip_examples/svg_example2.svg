@@ -6,7 +6,7 @@
         <!--<component type="IntersectionT" x="50" y="50" rotation="0"/>-->
         <!--<component type="Pump" x="200" y="100" rotation="0"/>-->
         <!--<component type="Pump" x="25" y="25" rotation="90"/>-->
-        <component type="TestMultipleComponents" x="250" y="250" rotation="90"/>
+        <component type="TestMultipleComponents3" x="250" y="250" rotation="90"/>
 
     </components>
 

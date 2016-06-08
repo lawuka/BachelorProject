@@ -292,8 +292,6 @@ class microMillingFlowGCode():
 
     def internalFlowChannel(self, flowChannel, componentActualPositionX, componentActualPositionY, componentRotation,
                             componentWidth, componentHeight):
-
-        print(componentRotation)
         flowStartX = float(flowChannel.find('Start').find('X').text) * float(self.drillSize)# + componentActualPositionX
         flowStartY = float(flowChannel.find('Start').find('Y').text) * float(self.drillSize)# + componentActualPositionY
         flowEndX = float(flowChannel.find('End').find('X').text) * float(self.drillSize)# + componentActualPositionX
@@ -336,6 +334,9 @@ class microMillingFlowGCode():
         flowCirclePerimeter = float(flowCircle.find('Radius').text) * float(self.drillSize)* 2 * pi
         flowCircleStartX = flowCircleCenterX
         flowCircleStartY = flowCircleCenterY
+
+        print("C CentX:" + str(flowCircleCenterX))
+        print("C CentY:" + str(flowCircleCenterY))
 
         if componentRotation == 90:
             flowCircleStartY += flowCircleRadius

@@ -477,13 +477,74 @@
             <IntersectionT>
                 <X>10</X>
                 <Y>25</Y>
-                <Rotation>270</Rotation>
+                <Rotation>180</Rotation>
             </IntersectionT>
             <IntersectionT>
                 <X>80</X>
                 <Y>25</Y>
-                <Rotation>90</Rotation>
+                <Rotation>0</Rotation>
             </IntersectionT>
+        </Internal>
+    </Component>
+    <Component>
+        <Type>TestMultipleComponents2</Type>
+        <Size>
+            <Height>100</Height>
+            <Width>90</Width>
+        </Size>
+        <External>
+            <InputConnectionPoint>
+                <X>0</X>
+                <Y>25</Y>
+            </InputConnectionPoint>
+            <OutputConnectionPoint>
+                <X>90</X>
+                <Y>25</Y>
+            </OutputConnectionPoint>
+        </External>
+        <Internal>
+            <TestMultipleComponents>
+                <X>45</X>
+                <Y>25</Y>
+                <Rotation>0</Rotation>
+            </TestMultipleComponents>
+            <TestMultipleComponents>
+                <X>45</X>
+                <Y>75</Y>
+                <Rotation>0</Rotation>
+            </TestMultipleComponents>
+        </Internal>
+    </Component>
+    <Component>
+        <Type>TestMultipleComponents3</Type>
+        <Size>
+            <Height>200</Height>
+            <Width>180</Width>
+        </Size>
+        <External>
+
+        </External>
+        <Internal>
+            <TestMultipleComponents2>
+                <X>45</X>
+                <Y>50</Y>
+                <Rotation>90</Rotation>
+            </TestMultipleComponents2>
+            <TestMultipleComponents2>
+                <X>135</X>
+                <Y>50</Y>
+                <Rotation>0</Rotation>
+            </TestMultipleComponents2>
+            <TestMultipleComponents2>
+                <X>45</X>
+                <Y>150</Y>
+                <Rotation>0</Rotation>
+            </TestMultipleComponents2>
+            <TestMultipleComponents2>
+                <X>135</X>
+                <Y>150</Y>
+                <Rotation>270</Rotation>
+            </TestMultipleComponents2>
         </Internal>
     </Component>
 </ComponentLibrary>

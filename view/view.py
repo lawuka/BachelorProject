@@ -91,18 +91,11 @@ class View(Tk):
             self.canvas.delete("all")
             self.showLayout()
 
-        #print(self.winfo_height())
-        #print(self.winfo_width())
-        #print(self.canvas.winfo_height())
-        #print(self.canvas.winfo_width())
-        #print(self.scaleH)
-        #print(self.scaleW)
-
     def showLayout(self):
 
+        self.canvasMap = self.c.getChipLayout()
         self.library = self.c.getModel().getLibraryData()
         self.conf = self.c.getModel().getConfigData()
-        self.canvasMap = self.c.getChipLayout()
         self.updateLayout()
 
     def updateLayout(self):
@@ -131,21 +124,26 @@ class View(Tk):
                 componentActualPositionY = componentY - componentHeight/2
                 for iComponent in self.library[component[0]]['Internal']:
                     if iComponent.tag == 'FlowLine':
-                        self.drawFlowLine(iComponent, componentActualPositionX, componentActualPositionY,
-                                          component[3] % 360.0,
-                                          componentWidth,
-                                          componentHeight)
+                        self.drawFlowLine(iComponent, [componentActualPositionX], [componentActualPositionY],
+                                          [component[3] % 360.0],
+                                          [componentWidth],
+                                          [componentHeight])
                     elif iComponent.tag == 'FlowCircle':
-                        self.drawFlowCircle(iComponent, componentActualPositionX, componentActualPositionY,
-                                            component[3] % 360.0)
+                        self.drawFlowCircle(iComponent, [componentActualPositionX], [componentActualPositionY],
+                                            [component[3] % 360.0],
+                                            [componentWidth],
+                                            [componentHeight])
                     else:
-                        self.drawComponent(iComponent, componentActualPositionX, componentActualPositionY,
-                                           component[3] % 360.0, componentWidth, componentHeight)
+                        self.drawComponent(iComponent,
+                                           [componentActualPositionX], [componentActualPositionY],
+                                           [component[3] % 360.0],
+                                           [componentWidth],
+                                           [componentHeight])
 
                     ############################
                     #Red boxes around component#
                     ############################
-                    '''
+                    #'''
                     self.canvas.create_line(componentActualPositionX * self.scaleW,
                                             componentActualPositionY * self.scaleH,
                                             (componentActualPositionX + componentWidth) * self.scaleW,
@@ -170,7 +168,7 @@ class View(Tk):
                                             (componentActualPositionY + componentHeight) * self.scaleH,
                                             width=1,
                                             fill='red')
-                    '''
+                    #'''
             else:
                 print('Skipping drawing - ' + component[0] + ' not in Library')
 
@@ -180,61 +178,45 @@ class View(Tk):
         self.currentStatusMsg.set('Chip layout was updated')
         self.updateView()
 
-    def drawComponent(self, component, componentX, componentY, componentRotation, componentWidth, componentHeight):
+    def drawComponent(self, component, componentXList, componentYList,
+                      componentRotationList, componentWidthList, componentHeightList):
         if component.tag in self.library:
-                componentX = float(self.library[component.tag]['Size'].find('X').text)
-                componentY = float(self.library[component.tag]['Size'].find('Height').text)
-                componentWidth = float(self.library[component[0]]['Size'].find('Width').text)
-                componentHeight = float(self.library[component[0]]['Size'].find('Height').text)
-                componentActualPositionX = componentX - componentWidth/2
-                componentActualPositionY = componentY - componentHeight/2
-                for iComponent in self.library[component[0]]['Internal']:
-                    if iComponent.tag == 'FlowLine':
-                        self.drawFlowLine(iComponent, componentActualPositionX, componentActualPositionY,
-                                          component[3] % 360.0,
-                                          componentWidth,
-                                          componentHeight)
-                    elif iComponent.tag == 'FlowCircle':
-                        self.drawFlowCircle(iComponent, componentActualPositionX, componentActualPositionY,
-                                            component[3] % 360.0)
-                    else:
-                        self.drawComponent(iComponent, componentActualPositionX, componentActualPositionY,
-                                           component[3] % 360.0, componentWidth, componentHeight)
+            componentX = float(component.find('X').text)
+            componentY = float(component.find('Y').text)
+            componentWidth = float(self.library[component.tag]['Size'].find('Width').text)
+            componentHeight = float(self.library[component.tag]['Size'].find('Height').text)
+            componentXList.append(componentX - componentWidth/2)
+            componentYList.append(componentY - componentHeight/2)
+            #self.drawRedBox(componentXList, componentYList, componentWidth, componentHeight)
+            componentRotationList.append(float(component.find('Rotation').text) % 360.0)
+            componentWidthList.append(componentWidth)
+            componentHeightList.append(componentHeight)
+            for iComponent in self.library[component.tag]['Internal']:
+                if iComponent.tag == 'FlowLine':
+                    self.drawFlowLine(iComponent, componentXList, componentYList,
+                                      componentRotationList,
+                                      componentWidthList,
+                                      componentHeightList)
+                elif iComponent.tag == 'FlowCircle':
+                    self.drawFlowCircle(iComponent, componentXList, componentYList,
+                                        componentRotationList,
+                                        componentWidthList,
+                                        componentHeightList)
+                else:
+                    self.drawComponent(iComponent, componentXList, componentYList,
+                                       componentRotationList,
+                                       componentWidthList,
+                                       componentHeightList)
+                    componentXList.pop()
+                    componentYList.pop()
+                    componentRotationList.pop()
+                    componentWidthList.pop()
+                    componentHeightList.pop()
+        else:
+            print('Skipping drawing - ' + component.tag + ' not in Library')
 
-                    ############################
-                    #Red boxes around component#
-                    ############################
-                    '''
-                    self.canvas.create_line(componentActualPositionX * self.scaleW,
-                                            componentActualPositionY * self.scaleH,
-                                            (componentActualPositionX + componentWidth) * self.scaleW,
-                                            (componentActualPositionY) * self.scaleH,
-                                            width=1,
-                                            fill='red')
-                    self.canvas.create_line(componentActualPositionX * self.scaleW,
-                                            componentActualPositionY * self.scaleH,
-                                            componentActualPositionX * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
-                                            width=1,
-                                            fill='red')
-                    self.canvas.create_line((componentActualPositionX + componentWidth) * self.scaleW,
-                                            componentActualPositionY * self.scaleH,
-                                            (componentActualPositionX + componentWidth) * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
-                                            width=1,
-                                            fill='red')
-                    self.canvas.create_line(componentActualPositionX * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
-                                            (componentActualPositionX + componentWidth) * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
-                                            width=1,
-                                            fill='red')
-                    '''
-            else:
-                print('Skipping drawing - ' + component[0] + ' not in Library')
-
-    def drawFlowLine(self, flowLine, componentActualPositionX, componentActualPositionY,
-                     componentRotation, componentWidth, componentHeight):
+    def drawFlowLine(self, flowLine, componentXList, componentYList,
+                     componentRotationList, componentWidthList, componentHeightList):
         flowStartX = float(flowLine.find('Start').find('X').text)# + componentActualPositionX #- \
                                  #float(self.conf['drillOptions']['drillSize'])/2
         flowStartY = float(flowLine.find('Start').find('Y').text)# + componentActualPositionY #- \
@@ -244,34 +226,35 @@ class View(Tk):
         flowEndY = float(flowLine.find('End').find('Y').text)# + componentActualPositionY #- \
                                #float(self.conf['drillOptions']['drillSize'])/2
 
-        if componentRotation != 0.0:
-            tempFlowStartX = rotate_coordinate(flowStartX - componentWidth/2,
-                                                   flowStartY - componentHeight/2,
-                                                   componentRotation,
-                                                   'x')
-            tempFlowStartY = rotate_coordinate(flowStartX - componentWidth/2,
-                                                   flowStartY - componentHeight/2,
-                                                   componentRotation,
-                                                   'y')
-            tempFlowEndX = rotate_coordinate(flowEndX - componentWidth/2,
-                                                 flowEndY - componentHeight/2,
-                                                 componentRotation,
-                                                 'x')
-            tempFlowEndY = rotate_coordinate(flowEndX - componentWidth/2,
-                                                 flowEndY - componentHeight/2,
-                                                 componentRotation,
-                                                 'y')
+        for i in range(len(componentXList)-1,-1,-1):
+            if componentRotationList[i] != 0.0:
+                tempFlowStartX = rotate_coordinate(flowStartX - componentWidthList[i]/2,
+                                                       flowStartY - componentHeightList[i]/2,
+                                                       componentRotationList[i],
+                                                       'x')
+                tempFlowStartY = rotate_coordinate(flowStartX - componentWidthList[i]/2,
+                                                       flowStartY - componentHeightList[i]/2,
+                                                       componentRotationList[i],
+                                                       'y')
+                tempFlowEndX = rotate_coordinate(flowEndX - componentWidthList[i]/2,
+                                                     flowEndY - componentHeightList[i]/2,
+                                                     componentRotationList[i],
+                                                     'x')
+                tempFlowEndY = rotate_coordinate(flowEndX - componentWidthList[i]/2,
+                                                     flowEndY - componentHeightList[i]/2,
+                                                     componentRotationList[i],
+                                                     'y')
 
-            flowStartX = tempFlowStartX + componentActualPositionX + componentWidth/2
-            flowStartY = tempFlowStartY + componentActualPositionY + componentHeight/2
-            flowEndX = tempFlowEndX + componentActualPositionX + componentWidth/2
-            flowEndY = tempFlowEndY + componentActualPositionY + componentHeight/2
+                flowStartX = tempFlowStartX + componentXList[i] + componentWidthList[i]/2
+                flowStartY = tempFlowStartY + componentYList[i] + componentHeightList[i]/2
+                flowEndX = tempFlowEndX + componentXList[i] + componentWidthList[i]/2
+                flowEndY = tempFlowEndY + componentYList[i] + componentHeightList[i]/2
 
-        else:
-            flowStartX += componentActualPositionX
-            flowStartY += componentActualPositionY
-            flowEndX += componentActualPositionX
-            flowEndY += componentActualPositionY
+            else:
+                flowStartX += componentXList[i]
+                flowStartY += componentYList[i]
+                flowEndX += componentXList[i]
+                flowEndY += componentYList[i]
 
         self.canvas.create_line(flowStartX * self.scaleW,
                                 flowStartY * self.scaleH,
@@ -279,14 +262,37 @@ class View(Tk):
                                 flowEndY * self.scaleH,
                                 width=1)
 
-    def drawFlowCircle(self, flowCircle, componentActualPositionX, componentActualPositionY,
-                       componentRotation):
-        circleCenterX = float(flowCircle.find('Center').find('X').text) + componentActualPositionX#- \
+    def drawFlowCircle(self, flowCircle, componentXList, componentYList,
+                       componentRotationList, componentWidthList, componentHeightList):
+        circleCenterX = float(flowCircle.find('Center').find('X').text)# + componentXList[0]#- \
                         #float(self.conf['drillOptions']['drillSize'])/2
-        circleCenterY = float(flowCircle.find('Center').find('Y').text) + componentActualPositionY# - \
+        circleCenterY = float(flowCircle.find('Center').find('Y').text)# + componentYList[0]# - \
                         #float(self.conf['drillOptions']['drillSize'])/2
-        circleRadius = float(flowCircle.find('Radius').text)#- float(self.conf['drillOptions']['drillSize'])/2
+
+        totalRotation = 0
+
+        for i in range(len(componentXList)-1,-1,-1):
+            if componentRotationList[i] != 0.0:
+                tempCircleCenterX = rotate_coordinate(circleCenterX - componentWidthList[i]/2,
+                                                      circleCenterY - componentHeightList[i]/2,
+                                                      componentRotationList[i],
+                                                      'x')
+
+                tempCircleCenterY = rotate_coordinate(circleCenterX - componentWidthList[i]/2,
+                                                      circleCenterY - componentHeightList[i]/2,
+                                                      componentRotationList[i],
+                                                      'y')
+                circleCenterX = tempCircleCenterX + componentXList[i] + componentWidthList[i]/2
+                circleCenterY = tempCircleCenterY + componentYList[i] + componentHeightList[i]/2
+            else:
+                circleCenterX += componentXList[i]
+                circleCenterY += componentYList[i]
+
+            totalRotation += componentRotationList[i]
+
+        circleRadius = float(flowCircle.find('Radius').text)
         angleList = list(flowCircle.find('Valves'))
+
         xy = (circleCenterX - circleRadius) * self.scaleW, (circleCenterY - circleRadius) * self.scaleH, \
               (circleCenterX + circleRadius) * self.scaleW, (circleCenterY + circleRadius) * self.scaleH
         valveLengthAngle = (360 * 2 * float(self.conf['drillOptions']['drillSize']))/(2 * circleRadius * pi)
@@ -295,17 +301,52 @@ class View(Tk):
         for i in range(0,len(angleList)):
             if i == len(angleList)-1:
                 self.canvas.create_arc(xy,
-                                       start=float(angleList[i].text)+valveLengthAngle/2 + componentRotation,
+                                       start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
                                        extent=(remainingAngle-valveLengthAngle) % 360.0,
                                        style=ARC)
             else:
                 self.canvas.create_arc(xy,
-                                       start=float(angleList[i].text)+valveLengthAngle/2 + componentRotation,
+                                       start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
                                        extent=(float(angleList[i+1].text) - float(angleList[i].text) -
                                                valveLengthAngle) % 360.0,
                                        style=ARC)
             if i != len(angleList)-1:
                 remainingAngle -= float(angleList[i+1].text) - float(angleList[i].text)
+
+    def drawRedBox(self, componentXList, componentYList, componentWidth, componentHeight):
+        ############################
+        #Red boxes around component#
+        ############################
+        currentX = 0
+        currentY = 0
+        for i in range(0,len(componentXList)):
+            currentX += componentXList[i]
+            currentY += componentYList[i]
+
+        self.canvas.create_line(currentX * self.scaleW,
+                                currentY * self.scaleH,
+                                (currentX + componentWidth) * self.scaleW,
+                                (currentY) * self.scaleH,
+                                width=1,
+                                fill='red')
+        self.canvas.create_line(currentX * self.scaleW,
+                                currentY * self.scaleH,
+                                currentX * self.scaleW,
+                                (currentY + componentHeight) * self.scaleH,
+                                width=1,
+                                fill='red')
+        self.canvas.create_line((currentX + componentWidth) * self.scaleW,
+                                currentY * self.scaleH,
+                                (currentX + componentWidth) * self.scaleW,
+                                (currentY + componentHeight) * self.scaleH,
+                                width=1,
+                                fill='red')
+        self.canvas.create_line(currentX * self.scaleW,
+                                (currentY + componentHeight) * self.scaleH,
+                                (currentX + componentWidth) * self.scaleW,
+                                (currentY + componentHeight) * self.scaleH,
+                                width=1,
+                                fill='red')
 
     def produceSimGCode(self):
         '''
