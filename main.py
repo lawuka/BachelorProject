@@ -2,73 +2,89 @@
 Created on 24 feb 2015
 
 @author Lasse
-
-Frylunds fagteori , fagteori.dk
-
-3 skærs
-
-Mach3 program
-Mach preprocessor
 '''
+from model.model import Model
+from view.view import View
 
-from gui import GUI
-from gParser import simulatorGCode
-from gParser import microMillingGCode
-from svgParser import svgParser
+class Controller():
 
-# Map of flow layer, used by several instances
-global map
+    def __init__(self):
 
-'''
-Create the GUI for user interference
-'''
-class createGUI():
+        self.model = Model()
+        self.view = View(self)
+        self.wtf = WriteToFile()
 
-    def __init__(self, G):
-        gui = GUI(map, G)
-        gui.showGUI()
+    def run(self):
 
-'''
-Create the G-Code if the user wants it
-'''
-class createGCode():
+        self.view.show()
+        self.view.deiconify()
+        self.view.mainloop()
 
     def createSimGCode(self):
 
-        simGCode = simulatorGCode(map)
-        self.gCode = simGCode.getGCode()
+        self.updateData()
+        self.model.setSimulatorGCode()
+        self.writeGCodeToFile("SimulatorGCode.ngc", self.model.getSimulatorGCode())
 
-        self.writeToFile("SimulaterGCode.ngc")
+    def createMMFlowGCode(self):
 
-    def createMMGCode(self):
+        self.updateData()
+        self.model.setMicroMillingFlowGCode()
+        self.writeGCodeToFile("MMFlowGCode.txt", self.model.getMMFlowGCode())
 
-        mmGCode = microMillingGCode(map)
-        self.gCode = mmGCode.getGCode()
+    def writeGCodeToFile(self, fileName, gCodeList):
 
-        self.writeToFile("MMGCode.txt")
+        self.wtf.writeGCodeListToFile(fileName, gCodeList)
 
-    def writeToFile(self, filename):
+    def updateData(self):
 
-        file = open(filename, "w")
-        for line in self.gCode:
-            file.write(line + "\n")
-        file.close()
+        self.model.setConfigData()
+        self.model.setLibraryData()
+        self.model.setSVGData()
+
+    def getChipLayout(self):
+
+        self.updateData()
+        return self.model.getSVGData()
+
+    def setSVGFile(self, fileName):
+
+        self.model.currentSVGFile = fileName
+
+    def setLibraryFile(self, fileName):
+
+        self.model.currentLibraryFile = fileName
+
+    def setConfigFile(self, fileName):
+
+        self.model.currentConfigFile = fileName
+
+    def getModel(self):
+
+        return self.model
+
+
+class WriteToFile():
+
+    def __init__(self):
+
+        self.file = None
+
+    def writeGCodeListToFile(self, fileName, gCodeList):
+
+        self.file = open(fileName, "w")
+        for line in gCodeList:
+            self.file.write(line + "\n")
+        self.file.close()
 
 '''
 Triggering the main program
 '''
 if __name__ == '__main__':
-    # Get the contents of the SVG file and send to the parser
-    file = open('svg_example.svg')
-    parser = svgParser(file)
-    file.close()
+    controller = Controller()
+    controller.run()
+    #controller.createMMFlowGCode()
 
-    # Create dictionary of the flow layout
-    map = parser.getMap()
-
-    # Show GUI
-    createG = createGCode()
-    createGUI(createG)
 
 
 

@@ -1,0 +1,47 @@
+<!--******************************************************************************
+*
+*  Example of Component for biochip design. Components can be created
+*  as wanted, though with constrains to already existing components.
+*
+*  Basic components are FlowChannel and Connection.
+*  All components must have at least a width and a length.
+*  All components must have at least 2 external connections (in-/output)
+*
+*  Components can be created from other components, though the placement
+*  inside, needs to be predefined. Components used inside, need already
+*  be defined in the library, else the program fails.
+*
+*  Each component inside, is placed according to X,Y coordinate system, where
+*  0,0 is bottom left of the hole width and length. X and Y are based on 1mm.
+*
+******************************************************************************-->
+
+<Component>
+    <Type>
+        Name of component
+    </Type>
+    <Size>
+        <Width>Width</Width>
+        <Length>Length</Length>
+    </Size>
+    <Connections>
+        <Connection></Connection>
+        <Connection></Connection>
+    </Connections>
+    <Components>
+        <FlowChannel>
+            <Start>X,Y</Start>
+            <End>X,Y</End>
+        </FlowChannel>
+        <FlowChannel>
+            <Start>X,Y</Start>
+            <End>X,Y</End>
+        </FlowChannel>
+        <FlowChannel>
+            <Start>X,Y</Start>
+            <End>X,Y</End>
+        </FlowChannel>
+        <Valve>X,Y</Valve>
+        <Valve>X,Y</Valve>
+    </Components>
+</Component>
