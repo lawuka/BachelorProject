@@ -3,7 +3,7 @@ Created on 2 march 2015
 
 @author Lasse
 '''
-from math import ceil, pi, cos, sin, radians
+from math import ceil, cos, pi, sin, radians
 from model.mathFunctions import rotate_coordinate
 
 class simulatorGCode():
@@ -163,8 +163,6 @@ class microMillingFlowGCode():
 
         self.flowChannels()
 
-        self.holes()
-
         self.moveBackToOrigin()
 
         return self.mmGCodeList
@@ -197,7 +195,49 @@ class microMillingFlowGCode():
         if self.svgMap['components']:
             # Start going through each component in 'components'
             for component in self.svgMap['components']:
-                self.upperComponent(component)
+                if component[0] in self.library:
+                    componentX = float(component[1]) * float(self.drillSize)
+                    componentY = float(component[2]) * float(self.drillSize)
+                    componentWidth = float(self.library[component[0]]['Size'].find('Width').text) * float(self.drillSize)
+                    componentHeight = float(self.library[component[0]]['Size'].find('Height').text) * float(self.drillSize)
+                    componentActualPositionX = componentX - componentWidth/2
+                    componentActualPositionY = componentY - componentHeight/2
+                    for iComponent in self.library[component[0]]['Internal']:
+                        if iComponent.tag == 'FlowLine':
+                            self.internalFlowChannel(iComponent,
+                                                     [componentActualPositionX],
+                                                     [componentActualPositionY],
+                                                     [component[3] % 360],
+                                                     [componentWidth],
+                                                     [componentHeight])
+                        elif iComponent.tag == 'FlowCircle':
+                            self.internalFlowCircle(iComponent,
+                                                    [componentActualPositionX],
+                                                    [componentActualPositionY],
+                                                    [component[3] % 360],
+                                                    [componentWidth],
+                                                    [componentHeight])
+                        elif iComponent.tag == "FlowHole":
+                            self.internalFlowHole(iComponent,
+                                                  [componentActualPositionX],
+                                                  [componentActualPositionY],
+                                                  [component[3] % 360],
+                                                  [componentWidth],
+                                                  [componentHeight])
+                        else:
+                            self.internalComponent(iComponent,
+                                                [componentActualPositionX],
+                                                [componentActualPositionY],
+                                                [component[3] % 360],
+                                                [componentWidth],
+                                                [componentHeight])
+
+                            # If internal component is another "not" basic component, repeat
+                            #newComponentX = float(internalComponent.find('X').text) * float(self.drillSize) + componentActualPositionX
+                            #newComponentY = float(internalComponent.find('Y').text) * float(self.drillSize) + componentActualPositionY
+                            #newComponentRotation = float(internalComponent.find('Rotation').text)
+                else:
+                    print("Component \"" + component[0] + "\" not found in library - skipping!")
 
     def flowChannels(self):
 
@@ -229,159 +269,176 @@ class microMillingFlowGCode():
         self.mmGCodeList.append("M30")
         self.mmGCodeList.append("(DONE DRILLING)")
 
-    def upperComponent(self, component):
-
-        if component[0] in self.library:
-            componentX = float(component[1]) * float(self.drillSize)
-            componentY = float(component[2]) * float(self.drillSize)
-            for internalComponent in self.library[component[0]]['Internal']:
-                componentWidth = float(self.library[component[0]]['Size'].find('Width').text) * float(self.drillSize)
-                componentHeight = float(self.library[component[0]]['Size'].find('Height').text) * float(self.drillSize)
-                componentActualPositionX = componentX - componentWidth/2
-                componentActualPositionY = componentY - componentHeight/2
-                if internalComponent.tag not in {'FlowLine', 'FlowCircle'}:
-                    # If internal component, is another not basic component, repeat
-                    newComponentX = float(internalComponent.find('X').text) * float(self.drillSize) + componentActualPositionX
-                    newComponentY = float(internalComponent.find('Y').text) * float(self.drillSize) + componentActualPositionY
-                    newComponentRotation = float(internalComponent.find('Rotation').text)
-                    self.lowerComponent(internalComponent, newComponentX, newComponentY, (component[3] + newComponentRotation) % 360)
-                else:
-                    if internalComponent.tag == 'FlowLine':
-                        self.internalFlowChannel(internalComponent,
-                                                 componentActualPositionX,
-                                                 componentActualPositionY,
-                                                 component[3] % 360,
-                                                 componentWidth,
-                                                 componentHeight)
-                    elif internalComponent.tag == 'FlowCircle':
-                        self.internalFlowCircle(internalComponent,
-                                                componentActualPositionX,
-                                                componentActualPositionY,
-                                                component[3] % 360)
-        else:
-            print("Component \"" + component[0] + "\" not found in library - skipping!")
-
-    def lowerComponent(self, component, componentX, componentY, componentRotation):
+    def internalComponent(self, component, componentXList, componentYList,
+                          componentRotationList, componentWidthList, componentHeightList):
         if component.tag in self.library:
-            for internalComponent in self.library[component.tag]['Internal']:
-                    componentWidth = float(self.library[component.tag]['Size'].find('Width').text) * float(self.drillSize)
-                    componentHeight = float(self.library[component.tag]['Size'].find('Height').text) * float(self.drillSize)
-                    componentActualPositionX = componentX - componentWidth/2
-                    componentActualPositionY = componentY - componentHeight/2
-                    if internalComponent.tag not in {'FlowLine', 'FlowCircle'}:
-                        # If internal component, is another not basic component, repeat
-                        newComponentX = float(internalComponent.find('X').text) * float(self.drillSize) + componentActualPositionX
-                        newComponentY = float(internalComponent.find('Y').text) * float(self.drillSize) + componentActualPositionY
-                        newComponentRotation = float(internalComponent.find('Rotation').text)
-                        self.lowerComponent(internalComponent, newComponentX, newComponentY, (newComponentRotation + componentRotation) % 360.0)
-                    else:
-                       if internalComponent.tag == 'FlowLine':
-                            self.internalFlowChannel(internalComponent,
-                                                     componentActualPositionX,
-                                                     componentActualPositionY,
-                                                     componentRotation,
-                                                     componentWidth,
-                                                     componentHeight)
-                       elif internalComponent.tag == 'FlowCircle':
-                            self.internalFlowCircle(internalComponent,
-                                                    componentActualPositionX,
-                                                    componentActualPositionY,
-                                                    componentRotation)
+            componentX = float(component.find('X').text)
+            componentY = float(component.find('Y').text)
+            componentWidth = float(self.library[component.tag]['Size'].find('Width').text) * float(self.drillSize)
+            componentHeight = float(self.library[component.tag]['Size'].find('Height').text) * float(self.drillSize)
+            componentXList.append(componentX - componentWidth/2)
+            componentYList.append(componentY - componentHeight/2)
+            componentRotationList.append(float(component.find('Rotation').text) % 360.0)
+            componentWidthList.append(componentWidth)
+            componentHeightList.append(componentHeight)
+            for iComponent in self.library[component.tag]['Internal']:
+               if iComponent.tag == 'FlowLine':
+                    self.internalFlowChannel(iComponent,
+                                             componentXList,
+                                             componentYList,
+                                             componentRotationList,
+                                             componentWidthList,
+                                             componentHeightList)
+               elif iComponent.tag == 'FlowCircle':
+                    self.internalFlowCircle(iComponent,
+                                            componentXList,
+                                            componentYList,
+                                            componentRotationList,
+                                            componentWidthList,
+                                            componentHeightList)
+               elif iComponent.tag == 'FlowHole':
+                   self.internalFlowHole(iComponent,
+                                         componentXList,
+                                         componentYList,
+                                         componentRotationList,
+                                         componentWidthList,
+                                         componentHeightList)
+               else:
+                    self.internalComponent(iComponent,
+                                           componentXList,
+                                           componentYList,
+                                           componentRotationList,
+                                           componentWidthList,
+                                           componentHeightList)
+                    componentXList.pop()
+                    componentYList.pop()
+                    componentRotationList.pop()
+                    componentWidthList.pop()
+                    componentHeightList.pop()
         else:
             print("Component \"" + component.tag + "\" not found in library - skipping!")
 
-    def internalFlowChannel(self, flowChannel, componentActualPositionX, componentActualPositionY, componentRotation,
-                            componentWidth, componentHeight):
+    def internalFlowChannel(self, flowChannel, componentXList, componentYList, componentRotationList,
+                            componentWidthList, componentHeightList):
         flowStartX = float(flowChannel.find('Start').find('X').text) * float(self.drillSize)# + componentActualPositionX
         flowStartY = float(flowChannel.find('Start').find('Y').text) * float(self.drillSize)# + componentActualPositionY
         flowEndX = float(flowChannel.find('End').find('X').text) * float(self.drillSize)# + componentActualPositionX
         flowEndY = float(flowChannel.find('End').find('Y').text) * float(self.drillSize)# + componentActualPositionY
 
-        if componentRotation != 0.0:
-            tempFlowStartX = rotate_coordinate(flowStartX - componentWidth/2,
-                                                   flowStartY - componentHeight/2,
-                                                   componentRotation,
-                                                   'x')
-            tempFlowStartY = rotate_coordinate(flowStartX - componentWidth/2,
-                                                   flowStartY - componentHeight/2,
-                                                   componentRotation,
-                                                   'y')
-            tempFlowEndX = rotate_coordinate(flowEndX - componentWidth/2,
-                                                 flowEndY - componentHeight/2,
-                                                 componentRotation,
-                                                 'x')
-            tempFlowEndY = rotate_coordinate(flowEndX - componentWidth/2,
-                                                 flowEndY - componentHeight/2,
-                                                 componentRotation,
-                                                 'y')
+        for i in range(len(componentXList)-1,-1,-1):
+            if componentRotationList[i] != 0.0:
+                tempFlowStartX = rotate_coordinate(flowStartX - componentWidthList[i]/2,
+                                                       flowStartY - componentHeightList[i]/2,
+                                                       componentRotationList[i],
+                                                       'x')
+                tempFlowStartY = rotate_coordinate(flowStartX - componentWidthList[i]/2,
+                                                       flowStartY - componentHeightList[i]/2,
+                                                       componentRotationList[i],
+                                                       'y')
+                tempFlowEndX = rotate_coordinate(flowEndX - componentWidthList[i]/2,
+                                                     flowEndY - componentHeightList[i]/2,
+                                                     componentRotationList[i],
+                                                     'x')
+                tempFlowEndY = rotate_coordinate(flowEndX - componentWidthList[i]/2,
+                                                     flowEndY - componentHeightList[i]/2,
+                                                     componentRotationList[i],
+                                                     'y')
 
-            flowStartX = tempFlowStartX + componentActualPositionX + componentWidth/2
-            flowStartY = tempFlowStartY + componentActualPositionY + componentHeight/2
-            flowEndX = tempFlowEndX + componentActualPositionX + componentWidth/2
-            flowEndY = tempFlowEndY + componentActualPositionY + componentHeight/2
-        else:
-            flowStartX += componentActualPositionX
-            flowStartY += componentActualPositionY
-            flowEndX += componentActualPositionX
-            flowEndY += componentActualPositionY
+                flowStartX = tempFlowStartX + componentXList[i] + componentWidthList[i]/2
+                flowStartY = tempFlowStartY + componentYList[i] + componentHeightList[i]/2
+                flowEndX = tempFlowEndX + componentXList[i] + componentWidthList[i]/2
+                flowEndY = tempFlowEndY + componentYList[i] + componentHeightList[i]/2
+            else:
+                flowStartX += componentXList[i]
+                flowStartY += componentYList[i]
+                flowEndX += componentXList[i]
+                flowEndY += componentYList[i]
 
         self.flowChannelGCode(flowStartX,flowStartY,flowEndX,flowEndY)
 
-    def internalFlowCircle(self, flowCircle, componentActualPositionX, componentActualPositionY, componentRotation):
-        flowCircleCenterX = float(flowCircle.find('Center').find('X').text) * float(self.drillSize) + componentActualPositionX
-        flowCircleCenterY = float(flowCircle.find('Center').find('Y').text) * float(self.drillSize) + componentActualPositionY
+    def internalFlowCircle(self, flowCircle, componentXList, componentYList, componentRotationList,
+                           componentWidthList, componentHeightList):
+        flowCircleCenterX = float(flowCircle.find('Center').find('X').text) * float(self.drillSize)# + componentActualPositionX
+        flowCircleCenterY = float(flowCircle.find('Center').find('Y').text) * float(self.drillSize)# + componentActualPositionY
+
+        totalRotation = 0
+
+        for i in range(len(componentXList)-1,-1,-1):
+            if componentRotationList[i] != 0.0:
+                tempCircleCenterX = rotate_coordinate(flowCircleCenterX - componentWidthList[i]/2,
+                                                      flowCircleCenterY - componentHeightList[i]/2,
+                                                      componentRotationList[i],
+                                                      'x')
+                tempCircleCenterY = rotate_coordinate(flowCircleCenterX - componentWidthList[i]/2,
+                                                      flowCircleCenterY - componentHeightList[i]/2,
+                                                      componentRotationList[i],
+                                                      'y')
+                flowCircleCenterX = tempCircleCenterX + componentXList[i] + componentWidthList[i]/2
+                flowCircleCenterY = tempCircleCenterY + componentYList[i] + componentHeightList[i]/2
+            else:
+                flowCircleCenterX += componentXList[i]
+                flowCircleCenterY += componentYList[i]
+
+            totalRotation += componentRotationList[i]
+
         flowCircleRadius = float(flowCircle.find('Radius').text) * float(self.drillSize)
-        flowCirclePerimeter = float(flowCircle.find('Radius').text) * float(self.drillSize)* 2 * pi
+
         flowCircleStartX = flowCircleCenterX
         flowCircleStartY = flowCircleCenterY
 
-        print("C CentX:" + str(flowCircleCenterX))
-        print("C CentY:" + str(flowCircleCenterY))
-
-        if componentRotation == 90:
-            flowCircleStartY += flowCircleRadius
-        elif componentRotation == 180:
-            flowCircleStartX -= flowCircleRadius
-        elif componentRotation == 270:
-            flowCircleStartY -= flowCircleRadius
-        else:
-            flowCircleStartX += flowCircleRadius
-
-        flowCircleStartX = str(flowCircleStartX)
-        flowCircleStartY = str(flowCircleStartY)
-
-        angleList = sorted(list(flowCircle.find('Valves')),key=lambda elem: float(elem.text))
+        angleList = sorted(list(flowCircle.find('Valves')),key=lambda elem: float(elem.text)%360.0)
         valveLengthAngle = (360 * 2 * float(self.drillSize))/(2 * flowCircleRadius * pi)
 
         if len(angleList) == 0:
-            self.completeCircleGCode(flowCircleStartX, flowCircleStartY, flowCircleRadius)
+            self.completeCircleGCode(str(flowCircleStartX + flowCircleRadius),
+                                     str(flowCircleStartY),
+                                     flowCircleRadius)
         elif len(angleList) == 1:
-            self.oneAngleCircleGCode(flowCircleCenterX, flowCircleCenterY,
+            self.oneAngleCircleGCode(str(flowCircleCenterX + flowCircleRadius),
+                                     str(flowCircleCenterY),
                                      flowCircleRadius,
                                      flowCircleStartX, flowCircleStartY,
-                                     valveLengthAngle, angleList[0])
+                                     valveLengthAngle/2, (float(angleList[0].text)+totalRotation)%360.0)
         else:
+            if totalRotation % 360 == 90:
+                flowCircleStartY += flowCircleRadius
+            elif totalRotation % 360 == 180:
+                flowCircleStartX -= flowCircleRadius
+            elif totalRotation % 360 == 270:
+                flowCircleStartY -= flowCircleRadius
+            else:
+                flowCircleStartX += flowCircleRadius
+
             for i in range(0,len(angleList)):
                 if i == len(angleList)-1:
-                    flowStartX = str(cos(radians((float(angleList[i-1].text)+valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(sin(radians((float(angleList[i-1].text)+valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    flowEndX = str(cos(radians((float(angleList[i].text)-valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(sin(radians((float(angleList[i].text)-valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterY)
+                    flowStartX = str(cos(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
+                    flowStartY = str(sin(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
+                    flowEndX = str(cos(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
+                    flowEndY = str(sin(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
                     self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius)
-                    flowStartX = str(cos(radians((float(angleList[i].text)+valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(sin(radians((float(angleList[i].text)+valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    self.flowCircleGCode(flowStartX, flowStartY, flowCircleStartX, flowCircleStartY,
+                    flowStartX = str(cos(radians(float(angleList[i].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
+                    flowStartY = str(sin(radians(float(angleList[i].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
+                    self.flowCircleGCode(flowStartX, flowStartY, str(flowCircleStartX), str(flowCircleStartY),
                                          -flowCircleRadius if float(angleList[i].text) <= 180 else flowCircleRadius)
                 elif i == 0:
-                    flowEndX = str(cos(radians((float(angleList[i].text)-valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(sin(radians((float(angleList[i].text)-valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    self.flowCircleGCode(flowCircleStartX, flowCircleStartY, flowEndX, flowEndY, flowCircleRadius)
+                    flowEndX = str(cos(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
+                    flowEndY = str(sin(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
+                    self.flowCircleGCode(str(flowCircleStartX),
+                                         str(flowCircleStartY),
+                                         flowEndX,
+                                         flowEndY,
+                                         flowCircleRadius)
                 else:
-                    flowStartX = str(cos(radians((float(angleList[i-1].text)+valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(sin(radians((float(angleList[i-1].text)+valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    flowEndX = str(cos(radians((float(angleList[i].text)-valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(sin(radians((float(angleList[i].text)-valveLengthAngle/2+componentRotation)%360.0)) * flowCircleRadius + flowCircleCenterY)
+                    flowStartX = str(cos(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
+                    flowStartY = str(sin(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
+                    flowEndX = str(cos(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
+                    flowEndY = str(sin(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
                     self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius)
+
+    def internalFlowHole(self, flowHole, componentXList, componentYList, componentRotationList,
+                           componentWidthList, componentHeightList):
+
+        pass
 
     def flowChannelGCode(self, flowStartX, flowStartY, flowEndX, flowEndY):
 
@@ -453,22 +510,23 @@ class microMillingFlowGCode():
                                   valveLengthAngle,
                                   angle):
 
-            fAngle = float(angle.text)
-            if fAngle != 0:
-                flowEndX = str(cos(radians(float(angle.text)-valveLengthAngle/2)) * flowCircleRadius + flowCircleCenterX)
-                flowEndY = str(sin(radians(float(angle.text)-valveLengthAngle/2)) * flowCircleRadius + flowCircleCenterY)
-                self.flowCircleGCode(flowCircleStartX, flowCircleStartY, flowEndX, flowEndY,
-                                     flowCircleRadius if fAngle <= 180 else -flowCircleRadius)
-                flowStartX = str(cos(radians(float(angle.text)+(valveLengthAngle/2))) * flowCircleRadius + flowCircleCenterX)
-                flowStartY = str(sin(radians(float(angle.text)+(valveLengthAngle/2))) * flowCircleRadius + flowCircleCenterY)
-                self.flowCircleGCode(flowStartX, flowStartY, flowCircleStartX, flowCircleStartY,
-                                     -flowCircleRadius if fAngle <= 180 else flowCircleRadius)
-            else:
-                flowStartX = str(cos(radians(valveLengthAngle/2)) * flowCircleRadius + flowCircleCenterX)
-                flowStartY = str(sin(radians(valveLengthAngle/2)) * flowCircleRadius + flowCircleCenterY)
-                flowEndX = str(cos(radians(360-(valveLengthAngle/2))) * flowCircleRadius + flowCircleCenterX)
-                flowEndY = str(sin(radians(360-(valveLengthAngle/2))) * flowCircleRadius + flowCircleCenterY)
-                self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, -flowCircleRadius)
+        print(angle)
+
+        if angle != 0:
+            flowEndX = str(cos(radians(angle-valveLengthAngle)) * flowCircleRadius + flowCircleCenterX)
+            flowEndY = str(sin(radians(angle-valveLengthAngle)) * flowCircleRadius + flowCircleCenterY)
+            self.flowCircleGCode(flowCircleStartX, flowCircleStartY, flowEndX, flowEndY,
+                                 flowCircleRadius if angle <= 180.0 else -flowCircleRadius)
+            flowStartX = str(cos(radians(angle+(valveLengthAngle))) * flowCircleRadius + flowCircleCenterX)
+            flowStartY = str(sin(radians(angle+(valveLengthAngle))) * flowCircleRadius + flowCircleCenterY)
+            self.flowCircleGCode(flowStartX, flowStartY, flowCircleStartX, flowCircleStartY,
+                                 -flowCircleRadius if angle <= 180.0 else flowCircleRadius)
+        else:
+            flowStartX = str(cos(radians(valveLengthAngle)) * flowCircleRadius + flowCircleCenterX)
+            flowStartY = str(sin(radians(valveLengthAngle)) * flowCircleRadius + flowCircleCenterY)
+            flowEndX = str(cos(radians(360-(valveLengthAngle))) * flowCircleRadius + flowCircleCenterX)
+            flowEndY = str(sin(radians(360-(valveLengthAngle))) * flowCircleRadius + flowCircleCenterY)
+            self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, -flowCircleRadius)
 
 class microMillingControlGCode():
 

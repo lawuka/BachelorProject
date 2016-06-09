@@ -1,4 +1,4 @@
-<svg height="500" width="500">
+<svg height="180" width="270">
     <!-- Components -->
 
     <components>
@@ -6,7 +6,8 @@
         <!--<component type="IntersectionT" x="50" y="50" rotation="0"/>-->
         <!--<component type="Pump" x="200" y="100" rotation="0"/>-->
         <!--<component type="Pump" x="25" y="25" rotation="90"/>-->
-        <component type="TestMultipleComponents3" x="250" y="250" rotation="90"/>
+        <!--<component type="TestMultipleComponents3" x="250" y="250" rotation="0"/>-->
+        <component type="AquaCore" x="135" y="90" rotation="180"/>
 
     </components>
 
@@ -22,9 +23,4 @@
         <line x1="22.5" x2="22.5" y1="2.5" y2="12.5" />
         -->
     </lines>
-    <!--
-    <holes>
-        <hole x="25" y="25" />
-    </holes>
-    -->
 </svg>

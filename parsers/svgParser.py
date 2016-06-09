@@ -27,7 +27,6 @@ class svgParser():
 
         self.map['components'] = []
         self.map['lines'] = []
-        self.map['holes'] = []
 
         for elements in self.treeRoot:
             for element in elements:
@@ -39,11 +38,6 @@ class svgParser():
                     tempList.append(element.get('x2'))
                     tempList.append(element.get('y2'))
                     self.map['lines'].append(tempList)
-                # Holes for input output of fluid / air
-                elif element.tag == 'hole':
-                    tempList.append(element.get('x'))
-                    tempList.append(element.get('y'))
-                    self.map['holes'].append(tempList)
                 # Components in canvas
                 else:
                     tempList.append(element.get('type'))

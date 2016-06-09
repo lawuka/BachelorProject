@@ -26,8 +26,8 @@ class View(Tk):
         self.grid()
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        self.scaleH = None
-        self.scaleW = None
+        self.scale = None
+        self.scale = None
         self.minsize(563, 520)
         self.canvas = None
 
@@ -56,7 +56,7 @@ class View(Tk):
 
         rightView = Frame(self)
         buttonWidth = 15
-        Button(rightView, text="Simulator G-Code", command=self.produceSimGCode, width = buttonWidth, state=DISABLED).pack(side = TOP)
+        Button(rightView, text="Simulator G-Code", command=self.produceSimGCode, width = buttonWidth).pack(side = TOP)
         Button(rightView, text="Micro Milling G-Code", command=self.produceMMFlowGCode, width = buttonWidth).pack(side = TOP)
         Button(rightView, text="Show Chip Layout", command=self.showLayout, width = buttonWidth).pack(side = TOP)
         self.gCodeTextField = Text(rightView, width=22, state=DISABLED)
@@ -86,8 +86,9 @@ class View(Tk):
     def updateCanvasScale(self, event):
 
         if self.layoutShown:
-            self.scaleH =  event.height / int(self.canvasMap['height'])
-            self.scaleW = event.width / int(self.canvasMap['width'])
+            self.scale = min(event.height / int(self.canvasMap['height']),event.width / int(self.canvasMap['width']))
+            #self.scale =  event.height / int(self.canvasMap['height'])
+            #self.scale = event.width / int(self.canvasMap['width'])
             self.canvas.delete("all")
             self.showLayout()
 
@@ -103,16 +104,13 @@ class View(Tk):
         if self.layoutShown:
             self.canvas.delete("all")
         else:
-            self.scaleH =  self.canvas.winfo_height() / int(self.canvasMap['height'])
-            self.scaleW = self.canvas.winfo_width() / int(self.canvasMap['width'])
+            self.scale = min(self.canvas.winfo_height() / int(self.canvasMap['height']),self.canvas.winfo_width() / int(self.canvasMap['width']))
+            #self.scale =  self.canvas.winfo_height() / int(self.canvasMap['height'])
+            #self.scale = self.canvas.winfo_width() / int(self.canvasMap['width'])
 
         for line in self.canvasMap['lines']:
-            xyxy = float(line[0])*self.scaleW, float(line[1])*self.scaleH, float(line[2])*self.scaleW, float(line[3])*self.scaleH
+            xyxy = float(line[0])*self.scale, float(line[1])*self.scale, float(line[2])*self.scale, float(line[3])*self.scale
             self.canvas.create_line(xyxy, width=1)
-
-        for hole in self.canvasMap['holes']:
-            self.canvas.create_oval((float(hole[0])-1)*self.scaleW, (float(hole[1])-1)*self.scaleH,
-                                    (float(hole[0]) + 1)*self.scaleW, (float(hole[1]) + 1)*self.scaleH)
 
         for component in self.canvasMap['components']:
             if component[0] in self.library:
@@ -143,29 +141,29 @@ class View(Tk):
                     ############################
                     #Red boxes around component#
                     ############################
-                    #'''
-                    self.canvas.create_line(componentActualPositionX * self.scaleW,
-                                            componentActualPositionY * self.scaleH,
-                                            (componentActualPositionX + componentWidth) * self.scaleW,
-                                            (componentActualPositionY) * self.scaleH,
+                    '''
+                    self.canvas.create_line(componentActualPositionX * self.scale,
+                                            componentActualPositionY * self.scale,
+                                            (componentActualPositionX + componentWidth) * self.scale,
+                                            (componentActualPositionY) * self.scale,
                                             width=1,
                                             fill='red')
-                    self.canvas.create_line(componentActualPositionX * self.scaleW,
-                                            componentActualPositionY * self.scaleH,
-                                            componentActualPositionX * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
+                    self.canvas.create_line(componentActualPositionX * self.scale,
+                                            componentActualPositionY * self.scale,
+                                            componentActualPositionX * self.scale,
+                                            (componentActualPositionY + componentHeight) * self.scale,
                                             width=1,
                                             fill='red')
-                    self.canvas.create_line((componentActualPositionX + componentWidth) * self.scaleW,
-                                            componentActualPositionY * self.scaleH,
-                                            (componentActualPositionX + componentWidth) * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
+                    self.canvas.create_line((componentActualPositionX + componentWidth) * self.scale,
+                                            componentActualPositionY * self.scale,
+                                            (componentActualPositionX + componentWidth) * self.scale,
+                                            (componentActualPositionY + componentHeight) * self.scale,
                                             width=1,
                                             fill='red')
-                    self.canvas.create_line(componentActualPositionX * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
-                                            (componentActualPositionX + componentWidth) * self.scaleW,
-                                            (componentActualPositionY + componentHeight) * self.scaleH,
+                    self.canvas.create_line(componentActualPositionX * self.scale,
+                                            (componentActualPositionY + componentHeight) * self.scale,
+                                            (componentActualPositionX + componentWidth) * self.scale,
+                                            (componentActualPositionY + componentHeight) * self.scale,
                                             width=1,
                                             fill='red')
                     #'''
@@ -202,6 +200,11 @@ class View(Tk):
                                         componentRotationList,
                                         componentWidthList,
                                         componentHeightList)
+                elif iComponent.tag == 'FlowHole':
+                    self.drawFlowHole(iComponent, componentXList, componentYList,
+                                      componentRotationList,
+                                      componentWidthList,
+                                      componentHeightList)
                 else:
                     self.drawComponent(iComponent, componentXList, componentYList,
                                        componentRotationList,
@@ -256,10 +259,10 @@ class View(Tk):
                 flowEndX += componentXList[i]
                 flowEndY += componentYList[i]
 
-        self.canvas.create_line(flowStartX * self.scaleW,
-                                flowStartY * self.scaleH,
-                                flowEndX * self.scaleW,
-                                flowEndY * self.scaleH,
+        self.canvas.create_line(flowStartX * self.scale,
+                                flowStartY * self.scale,
+                                flowEndX * self.scale,
+                                flowEndY * self.scale,
                                 width=1)
 
     def drawFlowCircle(self, flowCircle, componentXList, componentYList,
@@ -293,25 +296,56 @@ class View(Tk):
         circleRadius = float(flowCircle.find('Radius').text)
         angleList = list(flowCircle.find('Valves'))
 
-        xy = (circleCenterX - circleRadius) * self.scaleW, (circleCenterY - circleRadius) * self.scaleH, \
-              (circleCenterX + circleRadius) * self.scaleW, (circleCenterY + circleRadius) * self.scaleH
+        xy = (circleCenterX - circleRadius) * self.scale, (circleCenterY - circleRadius) * self.scale, \
+              (circleCenterX + circleRadius) * self.scale, (circleCenterY + circleRadius) * self.scale
         valveLengthAngle = (360 * 2 * float(self.conf['drillOptions']['drillSize']))/(2 * circleRadius * pi)
 
         remainingAngle = 360
-        for i in range(0,len(angleList)):
-            if i == len(angleList)-1:
-                self.canvas.create_arc(xy,
-                                       start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
-                                       extent=(remainingAngle-valveLengthAngle) % 360.0,
-                                       style=ARC)
+        if len(angleList) == 0:
+            self.canvas.create_oval(xy)
+        else:
+            for i in range(0,len(angleList)):
+                if i == len(angleList)-1:
+                    self.canvas.create_arc(xy,
+                                           start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
+                                           extent=(remainingAngle-valveLengthAngle) % 360.0,
+                                           style=ARC)
+                else:
+                    self.canvas.create_arc(xy,
+                                           start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
+                                           extent=(float(angleList[i+1].text) - float(angleList[i].text) -
+                                                   valveLengthAngle) % 360.0,
+                                           style=ARC)
+                if i != len(angleList)-1:
+                    remainingAngle -= float(angleList[i+1].text) - float(angleList[i].text)
+
+    def drawFlowHole(self, flowHole, componentXList, componentYList,
+                       componentRotationList, componentWidthList, componentHeightList):
+
+        holeCenterX = float(flowHole.find('Center').find('X').text)
+        holeCenterY = float(flowHole.find('Center').find('Y').text)
+
+        for i in range(len(componentXList)-1,-1,-1):
+            if componentRotationList[i] != 0.0:
+                tempHoleCenterX = rotate_coordinate(holeCenterX - componentWidthList[i]/2,
+                                                    holeCenterY - componentHeightList[i]/2,
+                                                    componentRotationList[i],
+                                                    'x')
+                tempHoleCenterY = rotate_coordinate(holeCenterX - componentWidthList[i]/2,
+                                                    holeCenterY - componentHeightList[i]/2,
+                                                    componentRotationList[i],
+                                                    'y')
+
+                holeCenterX = tempHoleCenterX + componentXList[i] + componentWidthList[i]/2
+                holeCenterY = tempHoleCenterY + componentYList[i] + componentHeightList[i]/2
             else:
-                self.canvas.create_arc(xy,
-                                       start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
-                                       extent=(float(angleList[i+1].text) - float(angleList[i].text) -
-                                               valveLengthAngle) % 360.0,
-                                       style=ARC)
-            if i != len(angleList)-1:
-                remainingAngle -= float(angleList[i+1].text) - float(angleList[i].text)
+                holeCenterX += componentXList[i]
+                holeCenterY += componentYList[i]
+
+        self.canvas.create_oval((holeCenterX - 1) * self.scale,
+                                (holeCenterY - 1) * self.scale,
+                                (holeCenterX + 1) * self.scale,
+                                (holeCenterY + 1) * self.scale)
 
     def drawRedBox(self, componentXList, componentYList, componentWidth, componentHeight):
         ############################
@@ -323,28 +357,28 @@ class View(Tk):
             currentX += componentXList[i]
             currentY += componentYList[i]
 
-        self.canvas.create_line(currentX * self.scaleW,
-                                currentY * self.scaleH,
-                                (currentX + componentWidth) * self.scaleW,
-                                (currentY) * self.scaleH,
+        self.canvas.create_line(currentX * self.scale,
+                                currentY * self.scale,
+                                (currentX + componentWidth) * self.scale,
+                                (currentY) * self.scale,
                                 width=1,
                                 fill='red')
-        self.canvas.create_line(currentX * self.scaleW,
-                                currentY * self.scaleH,
-                                currentX * self.scaleW,
-                                (currentY + componentHeight) * self.scaleH,
+        self.canvas.create_line(currentX * self.scale,
+                                currentY * self.scale,
+                                currentX * self.scale,
+                                (currentY + componentHeight) * self.scale,
                                 width=1,
                                 fill='red')
-        self.canvas.create_line((currentX + componentWidth) * self.scaleW,
-                                currentY * self.scaleH,
-                                (currentX + componentWidth) * self.scaleW,
-                                (currentY + componentHeight) * self.scaleH,
+        self.canvas.create_line((currentX + componentWidth) * self.scale,
+                                currentY * self.scale,
+                                (currentX + componentWidth) * self.scale,
+                                (currentY + componentHeight) * self.scale,
                                 width=1,
                                 fill='red')
-        self.canvas.create_line(currentX * self.scaleW,
-                                (currentY + componentHeight) * self.scaleH,
-                                (currentX + componentWidth) * self.scaleW,
-                                (currentY + componentHeight) * self.scaleH,
+        self.canvas.create_line(currentX * self.scale,
+                                (currentY + componentHeight) * self.scale,
+                                (currentX + componentWidth) * self.scale,
+                                (currentY + componentHeight) * self.scale,
                                 width=1,
                                 fill='red')
 
@@ -352,9 +386,12 @@ class View(Tk):
         '''
         Produce Simulator G-Code
         '''
-        self.c.createSimGCode()
-        self.currentStatusMsg.set('Produced Simulator G-Code')
-        self.updateView()
+        #self.c.createSimGCode()
+        #self.currentStatusMsg.set('Produced Simulator G-Code')
+        #self.updateView()
+        self.clipboard_clear()
+        for line in self.c.getModel().getMMFlowGCode():
+            self.clipboard_append(line + "\n")
 
     def produceMMFlowGCode(self):
         '''
@@ -375,7 +412,6 @@ class View(Tk):
             self.currentSVGFile.set(fileName)
             self.c.getModel().setCurrentSVGFile(fileName)
             self.updateView()
-
 
     def openLibraryFile(self):
 
