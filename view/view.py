@@ -8,7 +8,7 @@ Created on 24 feb 2015
 
 from tkinter import *
 from tkinter import filedialog
-from math import pi
+from math import pi, cos, sin, radians
 from model.mathFunctions import rotate_coordinate
 
 
@@ -20,6 +20,10 @@ class View(Tk):
         self.library = None
         self.conf = None
         self.canvasMap = None
+        self.flowLineMap = None
+        self.flowCircleMap = None
+        self.flowHoleMap = None
+        self.controlMap = None
 
         Tk.__init__(self)
         self.title('Biochip Production')
@@ -36,8 +40,8 @@ class View(Tk):
         self.c.getModel().setCurrentSVGFile('chip_examples/svg_example2.svg')  # Should be ''
 
         self.currentLibraryFile = StringVar()
-        self.currentLibraryFile.set('library/component_library.svg')  # Should be ''
-        self.c.getModel().setCurrentLibraryFile('library/component_library.svg')  # Should be ''
+        self.currentLibraryFile.set('library/component_library.xml')  # Should be ''
+        self.c.getModel().setCurrentLibraryFile('library/component_library.xml')  # Should be ''
 
         self.currentConfigFile = StringVar()
         self.currentConfigFile.set('config/conf.ini')  # Should be ''
@@ -52,16 +56,45 @@ class View(Tk):
 
         self.canvas = Canvas(width=400, height=400, highlightthickness=1, highlightbackground='grey')
         self.canvas.grid(column=0, row=0, sticky=N+S+E+W)
-        self.canvas.bind('<Configure>', self.updateCanvasScale)
+        self.canvas.bind('<Configure>', self.updateCanvas)
 
         rightView = Frame(self)
         buttonWidth = 15
-        Button(rightView, text="Simulator G-Code", command=self.produceSimGCode, width = buttonWidth).pack(side = TOP)
-        Button(rightView, text="Micro Milling G-Code", command=self.produceMMFlowGCode, width = buttonWidth).pack(side = TOP)
-        Button(rightView, text="Show Chip Layout", command=self.showLayout, width = buttonWidth).pack(side = TOP)
-        self.gCodeTextField = Text(rightView, width=22, state=DISABLED)
-        self.gCodeTextField.pack(side = TOP, expand=True, fill="y")
-        rightView.grid(column = 1, row = 0, rowspan = 4, sticky = N + E + S)
+
+        self.showFlowCheckVar = IntVar()
+        self.showFlowCheckVar.set(0)
+        self.showControlCheckVar = IntVar()
+        self.showControlCheckVar.set(0)
+        chipViewFrame = LabelFrame(rightView, text='Chip Layout')
+        chipViewFrame.grid(row=0, column=0, sticky=E + W, ipady=3, ipadx=5)
+        self.showLayoutCheck = Checkbutton(chipViewFrame, variable=self.showFlowCheckVar,
+                                           command=self.drawCanvas, text="Show flow layout", state=DISABLED)
+        self.showControlCheck = Checkbutton(chipViewFrame, variable=self.showControlCheckVar,
+                                            command=self.drawCanvas,text="Show control layout", state=DISABLED)
+        self.showLayoutCheck.pack(side = TOP, anchor=W)
+        self.showControlCheck.pack(side = TOP, anchor=W)
+        Button(chipViewFrame, text="Generate Chip Layout", command=self.showLayout, width = buttonWidth).pack(side = TOP)
+
+        gCodeFrame = LabelFrame(rightView, text='GCode')
+        Button(gCodeFrame, text="Simulator Flow", command=self.produceSimGCode,
+               width = buttonWidth, state=DISABLED).pack(side = TOP)
+        Button(gCodeFrame, text="Simulator Control", command=self.produceSimControlGCode,
+               width = buttonWidth, state=DISABLED).pack(side = TOP)
+        Button(gCodeFrame, text="Micro Milling Flow", command=self.produceMMFlowGCode,
+               width = buttonWidth).pack(side = TOP)
+        Button(gCodeFrame, text="Micro Milling Control", command=self.produceMMControlGCode,
+               width=buttonWidth, state=DISABLED).pack(side=TOP)
+        gCodeFrame.grid(row=1, column=0, sticky=E + W, ipady=3, ipadx=5)
+
+        gCodeTextFrame = LabelFrame(rightView, text='GCode View')
+        self.gCodeTextField = Text(gCodeTextFrame, width=25, state=DISABLED, highlightbackground='grey', highlightthickness=1)
+        self.gCodeTextField.pack(side = TOP, expand=True, fill="y", pady=5)
+        self.gCodeTextFieldCopy = Button(gCodeTextFrame, text="Copy To Clipboard", width=buttonWidth, state=DISABLED, command=self.copyGCodeToClipboard)
+        self.gCodeTextFieldCopy.pack(side = TOP)
+        gCodeTextFrame.grid(row=2, column=0, sticky=N + E + W + S, ipady=3, ipadx=5)
+
+        rightView.grid(column = 1, row = 0, rowspan = 4, sticky = N+S, padx=5)
+        rightView.rowconfigure(2,weight=1)
 
         svgInfo = Frame(self)
         Label(svgInfo, text="SVG File:", width=10,  anchor=W).pack(side = LEFT, padx=5)
@@ -83,34 +116,50 @@ class View(Tk):
         Entry(statusBar, textvariable=self.currentStatusMsg, relief=SUNKEN, state=DISABLED).pack(fill="x")
         statusBar.grid(column = 0, columnspan=2, row= 4, sticky = W + E)
 
-    def updateCanvasScale(self, event):
+    def updateCanvas(self, event):
 
         if self.layoutShown:
-            self.scale = min(event.height / int(self.canvasMap['height']),event.width / int(self.canvasMap['width']))
-            #self.scale =  event.height / int(self.canvasMap['height'])
-            #self.scale = event.width / int(self.canvasMap['width'])
-            self.canvas.delete("all")
-            self.showLayout()
+            self.scale = min(event.height / int(self.canvasMap['height']),
+                             event.width / int(self.canvasMap['width']))
+            self.drawCanvas()
 
     def showLayout(self):
 
         self.canvasMap = self.c.getChipLayout()
         self.library = self.c.getModel().getLibraryData()
         self.conf = self.c.getModel().getConfigData()
-        self.updateLayout()
+        self.showLayoutCheck['state'] = NORMAL
+        self.showControlCheck['state'] = NORMAL
+        self.clearMaps()
+        self.updateMaps()
 
-    def updateLayout(self):
+        if self.showFlowCheckVar.get() == 1 or self.showControlCheckVar.get() == 1:
+            self.drawCanvas()
 
-        if self.layoutShown:
-            self.canvas.delete("all")
-        else:
-            self.scale = min(self.canvas.winfo_height() / int(self.canvasMap['height']),self.canvas.winfo_width() / int(self.canvasMap['width']))
-            #self.scale =  self.canvas.winfo_height() / int(self.canvasMap['height'])
-            #self.scale = self.canvas.winfo_width() / int(self.canvasMap['width'])
+    def drawCanvas(self):
+
+        self.canvas.delete("all")
+
+        if self.showFlowCheckVar.get() == 1:
+            self.drawFlowLines()
+            self.drawFlowCircles()
+            self.drawFlowHoles()
+
+        if self.showControlCheckVar.get() == 1:
+            self.drawControlValves()
+
+        self.layoutShown = True
+        self.updateView()
+
+    def updateMaps(self):
+
+        if not self.layoutShown:
+            self.scale = min(self.canvas.winfo_height() / int(self.canvasMap['height']),
+                             self.canvas.winfo_width() / int(self.canvasMap['width']))
 
         for line in self.canvasMap['lines']:
-            xyxy = float(line[0])*self.scale, float(line[1])*self.scale, float(line[2])*self.scale, float(line[3])*self.scale
-            self.canvas.create_line(xyxy, width=1)
+            xyxy = [float(line[0]), float(line[1]), float(line[2]), float(line[3])]
+            self.flowLineMap.append(xyxy)
 
         for component in self.canvasMap['components']:
             if component[0] in self.library:
@@ -120,17 +169,30 @@ class View(Tk):
                 componentHeight = float(self.library[component[0]]['Size'].find('Height').text)
                 componentActualPositionX = componentX - componentWidth/2
                 componentActualPositionY = componentY - componentHeight/2
+
+                controlValves = self.library[component[0]]['Control']
+                if controlValves != None and len(controlValves) != 0:
+                    self.appendControlValves(controlValves, [componentActualPositionX], [componentActualPositionY],
+                                          [component[3] % 360.0],
+                                          [componentWidth],
+                                          [componentHeight])
+
                 for iComponent in self.library[component[0]]['Internal']:
                     if iComponent.tag == 'FlowLine':
-                        self.drawFlowLine(iComponent, [componentActualPositionX], [componentActualPositionY],
+                        self.appendFlowLines(iComponent, [componentActualPositionX], [componentActualPositionY],
                                           [component[3] % 360.0],
                                           [componentWidth],
                                           [componentHeight])
                     elif iComponent.tag == 'FlowCircle':
-                        self.drawFlowCircle(iComponent, [componentActualPositionX], [componentActualPositionY],
+                        self.appendFlowCircles(iComponent, [componentActualPositionX], [componentActualPositionY],
                                             [component[3] % 360.0],
                                             [componentWidth],
                                             [componentHeight])
+                    elif iComponent.tag == 'FlowHole':
+                        self.appendFlowHoles(iComponent, [componentActualPositionX], [componentActualPositionY],
+                                             [component[3] % 360.0],
+                                             [componentWidth],
+                                             [componentHeight])
                     else:
                         self.drawComponent(iComponent,
                                            [componentActualPositionX], [componentActualPositionY],
@@ -170,11 +232,7 @@ class View(Tk):
             else:
                 print('Skipping drawing - ' + component[0] + ' not in Library')
 
-        if not self.layoutShown:
-            self.layoutShown = True
-
         self.currentStatusMsg.set('Chip layout was updated')
-        self.updateView()
 
     def drawComponent(self, component, componentXList, componentYList,
                       componentRotationList, componentWidthList, componentHeightList):
@@ -189,19 +247,25 @@ class View(Tk):
             componentRotationList.append(float(component.find('Rotation').text) % 360.0)
             componentWidthList.append(componentWidth)
             componentHeightList.append(componentHeight)
+
+            controlValves = self.library[component.tag]['Control']
+            if controlValves != None and len(controlValves) != 0:
+                self.appendControlValves(controlValves, componentXList, componentYList,
+                                        componentRotationList, componentWidthList, componentHeightList)
+
             for iComponent in self.library[component.tag]['Internal']:
                 if iComponent.tag == 'FlowLine':
-                    self.drawFlowLine(iComponent, componentXList, componentYList,
+                    self.appendFlowLines(iComponent, componentXList, componentYList,
                                       componentRotationList,
                                       componentWidthList,
                                       componentHeightList)
                 elif iComponent.tag == 'FlowCircle':
-                    self.drawFlowCircle(iComponent, componentXList, componentYList,
+                    self.appendFlowCircles(iComponent, componentXList, componentYList,
                                         componentRotationList,
                                         componentWidthList,
                                         componentHeightList)
                 elif iComponent.tag == 'FlowHole':
-                    self.drawFlowHole(iComponent, componentXList, componentYList,
+                    self.appendFlowHoles(iComponent, componentXList, componentYList,
                                       componentRotationList,
                                       componentWidthList,
                                       componentHeightList)
@@ -218,7 +282,7 @@ class View(Tk):
         else:
             print('Skipping drawing - ' + component.tag + ' not in Library')
 
-    def drawFlowLine(self, flowLine, componentXList, componentYList,
+    def appendFlowLines(self, flowLine, componentXList, componentYList,
                      componentRotationList, componentWidthList, componentHeightList):
         flowStartX = float(flowLine.find('Start').find('X').text)# + componentActualPositionX #- \
                                  #float(self.conf['drillOptions']['drillSize'])/2
@@ -259,13 +323,18 @@ class View(Tk):
                 flowEndX += componentXList[i]
                 flowEndY += componentYList[i]
 
-        self.canvas.create_line(flowStartX * self.scale,
-                                flowStartY * self.scale,
-                                flowEndX * self.scale,
-                                flowEndY * self.scale,
-                                width=1)
 
-    def drawFlowCircle(self, flowCircle, componentXList, componentYList,
+        self.flowLineMap.append([flowStartX,
+                                 flowStartY,
+                                 flowEndX,
+                                 flowEndY])
+
+    def drawFlowLines(self):
+        for flowLine in self.flowLineMap:
+            self.canvas.create_line(self.scaleCoords(flowLine),
+                                    width=1)
+
+    def appendFlowCircles(self, flowCircle, componentXList, componentYList,
                        componentRotationList, componentWidthList, componentHeightList):
         circleCenterX = float(flowCircle.find('Center').find('X').text)# + componentXList[0]#- \
                         #float(self.conf['drillOptions']['drillSize'])/2
@@ -296,30 +365,50 @@ class View(Tk):
         circleRadius = float(flowCircle.find('Radius').text)
         angleList = list(flowCircle.find('Valves'))
 
-        xy = (circleCenterX - circleRadius) * self.scale, (circleCenterY - circleRadius) * self.scale, \
-              (circleCenterX + circleRadius) * self.scale, (circleCenterY + circleRadius) * self.scale
-        valveLengthAngle = (360 * 2 * float(self.conf['drillOptions']['drillSize']))/(2 * circleRadius * pi)
+        for valve in angleList:
+            valveDegree = float(valve.text)
+            valveCenterX = circleCenterX + cos(radians(valveDegree+totalRotation%360.0)) * circleRadius
+            valveCenterY = circleCenterY + sin(radians(valveDegree+totalRotation%360.0)) * circleRadius
+            self.controlMap.append([valveCenterX - 2,
+                                     valveCenterY - 2,
+                                     valveCenterX + 2,
+                                     valveCenterY + 2])
 
-        remainingAngle = 360
-        if len(angleList) == 0:
-            self.canvas.create_oval(xy)
-        else:
-            for i in range(0,len(angleList)):
-                if i == len(angleList)-1:
-                    self.canvas.create_arc(xy,
-                                           start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
-                                           extent=(remainingAngle-valveLengthAngle) % 360.0,
-                                           style=ARC)
-                else:
-                    self.canvas.create_arc(xy,
-                                           start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
-                                           extent=(float(angleList[i+1].text) - float(angleList[i].text) -
-                                                   valveLengthAngle) % 360.0,
-                                           style=ARC)
-                if i != len(angleList)-1:
-                    remainingAngle -= float(angleList[i+1].text) - float(angleList[i].text)
+        xy = [(circleCenterX - circleRadius), (circleCenterY - circleRadius),
+              (circleCenterX + circleRadius), (circleCenterY + circleRadius)]
 
-    def drawFlowHole(self, flowHole, componentXList, componentYList,
+        self.flowCircleMap.append([xy,angleList, totalRotation, circleRadius])
+
+    def drawFlowCircles(self):
+
+        for flowCircle in self.flowCircleMap:
+            xy = self.scaleCoords(flowCircle[0])
+            angleList = flowCircle[1]
+            totalRotation = flowCircle[2]
+            circleRadius = flowCircle[3]
+
+            valveLengthAngle = (360 * 2 * float(self.conf['drillOptions']['drillSize']))/(2 * circleRadius * pi)
+            remainingAngle = 360
+
+            if len(angleList) == 0:
+                self.canvas.create_oval(xy)
+            else:
+                for i in range(0,len(angleList)):
+                    if i == len(angleList)-1:
+                        self.canvas.create_arc(xy,
+                                               start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
+                                               extent=(remainingAngle-valveLengthAngle) % 360.0,
+                                               style=ARC)
+                    else:
+                        self.canvas.create_arc(xy,
+                                               start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
+                                               extent=(float(angleList[i+1].text) - float(angleList[i].text) -
+                                                       valveLengthAngle) % 360.0,
+                                               style=ARC)
+                    if i != len(angleList)-1:
+                        remainingAngle -= float(angleList[i+1].text) - float(angleList[i].text)
+
+    def appendFlowHoles(self, flowHole, componentXList, componentYList,
                        componentRotationList, componentWidthList, componentHeightList):
 
         holeCenterX = float(flowHole.find('Center').find('X').text)
@@ -342,10 +431,17 @@ class View(Tk):
                 holeCenterX += componentXList[i]
                 holeCenterY += componentYList[i]
 
-        self.canvas.create_oval((holeCenterX - 1) * self.scale,
-                                (holeCenterY - 1) * self.scale,
-                                (holeCenterX + 1) * self.scale,
-                                (holeCenterY + 1) * self.scale)
+        xyxy = [(holeCenterX - 1),
+                (holeCenterY - 1),
+                (holeCenterX + 1),
+                (holeCenterY + 1)]
+
+        self.flowHoleMap.append(xyxy)
+
+    def drawFlowHoles(self):
+
+        for flowHole in self.flowHoleMap:
+            self.canvas.create_oval(self.scaleCoords(flowHole))
 
     def drawRedBox(self, componentXList, componentYList, componentWidth, componentHeight):
         ############################
@@ -382,16 +478,59 @@ class View(Tk):
                                 width=1,
                                 fill='red')
 
+    def appendControlValves(self, valveList, componentXList, componentYList,
+                       componentRotationList, componentWidthList, componentHeightList):
+
+        for valve in valveList:
+            valveCenterX = float(valve.find('X').text)
+            valveCenterY = float(valve.find('Y').text)
+
+            for i in range(len(componentXList)-1,-1,-1):
+                if componentRotationList[i] != 0.0:
+                    tempValveCenterX = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
+                                                         valveCenterY - componentHeightList[i]/2,
+                                                         componentRotationList[i],
+                                                         'x')
+                    tempValveCenterY = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
+                                                         valveCenterY - componentHeightList[i]/2,
+                                                         componentRotationList[i],
+                                                         'y')
+                    valveCenterX = tempValveCenterX + componentXList[i] + componentWidthList[i]/2
+                    valveCenterY = tempValveCenterY + componentYList[i] + componentHeightList[i]/2
+                else:
+                    valveCenterX += componentXList[i]
+                    valveCenterY += componentYList[i]
+
+
+            xyxy = [(valveCenterX - 2),
+                    (valveCenterY - 2),
+                    (valveCenterX + 2),
+                    (valveCenterY + 2)]
+
+            self.controlMap.append(xyxy)
+
+    def drawControlValves(self):
+        for controlValve in self.controlMap:
+            self.canvas.create_oval(self.scaleCoords(controlValve), outline='orange')
+
+
     def produceSimGCode(self):
         '''
         Produce Simulator G-Code
         '''
-        #self.c.createSimGCode()
-        #self.currentStatusMsg.set('Produced Simulator G-Code')
-        #self.updateView()
-        self.clipboard_clear()
-        for line in self.c.getModel().getMMFlowGCode():
-            self.clipboard_append(line + "\n")
+        self.c.createSimGCode()
+        self.gCodeTextField['state'] = NORMAL
+        for line in self.c.getModel().getSimulatorGCode():
+            self.gCodeTextField.insert(END, line + "\n")
+        self.currentStatusMsg.set('Produced Simulator G-Code')
+        self.gCodeTextField['state'] = DISABLED
+        if self.gCodeTextFieldCopy['state'] == DISABLED:
+            self.gCodeTextFieldCopy['state'] = NORMAL
+        self.updateView()
+
+    def produceSimControlGCode(self):
+
+        pass
 
     def produceMMFlowGCode(self):
         '''
@@ -403,7 +542,13 @@ class View(Tk):
         for line in self.c.getModel().getMMFlowGCode():
             self.gCodeTextField.insert(END, line + "\n")
         self.gCodeTextField['state'] = DISABLED
+        if self.gCodeTextFieldCopy['state'] == DISABLED:
+            self.gCodeTextFieldCopy['state'] = NORMAL
         self.updateView()
+
+    def produceMMControlGCode(self):
+
+        pass
 
     def openSVGFile(self):
 
@@ -428,6 +573,21 @@ class View(Tk):
             self.currentConfigFile.set(fileName)
             self.c.getModel().setCurrentConfigFile(fileName)
             self.updateView()
+
+    def copyGCodeToClipboard(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.gCodeTextField.get("1.0", END))
+
+    def scaleCoords(self, coordsList):
+
+        return coordsList[0] * self.scale, coordsList[1] * self.scale, \
+               coordsList[2] * self.scale, coordsList[3] * self.scale
+
+    def clearMaps(self):
+        self.flowLineMap = []
+        self.flowCircleMap = []
+        self.flowHoleMap = []
+        self.controlMap = []
 
     def updateView(self):
         self.update()

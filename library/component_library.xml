@@ -62,6 +62,52 @@
         <Y></Y>
     </OutputConnectionPoint>
 
+    ****************************
+    *                          *
+    * Basic Control Components *
+    *                          *
+    ****************************
+
+    <Valve>
+        <X></X>
+        <Y></Y>
+    </Valve>
+
+    ****************************
+    *                          *
+    *  Basic Component Layout  *
+    *                          *
+    ****************************
+
+    <Component>
+        <Type></Type>
+        <Size>
+            <X></X>
+            <Y></Y>
+        </Size>
+        <External>
+            <ConnectionPoint/>         \
+            <InputConnectionPoint/>     > All are not needed
+            <OutputConnectionPoint/>   /
+        </External>
+        <Internal>
+            <FlowLine/>     \
+            <FlowCircle/>    \
+            <FlowHole/>       \
+            <Component1/>      \
+            <Component2/>       > All are not needed
+            .                  /
+            .                 /
+            .                /
+            <ComponentN/>   /
+        </Internal>
+        <Control>
+            <Valve/>   > A valve is not mandatory
+                       > Do not add valves for valves on FlowCircle - are added automatically
+                       > Only add valve for FlowLines, inherited components inherit valves
+        </Control>
+    </Component>
+
     -->
 
     <Component>
@@ -198,6 +244,20 @@
                 </End>
             </FlowLine>
         </Internal>
+        <Control>
+            <Valve>
+                <X>4.5</X>
+                <Y>10</Y>
+            </Valve>
+            <Valve>
+                <X>10</X>
+                <Y>15.5</Y>
+            </Valve>
+            <Valve>
+                <X>15.5</X>
+                <Y>10</Y>
+            </Valve>
+        </Control>
     </Component>
     <Component>
         <Type>IntersectionX</Type>
@@ -285,6 +345,24 @@
                 </End>
             </FlowLine>
         </Internal>
+        <Control>
+            <Valve>
+                <X>4.5</X>
+                <Y>10</Y>
+            </Valve>
+            <Valve>
+                <X>10</X>
+                <Y>15.5</Y>
+            </Valve>
+            <Valve>
+                <X>15.5</X>
+                <Y>10</Y>
+            </Valve>
+            <Valve>
+                <X>10</X>
+                <Y>4.5</Y>
+            </Valve>
+        </Control>
     </Component>
     <Component>
         <Type>Mixer</Type>
@@ -360,11 +438,21 @@
                 </End>
             </FlowLine>
         </Internal>
+        <Control>
+            <Valve>
+                <X>4</X>
+                <Y>25</Y>
+            </Valve>
+            <Valve>
+                <X>46</X>
+                <Y>25</Y>
+            </Valve>
+        </Control>
     </Component>
     <Component>
         <Type>Pump</Type>
         <Size>
-            <Width>28.5</Width>
+            <Width>29</Width>
             <Height>6</Height>
         </Size>
         <External>
@@ -373,7 +461,7 @@
                 <Y>3</Y>
             </InputConnectionPoint>
             <OutputConnectionPoint>
-                <X>28.5</X>
+                <X>29</X>
                 <Y>3</Y>
             </OutputConnectionPoint>
         </External>
@@ -414,11 +502,25 @@
                     <Y>3</Y>
                 </Start>
                 <End>
-                    <X>28.5</X>
+                    <X>29</X>
                     <Y>3</Y>
                 </End>
             </FlowLine>
         </Internal>
+        <Control>
+            <Valve>
+                <X>4.75</X>
+                <Y>3</Y>
+            </Valve>
+            <Valve>
+                <X>14.25</X>
+                <Y>3</Y>
+            </Valve>
+            <Valve>
+                <X>23.75</X>
+                <Y>3</Y>
+            </Valve>
+        </Control>
     </Component>
     <Component>
         <Type>Incubator</Type>
@@ -428,28 +530,28 @@
         </Size>
         <External>
             <InputConnectionPoint>
-                <X>5.5</X>
+                <X>5</X>
                 <Y>108</Y>
             </InputConnectionPoint>
             <OutputConnectionPoint>
-                <X>60.5</X>
+                <X>61</X>
                 <Y>108</Y>
             </OutputConnectionPoint>
         </External>
         <Internal>
             <FlowLine>
                 <Start>
-                    <X>5.5</X>
+                    <X>5</X>
                     <Y>108</Y>
                 </Start>
                 <End>
-                    <X>5.5</X>
+                    <X>5</X>
                     <Y>1</Y>
                 </End>
             </FlowLine>
             <FlowLine>
                 <Start>
-                    <X>5.5</X>
+                    <X>5</X>
                     <Y>1</Y>
                 </Start>
                 <End>
@@ -533,22 +635,22 @@
                     <Y>1</Y>
                 </Start>
                 <End>
-                    <X>60.5</X>
+                    <X>61</X>
                     <Y>1</Y>
                 </End>
             </FlowLine>
             <FlowLine>
                 <Start>
-                    <X>60.5</X>
+                    <X>61</X>
                     <Y>1</Y>
                 </Start>
                 <End>
-                    <X>60.5</X>
+                    <X>61</X>
                     <Y>108</Y>
                 </End>
             </FlowLine>
         </Internal>
-    </Component>
+    </Component>>
     <Component>
         <Type>AquaCore</Type>
         <Size>
@@ -906,5 +1008,62 @@
                 </End>
             </FlowLine>
         </Internal>
+    </Component>
+    <Component>
+        <Type>Heater</Type>
+        <Size>
+            <Width>40</Width>
+            <Height>15</Height>
+        </Size>
+        <External>
+            <InputConnectionPoint>
+                <X>1</X>
+                <Y>7</Y>
+            </InputConnectionPoint>
+            <OutputConnectionPoint>
+                <X>40</X>
+                <Y>7</Y>
+            </OutputConnectionPoint>
+        </External>
+        <Internal></Internal>
+        <Control></Control>
+    </Component>
+    <Component>
+        <Type>Filter</Type>
+        <Size>
+            <Width>120</Width>
+            <Height>30</Height>
+        </Size>
+        <External>
+            <InputConnectionPoint>
+                <X>1</X>
+                <Y>15</Y>
+            </InputConnectionPoint>
+            <OutputConnectionPoint>
+                <X>120</X>
+                <Y>15</Y>
+            </OutputConnectionPoint>
+        </External>
+        <Internal></Internal>
+        <Control></Control>
+    </Component>
+    <Component>
+        <Type>Storage</Type>
+        <Size>
+            <Width>90</Width>
+            <Height>30</Height>
+        </Size>
+        <External>
+            <InputConnectionPoint>
+                <X>1</X>
+                <Y>15</Y>
+            </InputConnectionPoint>
+            <OutputConnectionPoint>
+                <X>90</X>
+                <Y>15</Y>
+            </OutputConnectionPoint>
+        </External>
+        <Internal></Internal>
+        <Control></Control>
     </Component>
 </ComponentLibrary>

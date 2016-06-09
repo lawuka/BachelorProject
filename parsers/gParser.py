@@ -138,6 +138,7 @@ class microMillingFlowGCode():
         self.library = None
         self.conf = None
         self.mmGCodeList = None
+        self.flowHoleList = None
 
     def createMMGCodeList(self, svgMap, library, conf):
 
@@ -145,6 +146,7 @@ class microMillingFlowGCode():
         self.library = library
         self.conf = conf
         self.mmGCodeList = []
+        self.flowHoleList = []
 
         # Current config
         self.drillFlowDepth = self.conf['drillOptions']['flow']['depth']
@@ -163,6 +165,8 @@ class microMillingFlowGCode():
 
         self.flowChannels()
 
+        self.flowHoles()
+
         self.moveBackToOrigin()
 
         return self.mmGCodeList
@@ -174,7 +178,7 @@ class microMillingFlowGCode():
         '''
         self.mmGCodeList.append("(PROGRAM START)")
         '''
-        1 mm drill used for flow channels
+        Drill used for flow channels
         '''
         self.mmGCodeList.append("(" + self.drillSize +"MM FLOW DRILL)")
         '''
@@ -249,19 +253,19 @@ class microMillingFlowGCode():
                                       float(line[2]) * float(self.drillSize),
                                       float(line[3]) * float(self.drillSize))
 
-    def holes(self):
+    def flowHoles(self):
 
-        if self.svgMap['holes']:
+        '''
+        Pausing the drilling, since drill for drilling all the way through is different than flow channels
+        '''
+        self.mmGCodeList.append("(PAUSE FOR DRILL CHANGE)")
+        self.mmGCodeList.append("M00")
+        self.mmGCodeList.append("(" + self.drillSize + "MM HOLE DRILL)")
 
-            self.mmGCodeList.append("(PAUSE FOR DRILL CHANGE)")
-            self.mmGCodeList.append("M00")
-            self.mmGCodeList.append("(" + self.drillSize + "MM HOLE DRILL)")
+        for flowHole in self.flowHoleList:
+            self.flowHoleGCode(flowHole[0],flowHole[1])
 
-            for hole in self.svgMap['holes']:
-                self.mmGCodeList.append("G1 X" + str(float(hole[0]) * float(self.drillSize))
-                                        +" Y" + str(float(hole[1]) * float(self.drillSize)))
-                self.mmGCodeList.append("Z" + self.drillHoleDepth)
-                self.mmGCodeList.append("Z" + self.drillSize)
+
 
     def moveBackToOrigin(self):
 
@@ -438,7 +442,28 @@ class microMillingFlowGCode():
     def internalFlowHole(self, flowHole, componentXList, componentYList, componentRotationList,
                            componentWidthList, componentHeightList):
 
-        pass
+        flowHoleCenterX = float(flowHole.find('Center').find('X').text)
+        flowHoleCenterY = float(flowHole.find('Center').find('Y').text)
+
+        for i in range(len(componentXList)-1,-1,-1):
+            if componentRotationList[i] != 0.0:
+                tempHoleCenterX = rotate_coordinate(flowHoleCenterX - componentWidthList[i]/2,
+                                                    flowHoleCenterY - componentHeightList[i]/2,
+                                                    componentRotationList[i],
+                                                    'x')
+                tempHoleCenterY = rotate_coordinate(flowHoleCenterX - componentWidthList[i]/2,
+                                                    flowHoleCenterY - componentHeightList[i]/2,
+                                                    componentRotationList[i],
+                                                    'y')
+
+                flowHoleCenterX = tempHoleCenterX + componentXList[i] + componentWidthList[i]/2
+                flowHoleCenterY = tempHoleCenterY + componentYList[i] + componentHeightList[i]/2
+            else:
+                flowHoleCenterX += componentXList[i]
+                flowHoleCenterY += componentYList[i]
+
+        self.flowHoleList.append([flowHoleCenterX, flowHoleCenterY])
+
 
     def flowChannelGCode(self, flowStartX, flowStartY, flowEndX, flowEndY):
 
@@ -528,10 +553,9 @@ class microMillingFlowGCode():
             flowEndY = str(sin(radians(360-(valveLengthAngle))) * flowCircleRadius + flowCircleCenterY)
             self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, -flowCircleRadius)
 
-class microMillingControlGCode():
+    def flowHoleGCode(self, flowHoleCenterX, flowHoleCenterY):
 
-    def __init__(self):
-        self.svgMap = None
-        self.library = None
-        self.conf = None
-        self.mmGCodeList = None
+        self.mmGCodeList.append("G1 X" + str(flowHoleCenterX * float(self.drillSize))
+                                +" Y" + str(flowHoleCenterY * float(self.drillSize)))
+        self.mmGCodeList.append("Z" + self.drillHoleDepth)
+        self.mmGCodeList.append("Z" + self.drillSize)

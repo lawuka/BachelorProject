@@ -36,6 +36,9 @@ class libraryParser():
                 internal = component.find('Internal')
                 self.componentLibrary[type]['Internal'] = internal
 
+                control = component.find('Control')
+                self.componentLibrary[type]['Control'] = control
+
             self.file.close()
         except LibraryParseError:
             pass
