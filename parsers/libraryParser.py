@@ -6,44 +6,48 @@ Created 14 may 2016
 
 '''
 
-import xml.etree.ElementTree as etree
+import xml.etree.ElementTree as Etree
 
-class libraryParser():
+
+class LibraryParser:
 
     def __init__(self):
 
         self.file = None
+        self.root = None
+        self.componentLibrary = None
 
-    def parseComponentLibrary(self, fileName):
+    def parse_component_library(self, file_name):
 
-        self.file = open(fileName)
-        self.root = etree.parse(self.file).getroot()
+        self.file = open(file_name)
+        self.root = Etree.parse(self.file).getroot()
 
         components = self.root.findall('Component')
         self.componentLibrary = {}
 
         try:
             for component in components:
-                type = component.find('Type').text
-                self.componentLibrary[type] = {}
+                component_type = component.find('Type').text
+                self.componentLibrary[component_type] = {}
 
                 size = component.find('Size')
-                self.componentLibrary[type]['Size'] = size
+                self.componentLibrary[component_type]['Size'] = size
 
                 external = component.find('External')
-                self.componentLibrary[type]['External'] = external
+                self.componentLibrary[component_type]['External'] = external
 
                 internal = component.find('Internal')
-                self.componentLibrary[type]['Internal'] = internal
+                self.componentLibrary[component_type]['Internal'] = internal
 
                 control = component.find('Control')
-                self.componentLibrary[type]['Control'] = control
+                self.componentLibrary[component_type]['Control'] = control
 
             self.file.close()
         except LibraryParseError:
             pass
 
         return self.componentLibrary
+
 
 class LibraryParseError(Exception):
     pass

@@ -1,11 +1,14 @@
 <svg height="140" width="100">
 
     <components>
-        <component type="IntersectionThreeE" x="10" y="85"/>
-        <component type="IntersectionThreeW" x="80" y="85"/>
+        <component type="IntersectionT" x="10" y="85" rotation="270"/>
+        <component type="IntersectionT" x="80" y="85" rotation="90"/>
 
-        <component type="Mixer" x="45" y="35"/>
-        <component type="Mixer" x="45" y="85"/>
+        <component type="Mixer" x="45" y="35" rotation="0"/>
+        <component type="Mixer" x="45" y="85" rotation="0"/>
+
+        <component type="Input" x="10" y="131.5" rotation="180"/>
+        <component type="Input" x="80" y="131.5" rotation="180"/>
     </components>
 
     <lines>
@@ -16,9 +19,4 @@
         <line x1="80" x2="80" y1="35" y2="75"/>
         <line x1="80" x2="70" y1="35" y2="35"/>
     </lines>
-
-    <holes>
-        <hole x="10" y="130"/>
-        <hole x="80" y="130"/>
-    </holes>
 </svg>

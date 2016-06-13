@@ -1,13 +1,14 @@
-<svg height="190" width="270">
+<svg height="180" width="270">
     <!-- Components -->
 
     <components>
-        <component type="Mixer" x="135" y="200" rotation="90"/>
+        <component type="Mixer" x="50" y="50" rotation="180"/>
         <!--<component type="IntersectionT" x="50" y="50" rotation="0"/>-->
         <!--<component type="Pump" x="200" y="100" rotation="0"/>-->
         <!--<component type="Pump" x="25" y="25" rotation="90"/>-->
-        <!--<component type="TestMultipleComponents3" x="250" y="250" rotation="0"/>-->
-        <component type="AquaCore" x="135" y="90" rotation="0"/>
+        <!--<component type="TestMultipleMixers2" x="250" y="250" rotation="0"/>-->
+        <component type="AquaFlux" y="90" x="135" rotation="0"/>
+        <!--<component type="Pump" x="25" y="25" rotation="90"/>-->
 
     </components>
 

@@ -3,79 +3,207 @@ Created on 24 feb 2015
 
 @author Lasse
 '''
-from model.model import Model
+import time, datetime
+import model.model as Model
 from view.view import View
+from parsers.svgParser import SVGFileErrorException
+from model.model import ConfigFileErrorException
 
-class Controller():
+
+class Controller:
 
     def __init__(self):
 
-        self.model = Model()
+        self.model = Model.Model()
         self.view = View(self)
         self.wtf = WriteToFile()
+        self.logFileList = None
+        self.errorOccurred = False
 
     def run(self):
 
+        self.logFileList = []
+        self.wtf.clear_log_file()
         self.view.show()
         self.view.deiconify()
         self.view.mainloop()
 
-    def createSimGCode(self):
+    def create_sim_g_code(self):
 
-        self.updateData()
-        self.model.setSimulatorGCode()
-        self.writeGCodeToFile("SimulatorGCode.ngc", self.model.getSimulatorGCode())
+        try:
+            self.update_data()
+            self.model.set_simulator_g_code()
+            self.write_g_code_to_file("SimulatorGCode.ngc", self.model.get_simulator_g_code())
+            self.error_update(0)
+            return True
+        except Model.NoFileException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
+        except Model.NoDataSavedException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
+        except Model.ConfigFileErrorException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
 
-    def createMMFlowGCode(self):
+    def create_mm_flow_g_code(self):
 
-        self.updateData()
-        self.model.setMicroMillingFlowGCode()
-        self.writeGCodeToFile("MMFlowGCode.txt", self.model.getMMFlowGCode())
+        try:
+            self.update_data()
+            self.model.set_micro_milling_flow_g_code()
+            self.write_g_code_to_file("MMFlowGCode.txt", self.model.get_mm_flow_g_code())
+            self.error_update(0)
+            return True
+        except Model.NoFileException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
+        except Model.NoDataSavedException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
+        except Model.ConfigFileErrorException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
 
-    def writeGCodeToFile(self, fileName, gCodeList):
+    def create_mm_control_g_code(self):
 
-        self.wtf.writeGCodeListToFile(fileName, gCodeList)
+        try:
+            self.update_data()
+            self.model.set_micro_milling_control_g_code()
+            self.write_g_code_to_file("MMControlGCode.txt", self.model.get_mm_control_g_code())
+            self.error_update(0)
+            return True
+        except Model.NoFileException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
+        except Model.NoDataSavedException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
+        except Model.ConfigFileErrorException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return False
 
-    def updateData(self):
+    def write_g_code_to_file(self, file_name, g_code_list):
 
-        self.model.setConfigData()
-        self.model.setLibraryData()
-        self.model.setSVGData()
+        self.wtf.write_g_code_list_to_file(file_name, g_code_list)
 
-    def getChipLayout(self):
+    def update_data(self):
 
-        self.updateData()
-        return self.model.getSVGData()
+        self.model.set_config_data()
+        self.model.set_library_data()
+        self.model.set_svg_data()
 
-    def setSVGFile(self, fileName):
+    def get_chip_layout(self):
 
-        self.model.currentSVGFile = fileName
+        try:
+            self.update_data()
+            self.error_update(0)
+            if self.model.svgParser.componentErrors != []:
+                for error in self.model.svgParser.componentErrors:
+                    self.add_to_log(error)
+            if self.model.svgParser.lineErrors != []:
+                for error in self.model.svgParser.lineErrors:
+                    self.add_to_log(error)
+            self.view.updateStatusMessage()
+            return self.model.get_svg_data()
+        except Model.NoFileException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return None
+        except Model.NoDataSavedException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return None
+        except Model.ConfigFileErrorException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return None
+        except SVGFileErrorException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+            return None
 
-    def setLibraryFile(self, fileName):
+    def set_svg_file(self, file_name):
 
-        self.model.currentLibraryFile = fileName
+        self.model.currentSVGFile = file_name
 
-    def setConfigFile(self, fileName):
+    def set_library_file(self, file_name):
 
-        self.model.currentConfigFile = fileName
+        self.model.currentLibraryFile = file_name
 
-    def getModel(self):
+    def set_config_file(self, file_name):
+
+        self.model.currentConfigFile = file_name
+
+    def get_library_data(self):
+        try:
+            self.error_update(0)
+            return self.model.get_library_data()
+        except Model.NoFileException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+
+    def get_config_data(self):
+        try:
+            self.error_update(0)
+            return self.model.get_config_data()
+        except Model.NoFileException as msg:
+            self.add_to_log(msg)
+            self.view.updateStatusMessage()
+
+    def add_to_log(self, message):
+        self.error_update(1)
+        ts = time.time()
+        st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        self.logFileList.append(st + ": " + str(message))
+        self.wtf.write_log_to_file(self.logFileList)
+        self.logFileList = []
+
+    def error_update(self, error_status):
+        if error_status == 1:
+            self.errorOccurred = True
+        else:
+            self.errorOccurred = False
+        pass
+
+    def get_model(self):
 
         return self.model
 
 
-class WriteToFile():
+class WriteToFile:
 
     def __init__(self):
 
         self.file = None
 
-    def writeGCodeListToFile(self, fileName, gCodeList):
+    def write_g_code_list_to_file(self, file_name, g_code_list):
 
-        self.file = open(fileName, "w")
-        for line in gCodeList:
+        self.file = open(file_name, "w")
+        for line in g_code_list:
             self.file.write(line + "\n")
         self.file.close()
+
+    def write_log_to_file(self, message_list):
+
+        self.file = open('Logfile.txt', "a")
+        for line in message_list:
+            self.file.write(line + "\n")
+        self.file.close()
+
+    def clear_log_file(self):
+        self.file = open('Logfile.txt', "w")
+        self.file.close()
+
+
 
 '''
 Triggering the main program
@@ -83,9 +211,3 @@ Triggering the main program
 if __name__ == '__main__':
     controller = Controller()
     controller.run()
-    #controller.createMMFlowGCode()
-
-
-
-
-

@@ -37,18 +37,18 @@ class View(Tk):
 
         self.currentSVGFile = StringVar()
         self.currentSVGFile.set('chip_examples/svg_example2.svg')  # Should be ''
-        self.c.getModel().setCurrentSVGFile('chip_examples/svg_example2.svg')  # Should be ''
+        self.c.get_model().set_current_svg_file('chip_examples/svg_example2.svg')  # Should be ''
 
         self.currentLibraryFile = StringVar()
         self.currentLibraryFile.set('library/component_library.xml')  # Should be ''
-        self.c.getModel().setCurrentLibraryFile('library/component_library.xml')  # Should be ''
+        self.c.get_model().set_current_library_file('library/component_library.xml')  # Should be ''
 
         self.currentConfigFile = StringVar()
         self.currentConfigFile.set('config/conf.ini')  # Should be ''
-        self.c.getModel().setCurrentConfigFile('config/conf.ini')  # Should be ''
+        self.c.get_model().set_current_config_file('config/conf.ini')  # Should be ''
 
         self.currentStatusMsg = StringVar()
-        self.currentStatusMsg.set('None')
+        self.currentStatusMsg.set('')
 
         self.layoutShown = False
 
@@ -83,7 +83,7 @@ class View(Tk):
         Button(gCodeFrame, text="Micro Milling Flow", command=self.produceMMFlowGCode,
                width = buttonWidth).pack(side = TOP)
         Button(gCodeFrame, text="Micro Milling Control", command=self.produceMMControlGCode,
-               width=buttonWidth, state=DISABLED).pack(side=TOP)
+               width=buttonWidth).pack(side=TOP)
         gCodeFrame.grid(row=1, column=0, sticky=E + W, ipady=3, ipadx=5)
 
         gCodeTextFrame = LabelFrame(rightView, text='GCode View')
@@ -113,7 +113,8 @@ class View(Tk):
         configInfo.grid(column = 0, row = 3, sticky = W + E)
 
         statusBar = Frame(self)
-        Entry(statusBar, textvariable=self.currentStatusMsg, relief=SUNKEN, state=DISABLED).pack(fill="x")
+        self.statusEntry = Entry(statusBar, textvariable=self.currentStatusMsg, relief=SUNKEN, state=DISABLED)
+        self.statusEntry.pack(fill="x")
         statusBar.grid(column = 0, columnspan=2, row= 4, sticky = W + E)
 
     def updateCanvas(self, event):
@@ -125,16 +126,18 @@ class View(Tk):
 
     def showLayout(self):
 
-        self.canvasMap = self.c.getChipLayout()
-        self.library = self.c.getModel().getLibraryData()
-        self.conf = self.c.getModel().getConfigData()
-        self.showLayoutCheck['state'] = NORMAL
-        self.showControlCheck['state'] = NORMAL
-        self.clearMaps()
-        self.updateMaps()
+        self.canvasMap = self.c.get_chip_layout()
+        self.library = self.c.get_library_data()
+        self.conf = self.c.get_config_data()
 
-        if self.showFlowCheckVar.get() == 1 or self.showControlCheckVar.get() == 1:
-            self.drawCanvas()
+        if self.canvasMap is not None and self.library is not None and self.conf is not None:
+            self.showLayoutCheck['state'] = NORMAL
+            self.showControlCheck['state'] = NORMAL
+            self.clearMaps()
+            self.updateMaps()
+
+            if self.showFlowCheckVar.get() == 1 or self.showControlCheckVar.get() == 1:
+                self.drawCanvas()
 
     def drawCanvas(self):
 
@@ -230,12 +233,12 @@ class View(Tk):
                                             fill='red')
                     #'''
             else:
-                print('Skipping drawing - ' + component[0] + ' not in Library')
-
-        self.currentStatusMsg.set('Chip layout was updated')
+                self.c.add_to_log('Skipping drawing of ' +  component[0] + ' - component not in Library')
+                self.updateStatusMessage()
 
     def drawComponent(self, component, componentXList, componentYList,
                       componentRotationList, componentWidthList, componentHeightList):
+
         if component.tag in self.library:
             componentX = float(component.find('X').text)
             componentY = float(component.find('Y').text)
@@ -280,7 +283,8 @@ class View(Tk):
                     componentWidthList.pop()
                     componentHeightList.pop()
         else:
-            print('Skipping drawing - ' + component.tag + ' not in Library')
+            self.c.add_to_log('Skipping drawing of ' +  component[0] + ' - component not in Library')
+            self.updateStatusMessage()
 
     def appendFlowLines(self, flowLine, componentXList, componentYList,
                      componentRotationList, componentWidthList, componentHeightList):
@@ -336,10 +340,8 @@ class View(Tk):
 
     def appendFlowCircles(self, flowCircle, componentXList, componentYList,
                        componentRotationList, componentWidthList, componentHeightList):
-        circleCenterX = float(flowCircle.find('Center').find('X').text)# + componentXList[0]#- \
-                        #float(self.conf['drillOptions']['drillSize'])/2
-        circleCenterY = float(flowCircle.find('Center').find('Y').text)# + componentYList[0]# - \
-                        #float(self.conf['drillOptions']['drillSize'])/2
+        circleCenterX = float(flowCircle.find('Center').find('X').text)
+        circleCenterY = float(flowCircle.find('Center').find('Y').text)
 
         totalRotation = 0
 
@@ -518,15 +520,15 @@ class View(Tk):
         '''
         Produce Simulator G-Code
         '''
-        self.c.createSimGCode()
-        self.gCodeTextField['state'] = NORMAL
-        for line in self.c.getModel().getSimulatorGCode():
-            self.gCodeTextField.insert(END, line + "\n")
-        self.currentStatusMsg.set('Produced Simulator G-Code')
-        self.gCodeTextField['state'] = DISABLED
-        if self.gCodeTextFieldCopy['state'] == DISABLED:
-            self.gCodeTextFieldCopy['state'] = NORMAL
-        self.updateView()
+        if self.c.create_sim_g_code():
+            self.gCodeTextField['state'] = NORMAL
+            for line in self.c.get_model().get_simulator_g_code():
+                self.gCodeTextField.insert(END, line + "\n")
+            self.currentStatusMsg.set('Produced Simulator G-Code')
+            self.gCodeTextField['state'] = DISABLED
+            if self.gCodeTextFieldCopy['state'] == DISABLED:
+                self.gCodeTextFieldCopy['state'] = NORMAL
+            self.updateView()
 
     def produceSimControlGCode(self):
 
@@ -534,28 +536,38 @@ class View(Tk):
 
     def produceMMFlowGCode(self):
         '''
-        Produce Micro Milling Machine G-Code
+        Produce Micro Milling Machine Flow G-Code
         '''
-        self.c.createMMFlowGCode()
-        self.currentStatusMsg.set('Produced Micromilling Machine G-Code')
-        self.gCodeTextField['state'] = NORMAL
-        for line in self.c.getModel().getMMFlowGCode():
-            self.gCodeTextField.insert(END, line + "\n")
-        self.gCodeTextField['state'] = DISABLED
-        if self.gCodeTextFieldCopy['state'] == DISABLED:
-            self.gCodeTextFieldCopy['state'] = NORMAL
-        self.updateView()
+        if self.c.create_mm_flow_g_code():
+            self.gCodeTextField['state'] = NORMAL
+            self.gCodeTextField.delete("1.0", END)
+            for line in self.c.get_model().get_mm_flow_g_code():
+                self.gCodeTextField.insert(END, line + "\n")
+            self.gCodeTextField['state'] = DISABLED
+            if self.gCodeTextFieldCopy['state'] == DISABLED:
+                self.gCodeTextFieldCopy['state'] = NORMAL
+            self.updateView()
 
     def produceMMControlGCode(self):
-
-        pass
+        '''
+        Produce Micro Milling Machine Control G-Code
+        '''
+        if self.c.create_mm_control_g_code():
+            self.gCodeTextField['state'] = NORMAL
+            self.gCodeTextField.delete("1.0", END)
+            for line in self.c.get_model().get_mm_control_g_code():
+                self.gCodeTextField.insert(END, line + "\n")
+            self.gCodeTextField['state'] = DISABLED
+            if self.gCodeTextFieldCopy['state'] == DISABLED:
+                self.gCodeTextFieldCopy['state'] = NORMAL
+            self.updateView()
 
     def openSVGFile(self):
 
         fileName = filedialog.askopenfilename()
         if fileName is not '':
             self.currentSVGFile.set(fileName)
-            self.c.getModel().setCurrentSVGFile(fileName)
+            self.c.get_model().set_current_svg_file(fileName)
             self.updateView()
 
     def openLibraryFile(self):
@@ -563,7 +575,7 @@ class View(Tk):
         fileName = filedialog.askopenfilename()
         if fileName is not '':
             self.currentLibraryFile.set(fileName)
-            self.c.getModel().setCurrentLibraryFile(fileName)
+            self.c.get_model().set_current_library_file(fileName)
             self.updateView()
 
     def openConfigFile(self):
@@ -571,7 +583,7 @@ class View(Tk):
         fileName = filedialog.askopenfilename()
         if fileName is not '':
             self.currentConfigFile.set(fileName)
-            self.c.getModel().setCurrentConfigFile(fileName)
+            self.c.get_model().set_current_config_file(fileName)
             self.updateView()
 
     def copyGCodeToClipboard(self):
@@ -588,6 +600,15 @@ class View(Tk):
         self.flowCircleMap = []
         self.flowHoleMap = []
         self.controlMap = []
+
+    def updateStatusMessage(self):
+        if self.c.errorOccurred:
+            self.currentStatusMsg.set('Error(s) occured - see log!')
+            self.statusEntry['disabledforeground'] = 'red'
+        else:
+            self.currentStatusMsg.set('All OK!')
+            self.statusEntry['disabledforeground'] = 'black'
+        self.updateView()
 
     def updateView(self):
         self.update()
