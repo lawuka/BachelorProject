@@ -152,6 +152,7 @@ class microMillingFlowGCode():
         self.drillFlowDepth = self.conf['drillOptions']['flow']['depth']
         self.drillHoleDepth = self.conf['drillOptions']['hole']['depth']
         self.drillSize = self.conf['drillOptions']['drillSize']
+        self.discontinuityWidth = self.conf['valveOptions']['discontinuityWidth']
 
         # Calculate number of drilling in one flow channel
         if ((float(self.drillFlowDepth) * -1.0) / (float(self.drillSize) / 4.0)) <= 1.0 :
@@ -159,15 +160,20 @@ class microMillingFlowGCode():
         else :
             self.repeat = int(ceil((float(self.drillFlowDepth) * -1.0) / (float(self.drillSize) / 4.0)))
 
-        self.gCodeOptions()
+        if len(self.svgMap['lines']) != 0 or len(self.svgMap['components']) != 0:
 
-        self.components()
+            self.gCodeOptions()
 
-        self.flowChannels()
+            self.components()
 
-        self.flowHoles()
+            self.flowChannels()
 
-        self.moveBackToOrigin()
+            self.flowHoles()
+
+            self.moveBackToOrigin()
+
+        else:
+            self.mmGCodeList.append('(No Components or Lines in Biochip Architecture!)')
 
         return self.mmGCodeList
 
@@ -214,7 +220,8 @@ class microMillingFlowGCode():
                                                      [componentActualPositionY],
                                                      [component[3] % 360],
                                                      [componentWidth],
-                                                     [componentHeight])
+                                                     [componentHeight],
+                                                     self.library[component[0]]['Control'])
                         elif iComponent.tag == 'FlowCircle':
                             self.internalFlowCircle(iComponent,
                                                     [componentActualPositionX],
@@ -259,9 +266,16 @@ class microMillingFlowGCode():
         '''
         Pausing the drilling, since drill for drilling all the way through is different than flow channels
         '''
-        self.mmGCodeList.append("(PAUSE FOR DRILL CHANGE)")
-        self.mmGCodeList.append("M00")
-        self.mmGCodeList.append("(" + self.drillSize + "MM HOLE DRILL)")
+
+        if len(self.flowHoleList) != 0:
+            self.mmGCodeList.append("(PAUSE FOR DRILL CHANGE)")
+            self.mmGCodeList.append("(*************************************************)")
+            self.mmGCodeList.append("(*                                               *)")
+            self.mmGCodeList.append("(* REMEMBER PLATE UNDER FOR PENETRATION DRILLING *)")
+            self.mmGCodeList.append("(*                                               *)")
+            self.mmGCodeList.append("(*************************************************)")
+            self.mmGCodeList.append("M00")
+            self.mmGCodeList.append("(" + self.drillSize + "MM HOLE DRILL)")
 
         for flowHole in self.flowHoleList:
             self.flowHoleGCode(flowHole[0],flowHole[1])
@@ -270,7 +284,7 @@ class microMillingFlowGCode():
 
         self.mmGCodeList.append("X0.0 Y0.0")
         self.mmGCodeList.append("M30")
-        self.mmGCodeList.append("(DONE DRILLING)")
+        self.mmGCodeList.append("(PROGRAM END)")
 
     def internalComponent(self, component, componentXList, componentYList,
                           componentRotationList, componentWidthList, componentHeightList):
@@ -292,7 +306,8 @@ class microMillingFlowGCode():
                                              componentYList,
                                              componentRotationList,
                                              componentWidthList,
-                                             componentHeightList)
+                                             componentHeightList,
+                                             self.library[component.tag]['Control'])
                elif iComponent.tag == 'FlowCircle':
                     self.internalFlowCircle(iComponent,
                                             componentXList,
@@ -323,7 +338,7 @@ class microMillingFlowGCode():
             print("Component \"" + component.tag + "\" not found in library - skipping!")
 
     def internalFlowChannel(self, flowChannel, componentXList, componentYList, componentRotationList,
-                            componentWidthList, componentHeightList):
+                            componentWidthList, componentHeightList, controlValves):
         flowStartX = float(flowChannel.find('Start').find('X').text) * float(self.drillSize)# + componentActualPositionX
         flowStartY = float(flowChannel.find('Start').find('Y').text) * float(self.drillSize)# + componentActualPositionY
         flowEndX = float(flowChannel.find('End').find('X').text) * float(self.drillSize)# + componentActualPositionX
@@ -358,7 +373,48 @@ class microMillingFlowGCode():
                 flowEndX += componentXList[i]
                 flowEndY += componentYList[i]
 
-        self.flowChannelGCode(flowStartX,flowStartY,flowEndX,flowEndY)
+        if controlValves is not None:
+            currentX = flowStartX
+            currentY = flowStartY
+
+            if flowStartY == flowEndY:
+                if flowStartX < flowEndX:
+                    sortedValves = sorted(controlValves, key = lambda valve: float(valve.find('X').text))
+                else:
+                    sortedValves = sorted(controlValves, key = lambda valve: -float(valve.find('X').text)
+                                          )
+                for valve in sortedValves:
+                    x = float(valve.find('X').text)
+                    if flowStartX == x:
+                        self.flowChannelGCode(currentX,
+                                              flowStartY,
+                                              x - self.discontinuityWidth/2,
+                                              flowEndY)
+                        currentX = x + self.discontinuityWidth/2
+                self.flowChannelGCode(currentX,
+                                      flowStartY,
+                                      flowEndX,
+                                      flowEndY)
+            else:
+                if flowStartY < flowEndY:
+                    sortedValves = sorted(controlValves, key = lambda valve: float(valve.find('Y').text))
+                else:
+                    sortedValves = sorted(controlValves, key = lambda valve: -float(valve.find('Y').text))
+
+                for valve in sortedValves:
+                    y = float(valve.find('Y').text)
+                    if flowStartY == y:
+                        self.flowChannelGCode(flowStartX,
+                                              currentY,
+                                              flowEndX,
+                                              y - self.discontinuityWidth/2)
+                        currentY = y + self.discontinuityWidth/2
+                self.flowChannelGCode(flowStartX,
+                                      currentY,
+                                      flowEndX,
+                                      flowEndY)
+        else:
+            self.flowChannelGCode(flowStartX,flowStartY,flowEndX,flowEndY)
 
     def internalFlowCircle(self, flowCircle, componentXList, componentYList, componentRotationList,
                            componentWidthList, componentHeightList):
@@ -600,15 +656,22 @@ class microMillingControlGCode():
         self.svgMapHeight = float(self.svgMap['height']) * self.scale
 
         # Create GCode List
-        self.gCodeOptions()
+        if len(self.svgMap['lines']) != 0 or len(self.svgMap['components']) != 0:
 
-        self.fetchValves()
+            self.fetchValves()
 
-        self.valves()
+            if len(self.controlMap) != 0:
+                self.gCodeOptions()
 
-        self.valveHolesGCode()
+                self.valves()
 
-        self.moveBackToOrigin()
+                self.valveHolesGCode()
+
+                self.moveBackToOrigin()
+            else:
+                self.mmGCodeList.append('(No Valves in Biochip Architecture!')
+        else:
+            self.mmGCodeList.append('(No Components or Lines in Biochip Architecture!)')
 
         return self.mmGCodeList
 
@@ -679,7 +742,7 @@ class microMillingControlGCode():
 
         self.mmGCodeList.append("X0.0 Y0.0")
         self.mmGCodeList.append("M30")
-        self.mmGCodeList.append("(DONE DRILLING)")
+        self.mmGCodeList.append("(PROGRAM END)")
 
     def internalComponent(self, component, componentXList, componentYList,
                           componentRotationList, componentWidthList, componentHeightList):
@@ -976,6 +1039,11 @@ class microMillingControlGCode():
     def valveHolesGCode(self):
 
         self.mmGCodeList.append("(PAUSE FOR DRILL CHANGE)")
+        self.mmGCodeList.append("(*************************************************)")
+        self.mmGCodeList.append("(*                                               *)")
+        self.mmGCodeList.append("(* REMEMBER PLATE UNDER FOR PENETRATION DRILLING *)")
+        self.mmGCodeList.append("(*                                               *)")
+        self.mmGCodeList.append("(*************************************************)")
         self.mmGCodeList.append("M00")
         self.mmGCodeList.append("(" + self.drillSize + "MM HOLE DRILL)")
 

@@ -114,30 +114,30 @@
     <Component>
         <Type>Input</Type>
         <Size>
-            <Width>3</Width>
-            <Height>3</Height>
+            <Width>2</Width>
+            <Height>2</Height>
         </Size>
         <External>
             <OutputConnectionPoint>
-                <X>1.5</X>
-                <Y>3</Y>
+                <X>1</X>
+                <Y>2</Y>
             </OutputConnectionPoint>
         </External>
         <Internal>
             <FlowHole>
                 <Center>
-                    <X>1.5</X>
-                    <Y>1.5</Y>
+                    <X>1</X>
+                    <Y>1</Y>
                 </Center>
             </FlowHole>
             <FlowLine>
                 <Start>
-                    <X>1.5</X>
-                    <Y>2</Y>
+                    <X>1</X>
+                    <Y>1.5</Y>
                 </Start>
                 <End>
-                    <X>1.5</X>
-                    <Y>3</Y>
+                    <X>1</X>
+                    <Y>2</Y>
                 </End>
             </FlowLine>
         </Internal>
@@ -145,30 +145,30 @@
     <Component>
         <Type>Output</Type>
         <Size>
-            <Width>3</Width>
-            <Height>3</Height>
+            <Width>2</Width>
+            <Height>2</Height>
         </Size>
         <External>
             <InputConnectionPoint>
-                <X>1.5</X>
-                <Y>3</Y>
+                <X>1</X>
+                <Y>2</Y>
             </InputConnectionPoint>
         </External>
         <Internal>
             <FlowHole>
                 <Center>
-                    <X>1.5</X>
-                    <Y>1.5</Y>
+                    <X>1</X>
+                    <Y>1</Y>
                 </Center>
             </FlowHole>
             <FlowLine>
                 <Start>
-                    <X>1.5</X>
-                    <Y>2</Y>
+                    <X>1</X>
+                    <Y>1.5</Y>
                 </Start>
                 <End>
-                    <X>1.5</X>
-                    <Y>3</Y>
+                    <X>1</X>
+                    <Y>2</Y>
                 </End>
             </FlowLine>
         </Internal>
@@ -376,23 +376,23 @@
         <Type>Mixer</Type>
         <Size>
             <Width>57</Width>
-            <Height>43</Height>
+            <Height>44</Height>
         </Size>
         <External>
             <InputConnectionPoint>
                 <X>0</X>
-                <Y>21.5</Y>
+                <Y>22</Y>
             </InputConnectionPoint>
             <OutputConnectionPoint>
                 <X>57</X>
-                <Y>21.5</Y>
+                <Y>22</Y>
             </OutputConnectionPoint>
         </External>
         <Internal>
             <FlowCircle>
                 <Center>
                     <X>28.5</X>
-                    <Y>21.5</Y>
+                    <Y>22</Y>
                 </Center>
                 <Radius>17</Radius>
                 <Valves>
@@ -408,53 +408,53 @@
             <FlowLine>
                 <Start>
                     <X>0</X>
-                    <Y>21.5</Y>
+                    <Y>22</Y>
                 </Start>
                 <End>
                     <X>4.5</X>
-                    <Y>21.5</Y>
+                    <Y>22</Y>
                 </End>
             </FlowLine>
             <FlowLine>
                 <Start>
                     <X>6.5</X>
-                    <Y>21.5</Y>
+                    <Y>22</Y>
                 </Start>
                 <End>
-                    <X>11</X>
-                    <Y>21.5</Y>
+                    <X>11.5</X>
+                    <Y>22</Y>
                 </End>
             </FlowLine>
             <FlowLine>
                 <Start>
-                    <X>46</X>
-                    <Y>21.5</Y>
+                    <X>45.5</X>
+                    <Y>22</Y>
                 </Start>
                 <End>
                     <X>50.5</X>
-                    <Y>21.5</Y>
+                    <Y>22</Y>
                 </End>
             </FlowLine>
             <FlowLine>
                 <Start>
                     <X>52.5</X>
-                    <Y>21.5</Y>
+                    <Y>22</Y>
                 </Start>
                 <End>
                     <X>57</X>
-                    <Y>21.5</Y>
+                    <Y>22</Y>
                 </End>
             </FlowLine>
         </Internal>
         <Control>
             <Valve>
                 <X>5.5</X>
-                <Y>21.5</Y>
+                <Y>22</Y>
                 <Rotation>0</Rotation>
             </Valve>
             <Valve>
                 <X>51.5</X>
-                <Y>21.5</Y>
+                <Y>22</Y>
                 <Rotation>0</Rotation>
             </Valve>
         </Control>
@@ -668,7 +668,7 @@
         <Type>AquaFlux</Type>
         <Size>
             <Width>260</Width>
-            <Height>152</Height>
+            <Height>155</Height>
         </Size>
         <External>
             <InputConnectionPoint>
@@ -882,7 +882,7 @@
             </FlowLine>
             <FlowLine>
                 <Start>
-                    <X>26.5</X>
+                    <X>36.5</X>
                     <Y>120</Y>
                 </Start>
                 <End>
@@ -902,7 +902,7 @@
             </FlowLine>
             <FlowLine>
                 <Start>
-                    <X>87</X>
+                    <X>97</X>
                     <Y>120</Y>
                 </Start>
                 <End>
@@ -1089,4 +1089,63 @@
         <Internal></Internal>
         <Control></Control>
     </Component>
+
+<!--
+    <Component>
+        <Type>ExampleComponent</Type>
+        <Size>
+            <Width>59</Width>
+            <Height>47</Height>
+        </Size>
+        <External>
+            <InputConnectionPoint>
+                <X>1</X>
+                <Y>46</Y>
+            </InputConnectionPoint>
+            <OutputConnectionPoint>
+                <X>58</X>
+                <Y>46</Y>
+            </OutputConnectionPoint>
+        </External>
+        <Internal>
+            <Input>
+                <X>1</X>
+                <Y>46</Y>
+                <Rotation>180</Rotation>
+            </Input>
+            <Output>
+                <X>58</X>
+                <Y>46</Y>
+                <Rotation>180</Rotation>
+            </Output>
+            <Mixer>
+                <X>29.5</X>
+                <Y>22.5</Y>
+                <Rotation>0</Rotation>
+            </Mixer>
+            <FlowLine>
+                <Start>
+                    <X>1</X>
+                    <Y>46</Y>
+                </Start>
+                <End>
+                    <X>1</X>
+                    <Y>22.5</Y>
+                </End>
+            </FlowLine>
+            <FlowLine>
+                <Start>
+                    <X>58</X>
+                    <Y>46</Y>
+                </Start>
+                <End>
+                    <X>58</X>
+                    <Y>22.5</Y>
+                </End>
+            </FlowLine>
+        </Internal>
+        <Valves>
+        </Valves>
+    </Component>
+-->
 </ComponentLibrary>

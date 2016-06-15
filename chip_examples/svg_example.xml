@@ -1,5 +1,5 @@
-<svg height="140" width="100">
-
+<architecture>
+    <size height="140" width="100"/>
     <components>
         <component type="IntersectionT" x="10" y="85" rotation="270"/>
         <component type="IntersectionT" x="80" y="85" rotation="90"/>
@@ -10,7 +10,6 @@
         <component type="Input" x="10" y="131.5" rotation="180"/>
         <component type="Input" x="80" y="131.5" rotation="180"/>
     </components>
-
     <lines>
         <line x1="10" x2="10" y1="95" y2="130"/>
         <line x1="10" x2="10" y1="35" y2="75"/>
@@ -19,4 +18,4 @@
         <line x1="80" x2="80" y1="35" y2="75"/>
         <line x1="80" x2="70" y1="35" y2="35"/>
     </lines>
-</svg>
+</architecture>

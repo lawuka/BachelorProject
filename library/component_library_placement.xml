@@ -294,7 +294,7 @@
                     <Y>12</Y>
                 </Start>
                 <End>
-                    <X>5</X>
+                    <X>24</X>
                     <Y>12</Y>
                 </End>
             </FlowLine>
@@ -305,47 +305,7 @@
                 </Start>
                 <End>
                     <X>12</X>
-                    <Y>19</Y>
-                </End>
-            </FlowLine>
-            <FlowLine>
-                <Start>
-                    <X>24</X>
-                    <Y>12</Y>
-                </Start>
-                <End>
-                    <X>19</X>
-                    <Y>12</Y>
-                </End>
-            </FlowLine>
-            <FlowLine>
-                <Start>
-                    <X>12</X>
                     <Y>0</Y>
-                </Start>
-                <End>
-                    <X>12</X>
-                    <Y>5</Y>
-                </End>
-            </FlowLine>
-            <FlowLine>
-                <Start>
-                    <X>7</X>
-                    <Y>12</Y>
-                </Start>
-                <End>
-                    <X>17</X>
-                    <Y>12</Y>
-                </End>
-            </FlowLine>
-            <FlowLine>
-                <Start>
-                    <X>12</X>
-                    <Y>17</Y>
-                </Start>
-                <End>
-                    <X>12</X>
-                    <Y>7</Y>
                 </End>
             </FlowLine>
         </Internal>
@@ -411,16 +371,6 @@
                     <Y>22</Y>
                 </Start>
                 <End>
-                    <X>4.5</X>
-                    <Y>22</Y>
-                </End>
-            </FlowLine>
-            <FlowLine>
-                <Start>
-                    <X>6.5</X>
-                    <Y>22</Y>
-                </Start>
-                <End>
                     <X>11.5</X>
                     <Y>22</Y>
                 </End>
@@ -428,16 +378,6 @@
             <FlowLine>
                 <Start>
                     <X>45.5</X>
-                    <Y>22</Y>
-                </Start>
-                <End>
-                    <X>50.5</X>
-                    <Y>22</Y>
-                </End>
-            </FlowLine>
-            <FlowLine>
-                <Start>
-                    <X>52.5</X>
                     <Y>22</Y>
                 </Start>
                 <End>

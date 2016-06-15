@@ -24,6 +24,8 @@ class View(Tk):
         self.flowCircleMap = None
         self.flowHoleMap = None
         self.controlMap = None
+        self.redBoxMap = None
+        self.discontinuityWidth = None
 
         Tk.__init__(self)
         self.title('Biochip Production')
@@ -36,12 +38,12 @@ class View(Tk):
         self.canvas = None
 
         self.currentSVGFile = StringVar()
-        self.currentSVGFile.set('chip_examples/svg_example2.svg')  # Should be ''
-        self.c.get_model().set_current_svg_file('chip_examples/svg_example2.svg')  # Should be ''
+        self.currentSVGFile.set('chip_examples/svg_example2.xml')  # Should be ''
+        self.c.get_model().set_current_svg_file('chip_examples/svg_example2.xml')  # Should be ''
 
         self.currentLibraryFile = StringVar()
-        self.currentLibraryFile.set('library/component_library.xml')  # Should be ''
-        self.c.get_model().set_current_library_file('library/component_library.xml')  # Should be ''
+        self.currentLibraryFile.set('library/component_library_test.xml')  # Should be ''
+        self.c.get_model().set_current_library_file('library/component_library_test.xml')  # Should be ''
 
         self.currentConfigFile = StringVar()
         self.currentConfigFile.set('config/conf.ini')  # Should be ''
@@ -65,14 +67,19 @@ class View(Tk):
         self.showFlowCheckVar.set(0)
         self.showControlCheckVar = IntVar()
         self.showControlCheckVar.set(0)
+        self.showRedBoxCheckVar = IntVar()
+        self.showRedBoxCheckVar.set(0)
         chipViewFrame = LabelFrame(rightView, text='Chip Layout')
         chipViewFrame.grid(row=0, column=0, sticky=E + W, ipady=3, ipadx=5)
         self.showLayoutCheck = Checkbutton(chipViewFrame, variable=self.showFlowCheckVar,
                                            command=self.drawCanvas, text="Show flow layout", state=DISABLED)
         self.showControlCheck = Checkbutton(chipViewFrame, variable=self.showControlCheckVar,
                                             command=self.drawCanvas,text="Show control layout", state=DISABLED)
+        self.showRedBoxCheck = Checkbutton(chipViewFrame, variable=self.showRedBoxCheckVar,
+                                           command=self.drawCanvas, text="Show red boxes", state=DISABLED)
         self.showLayoutCheck.pack(side = TOP, anchor=W)
         self.showControlCheck.pack(side = TOP, anchor=W)
+        self.showRedBoxCheck.pack(side = TOP, anchor=W)
         Button(chipViewFrame, text="Generate Chip Layout", command=self.showLayout, width = buttonWidth).pack(side = TOP)
 
         gCodeFrame = LabelFrame(rightView, text='GCode')
@@ -97,17 +104,17 @@ class View(Tk):
         rightView.rowconfigure(2,weight=1)
 
         svgInfo = Frame(self)
-        Label(svgInfo, text="SVG File:", width=10,  anchor=W).pack(side = LEFT, padx=5)
+        Label(svgInfo, text="Architecture File:", width=12,  anchor=W).pack(side = LEFT, padx=5)
         Entry(svgInfo, textvariable=self.currentSVGFile, relief=SUNKEN, state = DISABLED).pack(side=LEFT,expand=True,fill="x", padx=5)
         Button(svgInfo, text="Open", width = 5, command=self.openSVGFile).pack(side = LEFT)
         svgInfo.grid(column = 0, row = 1, sticky = W + E)
         libraryInfo = Frame(self)
-        Label(libraryInfo, text="Library File:", width=10, anchor=W).pack(side = LEFT, padx = 5, pady = 5)
+        Label(libraryInfo, text="Library File:", width=12, anchor=W).pack(side = LEFT, padx = 5, pady = 5)
         Entry(libraryInfo, textvariable=self.currentLibraryFile, relief=SUNKEN, state = DISABLED).pack(side = LEFT,expand=True,fill="x", padx=5)
         Button(libraryInfo, text="Open", width = 5, command=self.openLibraryFile).pack(side = LEFT)
         libraryInfo.grid(column = 0, row = 2, sticky = W + E)
         configInfo = Frame(self)
-        Label(configInfo, text="Config File:", width=10, anchor=W).pack(side = LEFT, padx = 5, pady = 5)
+        Label(configInfo, text="Config File:", width=12, anchor=W).pack(side = LEFT, padx = 5, pady = 5)
         Entry(configInfo, textvariable=self.currentConfigFile, relief=SUNKEN, state = DISABLED).pack(side = LEFT,expand=True,fill="x", padx=5)
         Button(configInfo, text="Open", width = 5, command=self.openConfigFile).pack(side = LEFT)
         configInfo.grid(column = 0, row = 3, sticky = W + E)
@@ -129,14 +136,18 @@ class View(Tk):
         self.canvasMap = self.c.get_chip_layout()
         self.library = self.c.get_library_data()
         self.conf = self.c.get_config_data()
+        self.discontinuityWidth = float(self.conf['valveOptions']['discontinuityWidth'])
 
         if self.canvasMap is not None and self.library is not None and self.conf is not None:
             self.showLayoutCheck['state'] = NORMAL
             self.showControlCheck['state'] = NORMAL
+            self.showRedBoxCheck['state'] = NORMAL
             self.clearMaps()
             self.updateMaps()
 
-            if self.showFlowCheckVar.get() == 1 or self.showControlCheckVar.get() == 1:
+            if 1 in {self.showFlowCheckVar.get(), self.showControlCheckVar.get(), self.showRedBoxCheckVar.get()}:
+                self.scale = min(self.canvas.winfo_height() / int(self.canvasMap['height']),
+                             self.canvas.winfo_width() / int(self.canvasMap['width']))
                 self.drawCanvas()
 
     def drawCanvas(self):
@@ -151,7 +162,12 @@ class View(Tk):
         if self.showControlCheckVar.get() == 1:
             self.drawControlValves()
 
-        self.layoutShown = True
+        if self.showRedBoxCheckVar.get() == 1:
+            self.drawRedBoxes()
+
+        if not self.layoutShown:
+            self.updateMaps()
+            self.layoutShown = True
         self.updateView()
 
     def updateMaps(self):
@@ -173,6 +189,8 @@ class View(Tk):
                 componentActualPositionX = componentX - componentWidth/2
                 componentActualPositionY = componentY - componentHeight/2
 
+                self.appendRedBox(componentX, componentY, componentWidth, componentHeight, component[3])
+
                 controlValves = self.library[component[0]]['Control']
                 if controlValves != None and len(controlValves) != 0:
                     self.appendControlValves(controlValves, [componentActualPositionX], [componentActualPositionY],
@@ -185,7 +203,12 @@ class View(Tk):
                         self.appendFlowLines(iComponent, [componentActualPositionX], [componentActualPositionY],
                                           [component[3] % 360.0],
                                           [componentWidth],
-                                          [componentHeight])
+                                          [componentHeight],
+                                             self.rotateValveCoords(self.library[component[0]]['Control'],
+                                                                    [componentActualPositionX], [componentActualPositionY],
+                                                                    [component[3] % 360.0],
+                                                                    [componentWidth],
+                                                                    [componentHeight]))
                     elif iComponent.tag == 'FlowCircle':
                         self.appendFlowCircles(iComponent, [componentActualPositionX], [componentActualPositionY],
                                             [component[3] % 360.0],
@@ -202,36 +225,11 @@ class View(Tk):
                                            [component[3] % 360.0],
                                            [componentWidth],
                                            [componentHeight])
-
-                    ############################
-                    #Red boxes around component#
-                    ############################
-                    '''
-                    self.canvas.create_line(componentActualPositionX * self.scale,
-                                            componentActualPositionY * self.scale,
-                                            (componentActualPositionX + componentWidth) * self.scale,
-                                            (componentActualPositionY) * self.scale,
-                                            width=1,
-                                            fill='red')
-                    self.canvas.create_line(componentActualPositionX * self.scale,
-                                            componentActualPositionY * self.scale,
-                                            componentActualPositionX * self.scale,
-                                            (componentActualPositionY + componentHeight) * self.scale,
-                                            width=1,
-                                            fill='red')
-                    self.canvas.create_line((componentActualPositionX + componentWidth) * self.scale,
-                                            componentActualPositionY * self.scale,
-                                            (componentActualPositionX + componentWidth) * self.scale,
-                                            (componentActualPositionY + componentHeight) * self.scale,
-                                            width=1,
-                                            fill='red')
-                    self.canvas.create_line(componentActualPositionX * self.scale,
-                                            (componentActualPositionY + componentHeight) * self.scale,
-                                            (componentActualPositionX + componentWidth) * self.scale,
-                                            (componentActualPositionY + componentHeight) * self.scale,
-                                            width=1,
-                                            fill='red')
-                    #'''
+                        self.appendRedBoxes(iComponent,
+                                           [componentActualPositionX], [componentActualPositionY],
+                                           [component[3] % 360.0],
+                                           [componentWidth],
+                                           [componentHeight])
             else:
                 self.c.add_to_log('Skipping drawing of ' +  component[0] + ' - component not in Library')
                 self.updateStatusMessage()
@@ -246,7 +244,6 @@ class View(Tk):
             componentHeight = float(self.library[component.tag]['Size'].find('Height').text)
             componentXList.append(componentX - componentWidth/2)
             componentYList.append(componentY - componentHeight/2)
-            #self.drawRedBox(componentXList, componentYList, componentWidth, componentHeight)
             componentRotationList.append(float(component.find('Rotation').text) % 360.0)
             componentWidthList.append(componentWidth)
             componentHeightList.append(componentHeight)
@@ -259,9 +256,13 @@ class View(Tk):
             for iComponent in self.library[component.tag]['Internal']:
                 if iComponent.tag == 'FlowLine':
                     self.appendFlowLines(iComponent, componentXList, componentYList,
-                                      componentRotationList,
-                                      componentWidthList,
-                                      componentHeightList)
+                                        componentRotationList,
+                                        componentWidthList,
+                                        componentHeightList,
+                                        self.rotateValveCoords(self.library[component.tag]['Control'],
+                                                               componentXList, componentYList,
+                                                               componentRotationList, componentWidth,
+                                                               componentHeightList))
                 elif iComponent.tag == 'FlowCircle':
                     self.appendFlowCircles(iComponent, componentXList, componentYList,
                                         componentRotationList,
@@ -277,6 +278,10 @@ class View(Tk):
                                        componentRotationList,
                                        componentWidthList,
                                        componentHeightList)
+                    self.appendRedBoxes(iComponent, componentXList, componentYList,
+                                       componentRotationList,
+                                       componentWidthList,
+                                       componentHeightList)
                     componentXList.pop()
                     componentYList.pop()
                     componentRotationList.pop()
@@ -287,7 +292,7 @@ class View(Tk):
             self.updateStatusMessage()
 
     def appendFlowLines(self, flowLine, componentXList, componentYList,
-                     componentRotationList, componentWidthList, componentHeightList):
+                     componentRotationList, componentWidthList, componentHeightList, controlValves):
         flowStartX = float(flowLine.find('Start').find('X').text)# + componentActualPositionX #- \
                                  #float(self.conf['drillOptions']['drillSize'])/2
         flowStartY = float(flowLine.find('Start').find('Y').text)# + componentActualPositionY #- \
@@ -327,11 +332,66 @@ class View(Tk):
                 flowEndX += componentXList[i]
                 flowEndY += componentYList[i]
 
+        if controlValves is not None:
+            currentY = flowStartY
+            currentX = flowStartX
+            if flowStartY == flowEndY:
+                if flowStartX < flowEndX:
+                    sortedValves = sorted(controlValves, key = lambda valve: valve[0])
+                else:
+                    sortedValves = sorted(controlValves, key = lambda valve: -valve[0])
 
-        self.flowLineMap.append([flowStartX,
-                                 flowStartY,
-                                 flowEndX,
-                                 flowEndY])
+                for valve in sortedValves:
+                    x = valve[0]
+                    y = valve[1]
+                    if flowStartY == y and ((x > flowStartX and x < flowEndX) or (x < flowStartX and x > flowEndX)):
+                        if flowStartX < flowEndX:
+                            nextX = x - self.discontinuityWidth/2
+                        else:
+                            nextX = x + self.discontinuityWidth/2
+                        self.flowLineMap.append([currentX,
+                                              flowStartY,
+                                              nextX,
+                                              flowEndY])
+                        if flowStartX < flowEndX:
+                            currentX = x + self.discontinuityWidth/2
+                        else:
+                            currentX = x - self.discontinuityWidth/2
+
+                self.flowLineMap.append([currentX,
+                                      flowStartY,
+                                      flowEndX,
+                                      flowEndY])
+            else:
+                if flowStartY < flowEndY:
+                    sortedValves = sorted(controlValves, key = lambda valve: valve[1])
+                else:
+                    sortedValves = sorted(controlValves, key = lambda valve: -valve[1])
+
+                for valve in sortedValves:
+                    x = valve[0]
+                    y = valve[1]
+                    if flowStartX == x and ((y > flowStartY and y < flowEndY) or (y < flowStartY and y > flowEndY)):
+                        if flowStartY < flowEndY:
+                            nextY = y - self.discontinuityWidth/2
+                        else:
+                            nextY = y + self.discontinuityWidth/2
+                        self.flowLineMap.append([flowStartX,
+                                              currentY,
+                                              flowEndX,
+                                              nextY])
+                        if flowStartY < flowEndY:
+                            currentY = y + self.discontinuityWidth/2
+                        else:
+                            currentY = y - self.discontinuityWidth/2
+
+                self.flowLineMap.append([flowStartX,
+                                      currentY,
+                                      flowEndX,
+                                      flowEndY])
+        else:
+            self.flowLineMap.append([flowStartX,flowStartY,flowEndX,flowEndY])
+
 
     def drawFlowLines(self):
         for flowLine in self.flowLineMap:
@@ -445,41 +505,6 @@ class View(Tk):
         for flowHole in self.flowHoleMap:
             self.canvas.create_oval(self.scaleCoords(flowHole))
 
-    def drawRedBox(self, componentXList, componentYList, componentWidth, componentHeight):
-        ############################
-        #Red boxes around component#
-        ############################
-        currentX = 0
-        currentY = 0
-        for i in range(0,len(componentXList)):
-            currentX += componentXList[i]
-            currentY += componentYList[i]
-
-        self.canvas.create_line(currentX * self.scale,
-                                currentY * self.scale,
-                                (currentX + componentWidth) * self.scale,
-                                (currentY) * self.scale,
-                                width=1,
-                                fill='red')
-        self.canvas.create_line(currentX * self.scale,
-                                currentY * self.scale,
-                                currentX * self.scale,
-                                (currentY + componentHeight) * self.scale,
-                                width=1,
-                                fill='red')
-        self.canvas.create_line((currentX + componentWidth) * self.scale,
-                                currentY * self.scale,
-                                (currentX + componentWidth) * self.scale,
-                                (currentY + componentHeight) * self.scale,
-                                width=1,
-                                fill='red')
-        self.canvas.create_line(currentX * self.scale,
-                                (currentY + componentHeight) * self.scale,
-                                (currentX + componentWidth) * self.scale,
-                                (currentY + componentHeight) * self.scale,
-                                width=1,
-                                fill='red')
-
     def appendControlValves(self, valveList, componentXList, componentYList,
                        componentRotationList, componentWidthList, componentHeightList):
 
@@ -514,6 +539,146 @@ class View(Tk):
     def drawControlValves(self):
         for controlValve in self.controlMap:
             self.canvas.create_oval(self.scaleCoords(controlValve), outline='orange')
+
+    def appendRedBoxes(self, component, componentXList, componentYList, componentRotationList,
+                       componentWidthList, componentHeightList):
+
+        componentX = float(component.find('X').text)
+        componentY = float(component.find('Y').text)
+
+        totalRotation = 0
+
+        for i in range(len(componentXList)-1,-1,-1):
+            if componentRotationList[i] != 0.0:
+                    tempValveCenterX = rotate_coordinate(componentX - componentWidthList[i]/2,
+                                                         componentY - componentHeightList[i]/2,
+                                                         componentRotationList[i],
+                                                         'x')
+                    tempValveCenterY = rotate_coordinate(componentX - componentWidthList[i]/2,
+                                                         componentY - componentHeightList[i]/2,
+                                                         componentRotationList[i],
+                                                         'y')
+                    componentX = tempValveCenterX + componentXList[i] + componentWidthList[i]/2
+                    componentY = tempValveCenterY + componentYList[i] + componentHeightList[i]/2
+            else:
+                componentX += componentXList[i]
+                componentY += componentYList[i]
+
+            totalRotation += componentRotationList[i]
+
+        componentWidth = float(self.library[component.tag]['Size'].find('Width').text)
+        componentHeight = float(self.library[component.tag]['Size'].find('Height').text)
+        totalRotation += float(component.find('Rotation').text)
+
+        self.appendRedBox(componentX, componentY, componentWidth, componentHeight, totalRotation)
+
+    def appendRedBox(self, componentX, componentY, componentWidth, componentHeight, totalRotation):
+
+        halfWidth = componentWidth/2
+        halfHeight = componentHeight/2
+
+        appendList = None
+
+        if totalRotation % 360.0 in {0,180}:
+            appendList = [[componentX - halfWidth, componentY - halfHeight, componentX + halfWidth, componentY - halfHeight],
+                          [componentX - halfWidth, componentY - halfHeight, componentX - halfWidth, componentY + halfHeight],
+                          [componentX + halfWidth, componentY - halfHeight, componentX + halfWidth, componentY + halfHeight],
+                          [componentX - halfWidth, componentY + halfHeight, componentX + halfWidth, componentY + halfHeight]]
+        elif totalRotation % 360.0 in {90, 270}:
+            appendList = [[componentX - halfHeight, componentY - halfWidth, componentX + halfHeight, componentY - halfWidth],
+                          [componentX - halfHeight, componentY - halfWidth, componentX - halfHeight, componentY + halfWidth],
+                          [componentX + halfHeight, componentY - halfWidth, componentX + halfHeight, componentY + halfWidth],
+                          [componentX - halfHeight, componentY + halfWidth, componentX + halfHeight, componentY + halfWidth]]
+
+        self.redBoxMap.append(appendList)
+
+    def drawRedBoxes(self):
+
+        for redBox in self.redBoxMap:
+            self.canvas.create_line(redBox[0][0] * self.scale,
+                                    redBox[0][1] * self.scale,
+                                    redBox[0][2] * self.scale,
+                                    redBox[0][3] * self.scale,width=1, fill='red')
+            self.canvas.create_line(redBox[1][0] * self.scale,
+                                    redBox[1][1] * self.scale,
+                                    redBox[1][2] * self.scale,
+                                    redBox[1][3] * self.scale,width=1, fill='red')
+            self.canvas.create_line(redBox[2][0] * self.scale,
+                                    redBox[2][1] * self.scale,
+                                    redBox[2][2] * self.scale,
+                                    redBox[2][3] * self.scale,width=1, fill='red')
+            self.canvas.create_line(redBox[3][0] * self.scale,
+                                    redBox[3][1] * self.scale,
+                                    redBox[3][2] * self.scale,
+                                    redBox[3][3] * self.scale,width=1, fill='red')
+
+        ############################
+        #Red boxes around component#
+        ############################
+        '''
+        currentX = 0
+        currentY = 0
+        for i in range(0,len(componentXList)):
+            currentX += componentXList[i]
+            currentY += componentYList[i]
+
+        self.canvas.create_line(currentX * self.scale,
+                                currentY * self.scale,
+                                (currentX + componentWidth) * self.scale,
+                                (currentY) * self.scale,
+                                width=1,
+                                fill='red')
+        self.canvas.create_line(currentX * self.scale,
+                                currentY * self.scale,
+                                currentX * self.scale,
+                                (currentY + componentHeight) * self.scale,
+                                width=1,
+                                fill='red')
+        self.canvas.create_line((currentX + componentWidth) * self.scale,
+                                currentY * self.scale,
+                                (currentX + componentWidth) * self.scale,
+                                (currentY + componentHeight) * self.scale,
+                                width=1,
+                                fill='red')
+        self.canvas.create_line(currentX * self.scale,
+                                (currentY + componentHeight) * self.scale,
+                                (currentX + componentWidth) * self.scale,
+                                (currentY + componentHeight) * self.scale,
+                                width=1,
+                                fill='red')
+        '''
+
+    def rotateValveCoords(self, valveList, componentXList, componentYList,
+                       componentRotationList, componentWidthList, componentHeightList):
+
+        if valveList is None:
+            newValveList = None
+        else:
+            newValveList = []
+
+            for valve in valveList:
+                valveCenterX = float(valve.find('X').text)
+                valveCenterY = float(valve.find('Y').text)
+
+                for i in range(len(componentXList)-1,-1,-1):
+                    if componentRotationList[i] != 0.0:
+                        tempValveCenterX = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
+                                                             valveCenterY - componentHeightList[i]/2,
+                                                             componentRotationList[i],
+                                                             'x')
+                        tempValveCenterY = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
+                                                             valveCenterY - componentHeightList[i]/2,
+                                                             componentRotationList[i],
+                                                             'y')
+                        valveCenterX = tempValveCenterX + componentXList[i] + componentWidthList[i]/2
+                        valveCenterY = tempValveCenterY + componentYList[i] + componentHeightList[i]/2
+                    else:
+                        valveCenterX += componentXList[i]
+                        valveCenterY += componentYList[i]
+
+                    newValveList.append([valveCenterX, valveCenterY])
+
+        return newValveList
 
 
     def produceSimGCode(self):
@@ -600,6 +765,7 @@ class View(Tk):
         self.flowCircleMap = []
         self.flowHoleMap = []
         self.controlMap = []
+        self.redBoxMap = []
 
     def updateStatusMessage(self):
         if self.c.errorOccurred:

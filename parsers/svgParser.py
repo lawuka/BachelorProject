@@ -31,9 +31,9 @@ class SVGParser:
             self.map = {}
 
             # Canvas width and height
-            self.map['width'] = self.treeRoot.get('width')
+            self.map['width'] = self.treeRoot.find('size').get('width')
             if self.map['width'] not in {None, ""}:
-                self.map['height'] = self.treeRoot.get('height')
+                self.map['height'] = self.treeRoot.find('size').get('height')
                 if self.map['height'] not in {None, ""} :
 
                     self.map['components'] = []
