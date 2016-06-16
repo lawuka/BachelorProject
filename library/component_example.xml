@@ -3,45 +3,91 @@
 *  Example of Component for biochip design. Components can be created
 *  as wanted, though with constrains to already existing components.
 *
-*  Basic components are FlowChannel and Connection.
-*  All components must have at least a width and a length.
-*  All components must have at least 2 external connections (in-/output)
+*  Atomic components are FlowChannel, FlowCircle and FlowHole.
+*  All components must have a Type, Size, External, Internal and Control scope
+*  All components must have at least a Width and a Length defined in Size.
+*  All components must have at least 1 external connections (in-/output or connection)
 *
-*  Components can be created from other components, though the placement
-*  inside, needs to be predefined. Components used inside, need already
-*  be defined in the library, else the program fails.
+*  Components can inherit other components, which will inherit down to atomic components.
 *
-*  Each component inside, is placed according to X,Y coordinate system, where
-*  0,0 is bottom left of the hole width and length. X and Y are based on 1mm.
+*  Components need not have any atomic components, can consist of other components or none.
+*  All inherited components must be defined in the library, else the program fails.
+*
+*  Valves in the Control scope, only define valves on FlowChannels, not in a FlowCircle. Here
+*  valves are automatically added, when given a valve angle.
+*
+*  Each inherited component, and atomic components, are placed according to their (X,Y) center
+*  in a coordinate system, which has its (0,0) in the lower left corner.
+*
+*  Every X and Y is defined in 1:1mm
+*  Every angle/rotation is defined in 0, 90, 180, 270 or 360 degrees
 *
 ******************************************************************************-->
 
+<!--
+
 <Component>
     <Type>
-        Name of component
+        'Name of Component'
     </Type>
     <Size>
-        <Width>Width</Width>
-        <Length>Length</Length>
+        <Width>'Component Width'</Width>
+        <Length>'Component Length'</Length>
     </Size>
-    <Connections>
-        <Connection></Connection>
-        <Connection></Connection>
-    </Connections>
-    <Components>
+    <External>
+        <ConnectionPoint>
+            <X>'X'</X>
+            <Y>'Y'</Y>
+        </ConnectionPoint>
+        <InputConnectionPoint>
+            <X>'X'</X>
+            <Y>'Y'</Y>
+        </InputConnectionPoint>
+        <OutputConnectionPoint>
+            <X>'X'</X>
+            <Y>'Y'</Y>
+        </OutputConnectionPoint>
+    </External>
+    <>
         <FlowChannel>
-            <Start>X,Y</Start>
-            <End>X,Y</End>
+            <Start>
+                <X>'X'</X>
+                <Y>'Y'</Y>
+            </Start>
+            <End>
+                <X>'X'</X>
+                <Y>'Y'</Y>
+            </End>
         </FlowChannel>
-        <FlowChannel>
-            <Start>X,Y</Start>
-            <End>X,Y</End>
-        </FlowChannel>
-        <FlowChannel>
-            <Start>X,Y</Start>
-            <End>X,Y</End>
-        </FlowChannel>
-        <Valve>X,Y</Valve>
-        <Valve>X,Y</Valve>
-    </Components>
+        <FlowCircle>
+            <Center>
+                <X>'X'</X>
+                <Y>'Y'</Y>
+            </Center>
+            <Radius>'Number'</Radius>
+            <Valves>
+                <Angle>'Degree'</Angle>
+            </Valves>
+        </FlowCircle>
+        <FlowHole>
+            <Center>
+                <X>'X'</X>
+                <Y>'Y'</Y>
+            </Center>
+        </FlowHole>
+        <'Name of Component'>
+            <X>'X'</X>
+            <Y>'Y'</Y>
+            <Rotation>'Degree'</Rotation>
+        </'Name of Component'>
+    </Internal>
+    <Control>
+        <Valve>
+            <X>'X'</X>
+            <Y>'Y'</Y>
+            <Rotation>'Degree'</Rotation>
+        </Valve>
+    </Control>
 </Component>
+
+-->

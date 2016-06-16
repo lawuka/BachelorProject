@@ -152,7 +152,7 @@ class microMillingFlowGCode():
         self.drillFlowDepth = self.conf['drillOptions']['flow']['depth']
         self.drillHoleDepth = self.conf['drillOptions']['hole']['depth']
         self.drillSize = self.conf['drillOptions']['drillSize']
-        self.discontinuityWidth = self.conf['valveOptions']['discontinuityWidth']
+        self.discontinuityWidth = float(self.conf['valveOptions']['discontinuityWidth'])
 
         # Calculate number of drilling in one flow channel
         if ((float(self.drillFlowDepth) * -1.0) / (float(self.drillSize) / 4.0)) <= 1.0 :
@@ -221,7 +221,11 @@ class microMillingFlowGCode():
                                                      [component[3] % 360],
                                                      [componentWidth],
                                                      [componentHeight],
-                                                     self.library[component[0]]['Control'])
+                                                     self.rotateValveCoords(self.library[component[0]]['Control'],
+                                                                    [componentActualPositionX], [componentActualPositionY],
+                                                                    [component[3] % 360.0],
+                                                                    [componentWidth],
+                                                                    [componentHeight]))
                         elif iComponent.tag == 'FlowCircle':
                             self.internalFlowCircle(iComponent,
                                                     [componentActualPositionX],
@@ -243,11 +247,6 @@ class microMillingFlowGCode():
                                                 [component[3] % 360],
                                                 [componentWidth],
                                                 [componentHeight])
-
-                            # If internal component is another "not" basic component, repeat
-                            #newComponentX = float(internalComponent.find('X').text) * float(self.drillSize) + componentActualPositionX
-                            #newComponentY = float(internalComponent.find('Y').text) * float(self.drillSize) + componentActualPositionY
-                            #newComponentRotation = float(internalComponent.find('Rotation').text)
                 else:
                     print("Component \"" + component[0] + "\" not found in library - skipping!")
 
@@ -282,7 +281,7 @@ class microMillingFlowGCode():
 
     def moveBackToOrigin(self):
 
-        self.mmGCodeList.append("X0.0 Y0.0")
+        self.mmGCodeList.append("G00 X0.0 Y0.0")
         self.mmGCodeList.append("M30")
         self.mmGCodeList.append("(PROGRAM END)")
 
@@ -307,7 +306,10 @@ class microMillingFlowGCode():
                                              componentRotationList,
                                              componentWidthList,
                                              componentHeightList,
-                                             self.library[component.tag]['Control'])
+                                             self.rotateValveCoords(self.library[component.tag]['Control'],
+                                                               componentXList, componentYList,
+                                                               componentRotationList, componentWidthList,
+                                                               componentHeightList))
                elif iComponent.tag == 'FlowCircle':
                     self.internalFlowCircle(iComponent,
                                             componentXList,
@@ -374,41 +376,57 @@ class microMillingFlowGCode():
                 flowEndY += componentYList[i]
 
         if controlValves is not None:
-            currentX = flowStartX
             currentY = flowStartY
-
+            currentX = flowStartX
             if flowStartY == flowEndY:
                 if flowStartX < flowEndX:
-                    sortedValves = sorted(controlValves, key = lambda valve: float(valve.find('X').text))
+                    sortedValves = sorted(controlValves, key = lambda valve: valve[0])
                 else:
-                    sortedValves = sorted(controlValves, key = lambda valve: -float(valve.find('X').text)
-                                          )
+                    sortedValves = sorted(controlValves, key = lambda valve: -valve[0])
+
                 for valve in sortedValves:
-                    x = float(valve.find('X').text)
-                    if flowStartX == x:
+                    x = valve[0]
+                    y = valve[1]
+                    if flowStartY == y and ((x > flowStartX and x < flowEndX) or (x < flowStartX and x > flowEndX)):
+                        if flowStartX < flowEndX:
+                            nextX = x - self.discontinuityWidth/2
+                        else:
+                            nextX = x + self.discontinuityWidth/2
                         self.flowChannelGCode(currentX,
                                               flowStartY,
-                                              x - self.discontinuityWidth/2,
+                                              nextX,
                                               flowEndY)
-                        currentX = x + self.discontinuityWidth/2
+                        if flowStartX < flowEndX:
+                            currentX = x + self.discontinuityWidth/2
+                        else:
+                            currentX = x - self.discontinuityWidth/2
                 self.flowChannelGCode(currentX,
                                       flowStartY,
                                       flowEndX,
                                       flowEndY)
             else:
                 if flowStartY < flowEndY:
-                    sortedValves = sorted(controlValves, key = lambda valve: float(valve.find('Y').text))
+                    sortedValves = sorted(controlValves, key = lambda valve: valve[1])
                 else:
-                    sortedValves = sorted(controlValves, key = lambda valve: -float(valve.find('Y').text))
+                    sortedValves = sorted(controlValves, key = lambda valve: -valve[1])
 
                 for valve in sortedValves:
-                    y = float(valve.find('Y').text)
-                    if flowStartY == y:
+                    x = valve[0]
+                    y = valve[1]
+                    if flowStartX == x and ((y > flowStartY and y < flowEndY) or (y < flowStartY and y > flowEndY)):
+                        if flowStartY < flowEndY:
+                            nextY = y - self.discontinuityWidth/2
+                        else:
+                            nextY = y + self.discontinuityWidth/2
                         self.flowChannelGCode(flowStartX,
                                               currentY,
                                               flowEndX,
-                                              y - self.discontinuityWidth/2)
-                        currentY = y + self.discontinuityWidth/2
+                                              nextY)
+                        if flowStartY < flowEndY:
+                            currentY = y + self.discontinuityWidth/2
+                        else:
+                            currentY = y - self.discontinuityWidth/2
+
                 self.flowChannelGCode(flowStartX,
                                       currentY,
                                       flowEndX,
@@ -446,19 +464,21 @@ class microMillingFlowGCode():
         flowCircleStartX = flowCircleCenterX
         flowCircleStartY = flowCircleCenterY
 
-        angleList = sorted(list(flowCircle.find('Valves')),key=lambda elem: float(elem.text)%360.0)
-        valveLengthAngle = (360 * 2 * float(self.drillSize))/(2 * flowCircleRadius * pi)
+        angleList = [float(angle.text) for angle in
+                     sorted(list(flowCircle.find('Valves')),key=lambda elem: float(elem.text)%360.0)]
+
+        valveLengthAngle = (360 * float(self.discontinuityWidth))/(2 * flowCircleRadius * pi)
 
         if len(angleList) == 0:
             self.completeCircleGCode(str(flowCircleStartX + flowCircleRadius),
                                      str(flowCircleStartY),
                                      flowCircleRadius)
         elif len(angleList) == 1:
-            self.oneAngleCircleGCode(str(flowCircleCenterX + flowCircleRadius),
-                                     str(flowCircleCenterY),
+            self.oneAngleCircleGCode(flowCircleCenterX,
+                                     flowCircleCenterY,
                                      flowCircleRadius,
-                                     flowCircleStartX, flowCircleStartY,
-                                     valveLengthAngle/2, (float(angleList[0].text)+totalRotation)%360.0)
+                                     str(flowCircleStartX + flowCircleRadius), str(flowCircleStartY),
+                                     valveLengthAngle/2, (angleList[0]+totalRotation)%360.0)
         else:
             if totalRotation % 360 == 90:
                 flowCircleStartY += flowCircleRadius
@@ -471,28 +491,44 @@ class microMillingFlowGCode():
 
             for i in range(0,len(angleList)):
                 if i == len(angleList)-1:
-                    flowStartX = str(cos(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(sin(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    flowEndX = str(cos(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(sin(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius)
-                    flowStartX = str(cos(radians(float(angleList[i].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(sin(radians(float(angleList[i].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    self.flowCircleGCode(flowStartX, flowStartY, str(flowCircleStartX), str(flowCircleStartY),
-                                         -flowCircleRadius if float(angleList[i].text) <= 180 else flowCircleRadius)
+                    flowStartX = str(self.cos_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
+                    flowStartY = str(self.sin_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
+                    flowEndX = str(self.cos_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
+                    flowEndY = str(self.sin_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
+
+                    if len(angleList) == 2:
+                        self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY,
+                                             flowCircleRadius if angleList[i] <= 180 else -flowCircleRadius)
+                    else:
+                        self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY,
+                                             flowCircleRadius)
+
+                    flowStartX = str(self.cos_ra(angleList[i]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
+                    flowStartY = str(self.sin_ra(angleList[i]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
+                    if angleList[0] != 0.0:
+                        self.flowCircleGCode(flowStartX, flowStartY, str(flowCircleStartX), str(flowCircleStartY),
+                                             -flowCircleRadius if angleList[i] < 180 else flowCircleRadius)
+                    else:
+                        flowEndX = str(self.cos_ra(0-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
+                        flowEndY = str(self.sin_ra(0-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
+                        self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY,
+                                             -flowCircleRadius if angleList[i] < 180 else flowCircleRadius)
                 elif i == 0:
-                    flowEndX = str(cos(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(sin(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    self.flowCircleGCode(str(flowCircleStartX),
+                    if angleList[i] != 0.0:
+                        flowEndX = str(self.cos_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
+                        flowEndY = str(self.sin_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
+                        self.flowCircleGCode(str(flowCircleStartX),
                                          str(flowCircleStartY),
                                          flowEndX,
                                          flowEndY,
                                          flowCircleRadius)
+                    else:
+                        pass
                 else:
-                    flowStartX = str(cos(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(sin(radians(float(angleList[i-1].text)+valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
-                    flowEndX = str(cos(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(sin(radians(float(angleList[i].text)-valveLengthAngle/2+totalRotation%360.0)) * flowCircleRadius + flowCircleCenterY)
+                    flowStartX = str(self.cos_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
+                    flowStartY = str(self.sin_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
+                    flowEndX = str(self.cos_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
+                    flowEndY = str(self.sin_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
                     self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius)
 
     def internalFlowHole(self, flowHole, componentXList, componentYList, componentRotationList,
@@ -520,57 +556,11 @@ class microMillingFlowGCode():
 
         self.flowHoleList.append([flowHoleCenterX, flowHoleCenterY])
 
-
-    def flowChannelGCode(self, flowStartX, flowStartY, flowEndX, flowEndY):
-
-        currentDrillLevel = 0.0
-        if flowStartX == flowEndX:
-            self.mmGCodeList.append("G01 X" + str(flowStartX) + " Y" + str(flowStartY) + " Z" + self.drillSize)
-            for i in range(0,self.repeat) :
-                currentDrillLevel -= (float(self.drillSize) / 4.0)
-                if currentDrillLevel < float(self.drillFlowDepth):
-                    currentDrillLevel = float(self.drillFlowDepth)
-                self.mmGCodeList.append("Z" + str(currentDrillLevel))
-                if i % 2 == 0:
-                    self.mmGCodeList.append("Y" + str(flowEndY))
-                else :
-                    self.mmGCodeList.append("Y" + str(flowStartY))
-            self.mmGCodeList.append("Z" + self.drillSize)
-        else:
-            self.mmGCodeList.append("G01 X" + str(flowStartX) + " Y" + str(flowStartY) + " Z" + self.drillSize)
-            for i in range(0,self.repeat) :
-                currentDrillLevel -= (float(self.drillSize) / 4.0)
-                if currentDrillLevel < float(self.drillFlowDepth):
-                    currentDrillLevel = float(self.drillFlowDepth)
-                self.mmGCodeList.append("Z" + str(currentDrillLevel))
-                if i % 2 == 0:
-                    self.mmGCodeList.append("X" + str(flowEndX))
-                else :
-                    self.mmGCodeList.append("X" + str(flowStartX))
-            self.mmGCodeList.append("Z" + self.drillSize)
-
-    def flowCircleGCode(self, flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius):
-
-        currentDrillLevel = 0.0
-
-        self.mmGCodeList.append("G01 X" + flowStartX + " Y" + flowStartY + " Z" + self.drillSize)
-
-        for i in range(0, self.repeat):
-            currentDrillLevel -= (float(self.drillSize) / 4.0)
-            if currentDrillLevel < float(self.drillFlowDepth):
-                currentDrillLevel = float(self.drillFlowDepth)
-            self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
-            if i % 2 == 0:
-                self.mmGCodeList.append("G03 X" + flowEndX + " Y" + flowEndY + " R" + str(flowCircleRadius))
-            else:
-                self.mmGCodeList.append("G02 X" + flowStartX + " Y" + flowStartY + " R" + str(flowCircleRadius))
-        self.mmGCodeList.append("G01 Z" + self.drillSize)
-
     def completeCircleGCode(self, startX, startY, flowCircleRadius):
 
         currentDrillLevel = 0.0
 
-        self.mmGCodeList.append("G01 X" + startX + " Y" + startY + " Z" + self.drillSize)
+        self.mmGCodeList.append("G00 X" + startX + " Y" + startY + " Z" + self.drillSize)
 
         for i in range(0, self.repeat):
             currentDrillLevel -= (float(self.drillSize) / 4.0)
@@ -591,30 +581,114 @@ class microMillingFlowGCode():
                                   valveLengthAngle,
                                   angle):
 
-        print(angle)
-
         if angle != 0:
-            flowEndX = str(cos(radians(angle-valveLengthAngle)) * flowCircleRadius + flowCircleCenterX)
-            flowEndY = str(sin(radians(angle-valveLengthAngle)) * flowCircleRadius + flowCircleCenterY)
+            flowEndX = str(self.cos_ra(angle-valveLengthAngle) * flowCircleRadius + flowCircleCenterX)
+            flowEndY = str(self.sin_ra(angle-valveLengthAngle) * flowCircleRadius + flowCircleCenterY)
             self.flowCircleGCode(flowCircleStartX, flowCircleStartY, flowEndX, flowEndY,
                                  flowCircleRadius if angle <= 180.0 else -flowCircleRadius)
-            flowStartX = str(cos(radians(angle+(valveLengthAngle))) * flowCircleRadius + flowCircleCenterX)
-            flowStartY = str(sin(radians(angle+(valveLengthAngle))) * flowCircleRadius + flowCircleCenterY)
+            flowStartX = str(self.cos_ra(angle+valveLengthAngle) * flowCircleRadius + flowCircleCenterX)
+            flowStartY = str(self.sin_ra(angle+valveLengthAngle) * flowCircleRadius + flowCircleCenterY)
             self.flowCircleGCode(flowStartX, flowStartY, flowCircleStartX, flowCircleStartY,
                                  -flowCircleRadius if angle <= 180.0 else flowCircleRadius)
         else:
-            flowStartX = str(cos(radians(valveLengthAngle)) * flowCircleRadius + flowCircleCenterX)
-            flowStartY = str(sin(radians(valveLengthAngle)) * flowCircleRadius + flowCircleCenterY)
-            flowEndX = str(cos(radians(360-(valveLengthAngle))) * flowCircleRadius + flowCircleCenterX)
-            flowEndY = str(sin(radians(360-(valveLengthAngle))) * flowCircleRadius + flowCircleCenterY)
+            flowStartX = str(self.cos_ra(valveLengthAngle) * flowCircleRadius + flowCircleCenterX)
+            flowStartY = str(self.sin_ra(valveLengthAngle) * flowCircleRadius + flowCircleCenterY)
+            flowEndX = str(self.cos_ra(360-(valveLengthAngle)) * flowCircleRadius + flowCircleCenterX)
+            flowEndY = str(self.sin_ra(360-(valveLengthAngle)) * flowCircleRadius + flowCircleCenterY)
             self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, -flowCircleRadius)
+
+
+    def flowChannelGCode(self, flowStartX, flowStartY, flowEndX, flowEndY):
+
+        currentDrillLevel = 0.0
+        if flowStartX == flowEndX:
+            self.mmGCodeList.append("G00 X" + str(flowStartX) + " Y" + str(flowStartY) + " Z" + self.drillSize)
+            for i in range(0,self.repeat) :
+                currentDrillLevel -= (float(self.drillSize) / 4.0)
+                if currentDrillLevel < float(self.drillFlowDepth):
+                    currentDrillLevel = float(self.drillFlowDepth)
+                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+                if i % 2 == 0:
+                    self.mmGCodeList.append("Y" + str(flowEndY))
+                else :
+                    self.mmGCodeList.append("Y" + str(flowStartY))
+            self.mmGCodeList.append("Z" + self.drillSize)
+        else:
+            self.mmGCodeList.append("G00 X" + str(flowStartX) + " Y" + str(flowStartY) + " Z" + self.drillSize)
+            for i in range(0,self.repeat) :
+                currentDrillLevel -= (float(self.drillSize) / 4.0)
+                if currentDrillLevel < float(self.drillFlowDepth):
+                    currentDrillLevel = float(self.drillFlowDepth)
+                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+                if i % 2 == 0:
+                    self.mmGCodeList.append("X" + str(flowEndX))
+                else :
+                    self.mmGCodeList.append("X" + str(flowStartX))
+            self.mmGCodeList.append("Z" + self.drillSize)
+
+    def flowCircleGCode(self, flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius):
+
+        currentDrillLevel = 0.0
+
+        self.mmGCodeList.append("G00 X" + flowStartX + " Y" + flowStartY + " Z" + self.drillSize)
+
+        for i in range(0, self.repeat):
+            currentDrillLevel -= (float(self.drillSize) / 4.0)
+            if currentDrillLevel < float(self.drillFlowDepth):
+                currentDrillLevel = float(self.drillFlowDepth)
+            self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+            if i % 2 == 0:
+                self.mmGCodeList.append("G03 X" + flowEndX + " Y" + flowEndY + " R" + str(flowCircleRadius))
+            else:
+                self.mmGCodeList.append("G02 X" + flowStartX + " Y" + flowStartY + " R" + str(flowCircleRadius))
+        self.mmGCodeList.append("G01 Z" + self.drillSize)
 
     def flowHoleGCode(self, flowHoleCenterX, flowHoleCenterY):
 
-        self.mmGCodeList.append("G1 X" + str(flowHoleCenterX)
+        self.mmGCodeList.append("G00 X" + str(flowHoleCenterX)
                                 +" Y" + str(flowHoleCenterY))
-        self.mmGCodeList.append("Z" + self.drillHoleDepth)
+        self.mmGCodeList.append("G01 Z" + self.drillHoleDepth)
         self.mmGCodeList.append("Z" + self.drillSize)
+
+    def rotateValveCoords(self, valveList, componentXList, componentYList,
+                       componentRotationList, componentWidthList, componentHeightList):
+
+        if valveList is None:
+            return None
+        else:
+            newValveList = []
+
+            for valve in valveList:
+                valveCenterX = float(valve.find('X').text)
+                valveCenterY = float(valve.find('Y').text)
+
+                for i in range(len(componentXList)-1,-1,-1):
+                    if componentRotationList[i] != 0.0:
+                        tempValveCenterX = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
+                                                             valveCenterY - componentHeightList[i]/2,
+                                                             componentRotationList[i],
+                                                             'x')
+                        tempValveCenterY = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
+                                                             valveCenterY - componentHeightList[i]/2,
+                                                             componentRotationList[i],
+                                                             'y')
+                        valveCenterX = tempValveCenterX + componentXList[i] + componentWidthList[i]/2
+                        valveCenterY = tempValveCenterY + componentYList[i] + componentHeightList[i]/2
+                    else:
+                        valveCenterX += componentXList[i]
+                        valveCenterY += componentYList[i]
+
+                newValveList.append([valveCenterX, valveCenterY])
+
+            return newValveList
+
+    def cos_ra(self, argument):
+
+        return cos(radians(argument))
+
+    def sin_ra(self, argument):
+
+        return sin(radians(argument))
 
 class microMillingControlGCode():
 
@@ -740,7 +814,7 @@ class microMillingControlGCode():
 
     def moveBackToOrigin(self):
 
-        self.mmGCodeList.append("X0.0 Y0.0")
+        self.mmGCodeList.append("G00 X0.0 Y0.0")
         self.mmGCodeList.append("M30")
         self.mmGCodeList.append("(PROGRAM END)")
 
@@ -910,9 +984,9 @@ class microMillingControlGCode():
                     self.valveGCode(xList, yList, None, valveOuterR, valveInnerR)
 
                 elif circleRot in {0.0, 180.0}:
-                    self.valveGCode(self.getRotatedXList(x, y, xList, yList, circleRot),
-                                    self.getRotatedYList(x, y, xList, yList, circleRot),
-                                    90, valveOuterR, valveInnerR)
+                    self.valveGCode(self.getRotatedXList(x, y, xList, yList, circleRot + 90.0),
+                                    self.getRotatedYList(x, y, xList, yList, circleRot + 90.0),
+                                    90.0, valveOuterR, valveInnerR)
                 else:
                     self.valveGCode(self.getRotatedXList(x, y, xList, yList, 90.0-circleRot),
                                     self.getRotatedYList(x, y, xList, yList, 90.0-circleRot),
@@ -928,11 +1002,11 @@ class microMillingControlGCode():
                 currentDrillLevel = float(self.drillFlowDepth)
 
             if valveRotate == None:
-                self.mmGCodeList.append("G01 X" + str(xList[0]) +
+                self.mmGCodeList.append("G00 X" + str(xList[0]) +
                                         " Y" + str(yList[0]) +
                                         " Z" + self.drillSize)
-                self.mmGCodeList.append("Z" + str(currentDrillLevel))
-                self.mmGCodeList.append("G01 X" + str(xList[2]) +
+                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+                self.mmGCodeList.append("X" + str(xList[2]) +
                                         " Y" + str(yList[0]))
                 self.mmGCodeList.append("G02 X" + str(xList[2]) +
                                         " Y" + str(yList[5]) +
@@ -944,7 +1018,7 @@ class microMillingControlGCode():
                                         " R" + str(valveOuterR))
                 self.mmGCodeList.append("G01 X" + str(xList[0]) +
                                         " Y" + str(yList[1]))
-                self.mmGCodeList.append("G01 X" + str(xList[2]) +
+                self.mmGCodeList.append("X" + str(xList[2]) +
                                         " Y" + str(yList[1]))
                 self.mmGCodeList.append("G02 X" + str(xList[2]) +
                                         " Y" + str(yList[4]) +
@@ -958,19 +1032,19 @@ class microMillingControlGCode():
 
                 self.mmGCodeList.append("G01 X" + str(xList[1]) +
                                         " Y" + str(yList[2]))
-                self.mmGCodeList.append("G01 X" + str(xList[3]) +
+                self.mmGCodeList.append("X" + str(xList[3]) +
                                         " Y" + str(yList[2]))
-                self.mmGCodeList.append("G01 X" + str(xList[3]) +
+                self.mmGCodeList.append("X" + str(xList[3]) +
                                         " Y" + str(yList[3]))
-                self.mmGCodeList.append("G01 X" + str(xList[1]) +
+                self.mmGCodeList.append("X" + str(xList[1]) +
                                         " Y" + str(yList[3]))
                 self.mmGCodeList.append("Z" + self.drillSize)
             else:
-                self.mmGCodeList.append("G01 X" + str(xList[0]) +
+                self.mmGCodeList.append("G00 X" + str(xList[0]) +
                                         " Y" + str(yList[0]) +
                                         " Z" + self.drillSize)
-                self.mmGCodeList.append("Z" + str(currentDrillLevel))
-                self.mmGCodeList.append("G01 X" + str(xList[1]) +
+                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+                self.mmGCodeList.append("X" + str(xList[1]) +
                                         " Y" + str(yList[1]))
                 self.mmGCodeList.append("G02 X" + str(xList[2]) +
                                         " Y" + str(yList[2]) +
@@ -982,7 +1056,7 @@ class microMillingControlGCode():
                                         " R" + str(valveOuterR))
                 self.mmGCodeList.append("G01 X" + str(xList[4]) +
                                         " Y" + str(yList[4]))
-                self.mmGCodeList.append("G01 X" + str(xList[5]) +
+                self.mmGCodeList.append("X" + str(xList[5]) +
                                         " Y" + str(yList[5]))
                 self.mmGCodeList.append("G02 X" + str(xList[6]) +
                                         " Y" + str(yList[6]) +
@@ -996,11 +1070,11 @@ class microMillingControlGCode():
 
                 self.mmGCodeList.append("G01 X" + str(xList[8]) +
                                         " Y" + str(yList[8]))
-                self.mmGCodeList.append("G01 X" + str(xList[9]) +
+                self.mmGCodeList.append("X" + str(xList[9]) +
                                         " Y" + str(yList[9]))
-                self.mmGCodeList.append("G01 X" + str(xList[10]) +
+                self.mmGCodeList.append("X" + str(xList[10]) +
                                         " Y" + str(yList[10]))
-                self.mmGCodeList.append("G01 X" + str(xList[11]) +
+                self.mmGCodeList.append("X" + str(xList[11]) +
                                         " Y" + str(yList[11]))
                 self.mmGCodeList.append("Z" + self.drillSize)
 
@@ -1049,8 +1123,8 @@ class microMillingControlGCode():
 
         for valve in self.controlMap:
 
-            self.mmGCodeList.append("G1 X" + str(valve[0]) + " Y" + str(valve[1]))
-            self.mmGCodeList.append("Z" + self.drillHoleDepth)
+            self.mmGCodeList.append("G00 X" + str(valve[0]) + " Y" + str(valve[1]))
+            self.mmGCodeList.append("G01 Z" + self.drillHoleDepth)
             self.mmGCodeList.append("Z" + self.drillSize)
 
 

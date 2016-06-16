@@ -1,6 +1,6 @@
 from parsers.gParser import simulatorGCode
 from parsers.gParser import microMillingFlowGCode, microMillingControlGCode
-from parsers.svgParser import SVGParser, SVGFileErrorException
+from parsers.architectureParser import SVGParser, SVGFileErrorException
 from parsers.libraryParser import LibraryParser
 from parsers.configParser import ConfigParser
 

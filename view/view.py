@@ -34,12 +34,12 @@ class View(Tk):
         self.rowconfigure(0, weight=1)
         self.scale = None
         self.scale = None
-        self.minsize(563, 520)
+        self.minsize(784, 715)
         self.canvas = None
 
         self.currentSVGFile = StringVar()
-        self.currentSVGFile.set('chip_examples/svg_example2.xml')  # Should be ''
-        self.c.get_model().set_current_svg_file('chip_examples/svg_example2.xml')  # Should be ''
+        self.currentSVGFile.set('chip_examples/massive_mixers.xml')  # Should be ''
+        self.c.get_model().set_current_svg_file('chip_examples/massive_mixers.xml')  # Should be ''
 
         self.currentLibraryFile = StringVar()
         self.currentLibraryFile.set('library/component_library_test.xml')  # Should be ''
@@ -61,7 +61,6 @@ class View(Tk):
         self.canvas.bind('<Configure>', self.updateCanvas)
 
         rightView = Frame(self)
-        buttonWidth = 15
 
         self.showFlowCheckVar = IntVar()
         self.showFlowCheckVar.set(0)
@@ -80,23 +79,21 @@ class View(Tk):
         self.showLayoutCheck.pack(side = TOP, anchor=W)
         self.showControlCheck.pack(side = TOP, anchor=W)
         self.showRedBoxCheck.pack(side = TOP, anchor=W)
-        Button(chipViewFrame, text="Generate Chip Layout", command=self.showLayout, width = buttonWidth).pack(side = TOP)
+        Button(chipViewFrame, text="Generate Chip Layout", command=self.showLayout).pack(side = TOP)
 
         gCodeFrame = LabelFrame(rightView, text='GCode')
         Button(gCodeFrame, text="Simulator Flow", command=self.produceSimGCode,
-               width = buttonWidth, state=DISABLED).pack(side = TOP)
+               state=DISABLED).pack(side = TOP)
         Button(gCodeFrame, text="Simulator Control", command=self.produceSimControlGCode,
-               width = buttonWidth, state=DISABLED).pack(side = TOP)
-        Button(gCodeFrame, text="Micro Milling Flow", command=self.produceMMFlowGCode,
-               width = buttonWidth).pack(side = TOP)
-        Button(gCodeFrame, text="Micro Milling Control", command=self.produceMMControlGCode,
-               width=buttonWidth).pack(side=TOP)
+               state=DISABLED).pack(side = TOP)
+        Button(gCodeFrame, text="Micro Milling Flow", command=self.produceMMFlowGCode).pack(side = TOP)
+        Button(gCodeFrame, text="Micro Milling Control", command=self.produceMMControlGCode).pack(side=TOP)
         gCodeFrame.grid(row=1, column=0, sticky=E + W, ipady=3, ipadx=5)
 
         gCodeTextFrame = LabelFrame(rightView, text='GCode View')
-        self.gCodeTextField = Text(gCodeTextFrame, width=25, state=DISABLED, highlightbackground='grey', highlightthickness=1)
+        self.gCodeTextField = Text(gCodeTextFrame, width=30, state=DISABLED, highlightbackground='grey', highlightthickness=1)
         self.gCodeTextField.pack(side = TOP, expand=True, fill="y", pady=5)
-        self.gCodeTextFieldCopy = Button(gCodeTextFrame, text="Copy To Clipboard", width=buttonWidth, state=DISABLED, command=self.copyGCodeToClipboard)
+        self.gCodeTextFieldCopy = Button(gCodeTextFrame, text="Copy To Clipboard", state=DISABLED, command=self.copyGCodeToClipboard)
         self.gCodeTextFieldCopy.pack(side = TOP)
         gCodeTextFrame.grid(row=2, column=0, sticky=N + E + W + S, ipady=3, ipadx=5)
 
@@ -225,11 +222,6 @@ class View(Tk):
                                            [component[3] % 360.0],
                                            [componentWidth],
                                            [componentHeight])
-                        self.appendRedBoxes(iComponent,
-                                           [componentActualPositionX], [componentActualPositionY],
-                                           [component[3] % 360.0],
-                                           [componentWidth],
-                                           [componentHeight])
             else:
                 self.c.add_to_log('Skipping drawing of ' +  component[0] + ' - component not in Library')
                 self.updateStatusMessage()
@@ -238,6 +230,10 @@ class View(Tk):
                       componentRotationList, componentWidthList, componentHeightList):
 
         if component.tag in self.library:
+            self.appendRedBoxes(component, componentXList, componentYList,
+                                componentRotationList,
+                                componentWidthList,
+                                componentHeightList)
             componentX = float(component.find('X').text)
             componentY = float(component.find('Y').text)
             componentWidth = float(self.library[component.tag]['Size'].find('Width').text)
@@ -261,7 +257,7 @@ class View(Tk):
                                         componentHeightList,
                                         self.rotateValveCoords(self.library[component.tag]['Control'],
                                                                componentXList, componentYList,
-                                                               componentRotationList, componentWidth,
+                                                               componentRotationList, componentWidthList,
                                                                componentHeightList))
                 elif iComponent.tag == 'FlowCircle':
                     self.appendFlowCircles(iComponent, componentXList, componentYList,
@@ -275,10 +271,6 @@ class View(Tk):
                                       componentHeightList)
                 else:
                     self.drawComponent(iComponent, componentXList, componentYList,
-                                       componentRotationList,
-                                       componentWidthList,
-                                       componentHeightList)
-                    self.appendRedBoxes(iComponent, componentXList, componentYList,
                                        componentRotationList,
                                        componentWidthList,
                                        componentHeightList)
@@ -357,7 +349,6 @@ class View(Tk):
                             currentX = x + self.discontinuityWidth/2
                         else:
                             currentX = x - self.discontinuityWidth/2
-
                 self.flowLineMap.append([currentX,
                                       flowStartY,
                                       flowEndX,
@@ -425,12 +416,18 @@ class View(Tk):
             totalRotation += componentRotationList[i]
 
         circleRadius = float(flowCircle.find('Radius').text)
-        angleList = list(flowCircle.find('Valves'))
+        angleList = [float(angle.text) for angle in
+                     sorted(list(flowCircle.find('Valves')),key=lambda elem: float(elem.text)%360.0)]
 
         for valve in angleList:
-            valveDegree = float(valve.text)
-            valveCenterX = circleCenterX + cos(radians(valveDegree+totalRotation%360.0)) * circleRadius
-            valveCenterY = circleCenterY + sin(radians(valveDegree+totalRotation%360.0)) * circleRadius
+            valveDegree = valve
+            if valveDegree in {0.0, 180.0}:
+                valveCenterX = circleCenterX + cos(radians((valveDegree+totalRotation)%360.0)) * circleRadius
+                valveCenterY = circleCenterY + sin(radians((valveDegree+totalRotation)%360.0)) * circleRadius
+            else:
+                valveCenterX = circleCenterX + cos(radians((valveDegree+totalRotation)%360.0)) * circleRadius
+                valveCenterY = circleCenterY + sin(radians((valveDegree+totalRotation)%360.0)) * circleRadius
+
             self.controlMap.append([valveCenterX - 2,
                                      valveCenterY - 2,
                                      valveCenterX + 2,
@@ -449,26 +446,17 @@ class View(Tk):
             totalRotation = flowCircle[2]
             circleRadius = flowCircle[3]
 
-            valveLengthAngle = (360 * 2 * float(self.conf['drillOptions']['drillSize']))/(2 * circleRadius * pi)
-            remainingAngle = 360
+            valveLengthAngle = (360 * float(self.discontinuityWidth))/(2 * circleRadius * pi)
 
             if len(angleList) == 0:
                 self.canvas.create_oval(xy)
             else:
-                for i in range(0,len(angleList)):
-                    if i == len(angleList)-1:
-                        self.canvas.create_arc(xy,
-                                               start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
-                                               extent=(remainingAngle-valveLengthAngle) % 360.0,
-                                               style=ARC)
-                    else:
-                        self.canvas.create_arc(xy,
-                                               start=float(angleList[i].text)+valveLengthAngle/2 - totalRotation + 180.0,
-                                               extent=(float(angleList[i+1].text) - float(angleList[i].text) -
-                                                       valveLengthAngle) % 360.0,
-                                               style=ARC)
-                    if i != len(angleList)-1:
-                        remainingAngle -= float(angleList[i+1].text) - float(angleList[i].text)
+                for i in range(len(angleList)-1,-1,-1):
+                    self.canvas.create_arc(xy,
+                                           start=(360.0 - angleList[i]+valveLengthAngle/2 - totalRotation) % 360.0,
+                                           extent=((360.0 - angleList[i-1] - valveLengthAngle/2 - totalRotation) -
+                                                   (360.0 - angleList[i] + valveLengthAngle/2 - totalRotation)) % 360.0,
+                                           style=ARC)
 
     def appendFlowHoles(self, flowHole, componentXList, componentYList,
                        componentRotationList, componentWidthList, componentHeightList):
@@ -568,9 +556,9 @@ class View(Tk):
 
         componentWidth = float(self.library[component.tag]['Size'].find('Width').text)
         componentHeight = float(self.library[component.tag]['Size'].find('Height').text)
-        totalRotation += float(component.find('Rotation').text)
+        componentRotation = totalRotation + float(component.find('Rotation').text)
 
-        self.appendRedBox(componentX, componentY, componentWidth, componentHeight, totalRotation)
+        self.appendRedBox(componentX, componentY, componentWidth, componentHeight, componentRotation)
 
     def appendRedBox(self, componentX, componentY, componentWidth, componentHeight, totalRotation):
 
@@ -652,7 +640,7 @@ class View(Tk):
                        componentRotationList, componentWidthList, componentHeightList):
 
         if valveList is None:
-            newValveList = None
+            return None
         else:
             newValveList = []
 
@@ -676,9 +664,9 @@ class View(Tk):
                         valveCenterX += componentXList[i]
                         valveCenterY += componentYList[i]
 
-                    newValveList.append([valveCenterX, valveCenterY])
+                newValveList.append([valveCenterX, valveCenterY])
 
-        return newValveList
+            return newValveList
 
 
     def produceSimGCode(self):
