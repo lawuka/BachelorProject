@@ -285,14 +285,10 @@ class View(Tk):
 
     def appendFlowLines(self, flowLine, componentXList, componentYList,
                      componentRotationList, componentWidthList, componentHeightList, controlValves):
-        flowStartX = float(flowLine.find('Start').find('X').text)# + componentActualPositionX #- \
-                                 #float(self.conf['drillOptions']['drillSize'])/2
-        flowStartY = float(flowLine.find('Start').find('Y').text)# + componentActualPositionY #- \
-                                 #float(self.conf['drillOptions']['drillSize'])/2
-        flowEndX = float(flowLine.find('End').find('X').text)# + componentActualPositionX #- \
-                               #float(self.conf['drillOptions']['drillSize'])/2
-        flowEndY = float(flowLine.find('End').find('Y').text)# + componentActualPositionY #- \
-                               #float(self.conf['drillOptions']['drillSize'])/2
+        flowStartX = float(flowLine.find('Start').find('X').text)
+        flowStartY = float(flowLine.find('Start').find('Y').text)
+        flowEndX = float(flowLine.find('End').find('X').text)
+        flowEndY = float(flowLine.find('End').find('Y').text)
 
         for i in range(len(componentXList)-1,-1,-1):
             if componentRotationList[i] != 0.0:

@@ -341,10 +341,10 @@ class microMillingFlowGCode():
 
     def internalFlowChannel(self, flowChannel, componentXList, componentYList, componentRotationList,
                             componentWidthList, componentHeightList, controlValves):
-        flowStartX = float(flowChannel.find('Start').find('X').text) * float(self.drillSize)# + componentActualPositionX
-        flowStartY = float(flowChannel.find('Start').find('Y').text) * float(self.drillSize)# + componentActualPositionY
-        flowEndX = float(flowChannel.find('End').find('X').text) * float(self.drillSize)# + componentActualPositionX
-        flowEndY = float(flowChannel.find('End').find('Y').text) * float(self.drillSize)# + componentActualPositionY
+        flowStartX = float(flowChannel.find('Start').find('X').text) * float(self.drillSize)
+        flowStartY = float(flowChannel.find('Start').find('Y').text) * float(self.drillSize)
+        flowEndX = float(flowChannel.find('End').find('X').text) * float(self.drillSize)
+        flowEndY = float(flowChannel.find('End').find('Y').text) * float(self.drillSize)
 
         for i in range(len(componentXList)-1,-1,-1):
             if componentRotationList[i] != 0.0:
@@ -436,8 +436,8 @@ class microMillingFlowGCode():
 
     def internalFlowCircle(self, flowCircle, componentXList, componentYList, componentRotationList,
                            componentWidthList, componentHeightList):
-        flowCircleCenterX = float(flowCircle.find('Center').find('X').text) * float(self.drillSize)# + componentActualPositionX
-        flowCircleCenterY = float(flowCircle.find('Center').find('Y').text) * float(self.drillSize)# + componentActualPositionY
+        flowCircleCenterX = float(flowCircle.find('Center').find('X').text) * float(self.drillSize)
+        flowCircleCenterY = float(flowCircle.find('Center').find('Y').text) * float(self.drillSize)
 
         totalRotation = 0
 

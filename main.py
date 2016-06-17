@@ -5,7 +5,6 @@ Created on 24 feb 2015
 '''
 from controller.controller import Controller
 
-
 '''
 Triggering the main program
 '''
