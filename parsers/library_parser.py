@@ -17,6 +17,7 @@ class LibraryParser:
         self.root = None
         self.component_library = None
 
+    # Parse the component library.
     def parse_component_library(self, file_name):
 
         self.file = open(file_name)

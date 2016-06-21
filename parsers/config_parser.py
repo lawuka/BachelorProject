@@ -15,6 +15,7 @@ class ConfigParser:
         self.file = None
         self.conf = None
 
+    # Parse the configuration file
     def parse_config(self, file_name):
 
         self.file = open(file_name)

@@ -8,6 +8,8 @@ Created on 8 june 2015
 from model.math_functions import rotate_x_y_coordinates, rotate_coordinate
 
 
+# Rotate valve coordinates, done for each component on a biochip.
+# If no valves exist in a component, return None.
 def rotate_valve_coords(valve_list, component_x_list, component_y_list,
                         component_rotation_list, component_width_list, component_height_list):
 
@@ -30,6 +32,8 @@ def rotate_valve_coords(valve_list, component_x_list, component_y_list,
         return new_valve_list
 
 
+# Rotated x coordinate list, used by valves in the control layer to know each x position
+# needed by the G-code
 def get_rotated_x_list(x, y, x_list, y_list, valve_rot):
 
     rotated_x_list = [rotate_coordinate(x_list[0] - x, y_list[0] - y, valve_rot, 'x') + x,
@@ -47,6 +51,8 @@ def get_rotated_x_list(x, y, x_list, y_list, valve_rot):
     return rotated_x_list
 
 
+# Rotated y coordinate list, used by valves in the control layer to know each y position
+# needed by the G-code
 def get_rotated_y_list(x, y, x_list, y_list, valve_rot):
 
     rotated_y_list = [rotate_coordinate(x_list[0] - x, y_list[0] - y, valve_rot, 'y') + y,

@@ -77,7 +77,7 @@ class Model:
             raise NoFileException("Missing Configuration File!")
         else:
             self.config_data = self.config_parser.parse_config(self.current_config_file)
-
+            # Check that each configuration is correctly defined.
             conf_list = [self.config_data['Flow_Layer_Options']['Drill_Z_Top'],
                          self.config_data['Flow_Layer_Options']['Valve_Discontinuity_Width'],
                          self.config_data['Flow_Layer_Options']['Flow_Drill_Size'],
@@ -147,6 +147,7 @@ class Model:
 
         self.current_config_file = file
 
+    # Used by must function, to check that files are okay and not missing.
     def check_for_files(self):
         if self.current_architecture_file is None:
             raise NoFileException("Missing Architecture File!")

@@ -8,11 +8,12 @@ from model.math_functions import rotate_x_y_coordinates, cos_ra, sin_ra
 from model.helper_functions import rotate_valve_coords, get_rotated_x_list, get_rotated_y_list
 
 
+# Simulator G-Code !!!!!OBS: Not implemented correctly!!!!!
 class SimulatorGCode:
 
     def __init__(self):
 
-        self.svg_map = None
+        self.architecture_map = None
         self.library = None
         self.conf = None
         self.simulate_g_code_list = None
@@ -23,9 +24,9 @@ class SimulatorGCode:
         self.drill_hole_top = "10"
         self.drill_hole_low = "-3"
 
-    def create_simulator_g_code_list(self, svg_map, library, conf):
+    def create_simulator_g_code_list(self, architecture_map, library, conf):
 
-        self.svg_map = svg_map
+        self.architecture_map = architecture_map
         self.library = library
         self.conf = conf
         self.simulate_g_code_list = []
@@ -56,8 +57,8 @@ class SimulatorGCode:
     def g_code_options(self):
 
         # Machine options
-        self.simulate_g_code_list.append("; Height: " + self.svg_map['height'])
-        self.simulate_g_code_list.append("; Width: " + self.svg_map['width'])
+        self.simulate_g_code_list.append("; Height: " + self.architecture_map['height'])
+        self.simulate_g_code_list.append("; Width: " + self.architecture_map['width'])
         self.simulate_g_code_list.append("G21")
         self.simulate_g_code_list.append("G90")
         self.simulate_g_code_list.append("F250")
@@ -87,7 +88,7 @@ class SimulatorGCode:
         '''
         Remember to add 10mm to all measures. This is only for the simulator.
         '''
-        for line in self.svg_map['lines']:
+        for line in self.architecture_map['lines']:
             if line[0] == line[2]:
                 line1 = "G1 X" + str(int(line[0])/10 + 10) + " Y" + str(int(line[1])/10 + 10) + " Z" + \
                         self.drill_top + self.new_line
@@ -111,7 +112,7 @@ class SimulatorGCode:
         '''
         Remember to add 10.5mm to all measures. This is only for the simulator.
         '''
-        for hole in self.svg_map['holes']:
+        for hole in self.architecture_map['holes']:
             line1 = "G1 X" + str(int(hole[0])/10 + 10.5) + " Y" + str(int(hole[1])/10 + 10.5) + self.new_line
             line2 = "Z" + self.drill_hole_low + self.new_line
             line3 = "Z" + self.drill_hole_top
@@ -165,6 +166,7 @@ class MicroMillingFlowGCode:
         else:
             self.repeat = int(ceil((float(self.drill_flow_depth) * -1.0) / (self.scale / 4.0)))
 
+        # Check that there are lines or components to drill
         if len(self.architecture_map['lines']) != 0 or len(self.architecture_map['components']) != 0:
 
             self.g_code_options()
@@ -188,21 +190,17 @@ class MicroMillingFlowGCode:
         Parenthese in GCode is comments
         '''
         self.mm_g_code_list.append("(PROGRAM START)")
-        '''
-        Drill used for flow channels
-        '''
+
+        # Drill used for flow channels
         self.mm_g_code_list.append("(" + self.drill_flow_size + "MM FLOW DRILL)")
-        '''
-        M00 is break in Gcode, and machine pauses (Drill change or similar)
-        '''
+
+        # M00 is break in Gcode, and machine pauses (Drill change or similar)
         self.mm_g_code_list.append("M00")
-        '''
-        With a spindle controller, the spindle speed is ignored.
-        self.mmGCodeList.append("S2000")
-        '''
-        '''
-        Feed rate - how fast drill moves in X,Y or Z direction
-        '''
+
+        # With a spindle controller, the spindle speed is ignored.
+        # self.mmGCodeList.append("S2000")
+
+        # Feed rate - how fast drill moves in X,Y or Z direction
         self.mm_g_code_list.append("F250")
 
     def components(self):
@@ -271,7 +269,6 @@ class MicroMillingFlowGCode:
         '''
         Pausing the drilling, since drill for drilling all the way through is different than flow channels
         '''
-
         if len(self.flow_hole_list) != 0:
             self.mm_g_code_list.append("(PAUSE FOR DRILL CHANGE)")
             self.mm_g_code_list.append("(" + self.drill_hole_size + "MM HOLE DRILL)")
@@ -284,12 +281,6 @@ class MicroMillingFlowGCode:
 
             for flowHole in self.flow_hole_list:
                 self.flow_hole_g_code(flowHole[0], flowHole[1])
-
-    def move_back_to_origin(self):
-
-        self.mm_g_code_list.append("G00 X0.0 Y0.0")
-        self.mm_g_code_list.append("M30")
-        self.mm_g_code_list.append("(PROGRAM END)")
 
     def internal_component(self, component, component_x_list, component_y_list,
                            component_rotation_list, component_width_list, component_height_list):
@@ -526,47 +517,6 @@ class MicroMillingFlowGCode:
 
         self.flow_hole_list.append([new_coordinates[0], new_coordinates[1]])
 
-    def complete_circle_g_code(self, start_x, start_y, flow_circle_radius):
-
-        current_drill_level = 0.0
-
-        self.mm_g_code_list.append("G00 X" + start_x + " Y" + start_y + " Z" + self.drill_top)
-
-        for i in range(0, self.repeat):
-            current_drill_level -= (self.scale / 4.0)
-            if current_drill_level < float(self.drill_flow_depth):
-                current_drill_level = float(self.drill_flow_depth)
-            self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
-            if i % 2 == 0:
-                self.mm_g_code_list.append("G03 I-" + str(flow_circle_radius))
-            else:
-                self.mm_g_code_list.append("G02 I-" + str(flow_circle_radius))
-        self.mm_g_code_list.append("G01 Z" + self.drill_top)
-
-    def one_angle_circle_g_code(self, flow_circle_center_x,
-                                flow_circle_center_y,
-                                flow_circle_radius,
-                                flow_circle_start_x,
-                                flow_circle_start_y,
-                                valve_length_angle,
-                                angle):
-
-        if angle != 0:
-            flow_end_x = str(cos_ra(angle - valve_length_angle) * flow_circle_radius + flow_circle_center_x)
-            flow_end_y = str(sin_ra(angle - valve_length_angle) * flow_circle_radius + flow_circle_center_y)
-            self.flow_circle_g_code(flow_circle_start_x, flow_circle_start_y, flow_end_x, flow_end_y,
-                                    flow_circle_radius if angle <= 180.0 else -flow_circle_radius)
-            flow_start_x = str(cos_ra(angle + valve_length_angle) * flow_circle_radius + flow_circle_center_x)
-            flow_start_y = str(sin_ra(angle + valve_length_angle) * flow_circle_radius + flow_circle_center_y)
-            self.flow_circle_g_code(flow_start_x, flow_start_y, flow_circle_start_x, flow_circle_start_y,
-                                    -flow_circle_radius if angle <= 180.0 else flow_circle_radius)
-        else:
-            flow_start_x = str(cos_ra(valve_length_angle) * flow_circle_radius + flow_circle_center_x)
-            flow_start_y = str(sin_ra(valve_length_angle) * flow_circle_radius + flow_circle_center_y)
-            flow_end_x = str(cos_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_x)
-            flow_end_y = str(sin_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_y)
-            self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y, -flow_circle_radius)
-
     def flow_channel_g_code(self, flow_start_x, flow_start_y, flow_end_x, flow_end_y):
 
         current_drill_level = 0.0
@@ -614,6 +564,48 @@ class MicroMillingFlowGCode:
                                            str(flow_circle_radius))
         self.mm_g_code_list.append("G01 Z" + self.drill_top)
 
+    def complete_circle_g_code(self, start_x, start_y, flow_circle_radius):
+
+        current_drill_level = 0.0
+
+        self.mm_g_code_list.append("G00 X" + start_x + " Y" + start_y + " Z" + self.drill_top)
+
+        # Repeate in depth steps until desired depth has been reached
+        for i in range(0, self.repeat):
+            current_drill_level -= (self.scale / 4.0)
+            if current_drill_level < float(self.drill_flow_depth):
+                current_drill_level = float(self.drill_flow_depth)
+            self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+            if i % 2 == 0:
+                self.mm_g_code_list.append("G03 I-" + str(flow_circle_radius))
+            else:
+                self.mm_g_code_list.append("G02 I-" + str(flow_circle_radius))
+        self.mm_g_code_list.append("G01 Z" + self.drill_top)
+
+    def one_angle_circle_g_code(self, flow_circle_center_x,
+                                flow_circle_center_y,
+                                flow_circle_radius,
+                                flow_circle_start_x,
+                                flow_circle_start_y,
+                                valve_length_angle,
+                                angle):
+
+        if angle != 0:
+            flow_end_x = str(cos_ra(angle - valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_end_y = str(sin_ra(angle - valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            self.flow_circle_g_code(flow_circle_start_x, flow_circle_start_y, flow_end_x, flow_end_y,
+                                    flow_circle_radius if angle <= 180.0 else -flow_circle_radius)
+            flow_start_x = str(cos_ra(angle + valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_start_y = str(sin_ra(angle + valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            self.flow_circle_g_code(flow_start_x, flow_start_y, flow_circle_start_x, flow_circle_start_y,
+                                    -flow_circle_radius if angle <= 180.0 else flow_circle_radius)
+        else:
+            flow_start_x = str(cos_ra(valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_start_y = str(sin_ra(valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            flow_end_x = str(cos_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_end_y = str(sin_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y, -flow_circle_radius)
+
     def flow_hole_g_code(self, flow_hole_center_x, flow_hole_center_y):
 
         self.mm_g_code_list.append("G00 X" + str(flow_hole_center_x) +
@@ -621,21 +613,27 @@ class MicroMillingFlowGCode:
         self.mm_g_code_list.append("G01 Z" + self.drill_hole_depth)
         self.mm_g_code_list.append("Z" + self.drill_top)
 
+    def move_back_to_origin(self):
+
+        self.mm_g_code_list.append("G00 X0.0 Y0.0")
+        self.mm_g_code_list.append("M30")
+        self.mm_g_code_list.append("(PROGRAM END)")
+
 
 class MicroMillingControlGCode:
 
     def __init__(self):
 
-        self.svg_map = None
+        self.architecture_map = None
         self.library = None
         self.conf = None
         self.mm_g_code_list = None
         self.control_map = None
         self.scale = None
 
-    def create_mm_g_code_list(self, svg_map, library, conf):
+    def create_mm_g_code_list(self, architecture_map, library, conf):
 
-        self.svg_map = svg_map
+        self.architecture_map = architecture_map
         self.library = library
         self.conf = conf
         self.mm_g_code_list = []
@@ -661,11 +659,10 @@ class MicroMillingControlGCode:
         self.scale = float(self.drill_subsidence_size)
 
         # Use chip size, to modify control layer so it fits correctly on top
-        self.svg_map_width = float(self.svg_map['width']) * self.scale
-        self.svg_map_height = float(self.svg_map['height']) * self.scale
+        self.architecture_map_width = float(self.architecture_map['width']) * self.scale
 
         # Create GCode List
-        if len(self.svg_map['lines']) != 0 or len(self.svg_map['components']) != 0:
+        if len(self.architecture_map['lines']) != 0 or len(self.architecture_map['components']) != 0:
 
             self.fetch_valves()
 
@@ -709,9 +706,9 @@ class MicroMillingControlGCode:
 
     def fetch_valves(self):
 
-        if self.svg_map['components']:
+        if self.architecture_map['components']:
             # Start going through each component in 'components'
-            for component in self.svg_map['components']:
+            for component in self.architecture_map['components']:
                 if component[0] in self.library:
                     component_x = float(component[1]) * self.scale
                     component_y = float(component[2]) * self.scale
@@ -812,7 +809,7 @@ class MicroMillingControlGCode:
                                                      component_width_list, component_height_list,
                                                      component_rotation_list)
 
-            xyxy = [self.svg_map_width - new_coordinates[0],
+            xyxy = [self.architecture_map_width - new_coordinates[0],
                     new_coordinates[1],
                     (valve_rotation - new_coordinates[2]) % 360.0,
                     None]
@@ -840,13 +837,14 @@ class MicroMillingControlGCode:
             valve_center_y = new_coordinates[1] + (sin(radians(valve_degree+new_coordinates[2] % 360.0)) *
                                                    flow_circle_radius)
 
-            xy = [self.svg_map_width - valve_center_x,
+            xy = [self.architecture_map_width - valve_center_x,
                   valve_center_y,
                   None,
                   (valve_degree-new_coordinates[2]) % 360.0]
 
             self.control_map.append(xy)
 
+    # Create valves G-code, by their size in width and height and according to scale.
     def valves(self):
         valve_width = float(self.valve_width) * self.scale
         valve_height = float(self.valve_height) * self.scale
