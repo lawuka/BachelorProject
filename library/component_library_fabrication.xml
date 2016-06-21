@@ -8,11 +8,11 @@
     // All Angle measures have to be in degrees
     //
 
-    *****************************
-    *                           *
-    * Basic Internal Components *
-    *                           *
-    *****************************
+    ******************************
+    *                            *
+    * Atomic Internal Components *
+    *                            *
+    ******************************
 
     <FlowLine>
         <Start>
@@ -42,11 +42,11 @@
             <Y></Y>
     </FlowHole>
 
-    *****************************
-    *                           *
-    * Basic External Components *
-    *                           *
-    *****************************
+    ******************************
+    *                            *
+    * Atomic External Components *
+    *                            *
+    ******************************
 
     <ConnectionPoint>
         <X></X>
@@ -63,11 +63,11 @@
         <Y></Y>
     </OutputConnectionPoint>
 
-    ****************************
-    *                          *
-    * Basic Control Components *
-    *                          *
-    ****************************
+    *****************************
+    *                           *
+    * Atomic Control Components *
+    *                           *
+    *****************************
 
     <Valve>
         <X></X>
