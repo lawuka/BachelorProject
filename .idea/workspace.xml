@@ -3,9 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="81bdc2fb-570a-49e4-a67e-4bfa57566284" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/library/component_library_fabrication.xml" afterPath="$PROJECT_DIR$/library/component_library_fabrication.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/library/component_library_placement.xml" afterPath="$PROJECT_DIR$/library/component_library_placement.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/library/component_library_test.xml" afterPath="$PROJECT_DIR$/library/component_library_test.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/chip_examples/massive_mixers.xml" afterPath="$PROJECT_DIR$/chip_examples/massive_mixers.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parsers/g_code_parser.py" afterPath="$PROJECT_DIR$/parsers/g_code_parser.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/view.py" afterPath="$PROJECT_DIR$/view/view.py" />
     </list>
     <ignored path="Python.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -26,85 +26,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="component_example.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/library/component_example.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-3.125">
-              <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="component_library_fabrication.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/library/component_library_fabrication.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-24.375">
-              <caret line="112" column="7" selection-start-line="2" selection-start-column="4" selection-end-line="112" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="component_library_placement.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/library/component_library_placement.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-17.5">
-              <caret line="52" column="15" selection-start-line="52" selection-start-column="15" selection-end-line="52" selection-end-column="15" />
-              <folding>
-                <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#4;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#8;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#9;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#10;n#ComponentLibrary#0;n#!!top" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="component_library_test.xml" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/library/component_library_test.xml">
+      <file leaf-file-name="g_code_parser.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/parsers/g_code_parser.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="18" selection-start-line="0" selection-start-column="18" selection-end-line="0" selection-end-column="18" />
+              <caret line="428" column="0" selection-start-line="428" selection-start-column="0" selection-end-line="428" selection-end-column="0" />
               <folding>
-                <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#8;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#9;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#10;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#11;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#12;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#13;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#14;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#15;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#16;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#17;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#18;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#19;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#20;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#21;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#22;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#23;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#24;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#25;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#26;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#27;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#28;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#29;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#30;n#ComponentLibrary#0;n#!!top" expanded="false" />
+                <element signature="e#47#91#0" expanded="true" />
+                <element signature="e#348#4121#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="view.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/view/view.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.7050243">
+              <caret line="53" column="52" selection-start-line="53" selection-start-column="52" selection-end-line="53" selection-end-column="52" />
+              <folding>
+                <element signature="e#49#70#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="massive_mixers.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/chip_examples/massive_mixers.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-14.708333">
+              <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -157,7 +109,6 @@
         <option value="$PROJECT_DIR$/chip_examples/aquaflux.xml" />
         <option value="$PROJECT_DIR$/chip_examples/biochip_example2.xml" />
         <option value="$PROJECT_DIR$/config/conf.ini" />
-        <option value="$PROJECT_DIR$/chip_examples/massive_mixers.xml" />
         <option value="$PROJECT_DIR$/controller/writeToFile.py" />
         <option value="$PROJECT_DIR$/parsers/libraryParser.py" />
         <option value="$PROJECT_DIR$/parsers/architectureParser.py" />
@@ -174,11 +125,12 @@
         <option value="$PROJECT_DIR$/parsers/config_parser.py" />
         <option value="$PROJECT_DIR$/parsers/library_parser.py" />
         <option value="$PROJECT_DIR$/controller/controller.py" />
-        <option value="$PROJECT_DIR$/view/view.py" />
-        <option value="$PROJECT_DIR$/parsers/g_code_parser.py" />
         <option value="$PROJECT_DIR$/library/component_library_fabrication.xml" />
         <option value="$PROJECT_DIR$/library/component_library_placement.xml" />
         <option value="$PROJECT_DIR$/library/component_library_test.xml" />
+        <option value="$PROJECT_DIR$/parsers/g_code_parser.py" />
+        <option value="$PROJECT_DIR$/chip_examples/massive_mixers.xml" />
+        <option value="$PROJECT_DIR$/view/view.py" />
       </list>
     </option>
   </component>
@@ -636,7 +588,13 @@
       <option name="project" value="LOCAL" />
       <updated>1466503252648</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Library update.">
+      <created>1466503461146</created>
+      <option name="number" value="00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1466503461146</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -650,7 +608,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3270809" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282532" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3059789" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24384525" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -694,7 +652,8 @@
     <MESSAGE value="Updated Python syntax and standard code style." />
     <MESSAGE value="Updated README and changed file names." />
     <MESSAGE value="Added comments!" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added comments!" />
+    <MESSAGE value="Library update." />
+    <option name="LAST_COMMIT_MESSAGE" value="Library update." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -716,28 +675,21 @@
           <caret line="301" column="59" selection-start-line="301" selection-start-column="59" selection-end-line="301" selection-end-column="59" />
           <folding>
             <element signature="e#49#70#0" expanded="true" />
-            <element signature="e#9671#10197#0" expanded="false" />
-            <element signature="e#24133#26244#0" expanded="false" />
-            <element signature="e#26326#27408#0" expanded="false" />
-            <element signature="e#27631#28297#0" expanded="false" />
-            <element signature="e#28375#28483#0" expanded="false" />
-            <element signature="e#28722#29435#0" expanded="false" />
-            <element signature="e#29514#29646#0" expanded="false" />
-            <element signature="e#29867#30743#0" expanded="false" />
-            <element signature="e#30927#32478#0" expanded="false" />
-            <element signature="e#32550#33690#0" expanded="false" />
-            <element signature="e#33734#34287#0" expanded="false" />
-            <element signature="e#34340#34375#0" expanded="false" />
-            <element signature="e#35900#36133#0" expanded="false" />
-            <element signature="e#36177#36400#0" expanded="false" />
-            <element signature="e#36443#36664#0" expanded="false" />
-            <element signature="e#36714#36806#0" expanded="false" />
-            <element signature="e#36852#37359#0" expanded="false" />
-            <element signature="e#37407#37686#0" expanded="false" />
-            <element signature="e#37738#37876#0" expanded="false" />
-            <element signature="e#37912#38061#0" expanded="false" />
-            <element signature="e#40730#41040#0" expanded="false" />
-            <element signature="e#41077#41090#0" expanded="false" />
+            <element signature="e#9899#10425#0" expanded="false" />
+            <element signature="e#24361#26472#0" expanded="false" />
+            <element signature="e#27859#28525#0" expanded="false" />
+            <element signature="e#30095#30971#0" expanded="false" />
+            <element signature="e#31155#32706#0" expanded="false" />
+            <element signature="e#32778#33918#0" expanded="false" />
+            <element signature="e#35091#35126#0" expanded="false" />
+            <element signature="e#37325#37558#0" expanded="false" />
+            <element signature="e#37602#37825#0" expanded="false" />
+            <element signature="e#37868#38089#0" expanded="false" />
+            <element signature="e#38139#38231#0" expanded="false" />
+            <element signature="e#39718#39856#0" expanded="false" />
+            <element signature="e#39892#40041#0" expanded="false" />
+            <element signature="e#42712#43022#0" expanded="false" />
+            <element signature="e#43059#43072#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -748,28 +700,21 @@
           <caret line="27" column="38" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
           <folding>
             <element signature="e#49#70#0" expanded="true" />
-            <element signature="e#9671#10197#0" expanded="false" />
-            <element signature="e#24133#26244#0" expanded="false" />
-            <element signature="e#26326#27408#0" expanded="false" />
-            <element signature="e#27631#28297#0" expanded="false" />
-            <element signature="e#28375#28483#0" expanded="false" />
-            <element signature="e#28722#29435#0" expanded="false" />
-            <element signature="e#29514#29646#0" expanded="false" />
-            <element signature="e#29867#30743#0" expanded="false" />
-            <element signature="e#30927#32478#0" expanded="false" />
-            <element signature="e#32550#33690#0" expanded="false" />
-            <element signature="e#33734#34287#0" expanded="false" />
-            <element signature="e#34340#34375#0" expanded="false" />
-            <element signature="e#35900#36133#0" expanded="false" />
-            <element signature="e#36177#36400#0" expanded="false" />
-            <element signature="e#36443#36664#0" expanded="false" />
-            <element signature="e#36714#36806#0" expanded="false" />
-            <element signature="e#36852#37359#0" expanded="false" />
-            <element signature="e#37407#37686#0" expanded="false" />
-            <element signature="e#37738#37876#0" expanded="false" />
-            <element signature="e#37912#38061#0" expanded="false" />
-            <element signature="e#40730#41040#0" expanded="false" />
-            <element signature="e#41077#41090#0" expanded="false" />
+            <element signature="e#9899#10425#0" expanded="false" />
+            <element signature="e#24361#26472#0" expanded="false" />
+            <element signature="e#27859#28525#0" expanded="false" />
+            <element signature="e#30095#30971#0" expanded="false" />
+            <element signature="e#31155#32706#0" expanded="false" />
+            <element signature="e#32778#33918#0" expanded="false" />
+            <element signature="e#35091#35126#0" expanded="false" />
+            <element signature="e#37325#37558#0" expanded="false" />
+            <element signature="e#37602#37825#0" expanded="false" />
+            <element signature="e#37868#38089#0" expanded="false" />
+            <element signature="e#38139#38231#0" expanded="false" />
+            <element signature="e#39718#39856#0" expanded="false" />
+            <element signature="e#39892#40041#0" expanded="false" />
+            <element signature="e#42712#43022#0" expanded="false" />
+            <element signature="e#43059#43072#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -994,14 +939,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/chip_examples/massive_mixers.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.27083334">
-          <caret line="38" column="0" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.08955224">
@@ -1076,16 +1013,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/view/view.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-20.11111">
-          <caret line="773" column="16" selection-start-line="773" selection-start-column="15" selection-end-line="773" selection-end-column="16" />
-          <folding>
-            <element signature="e#49#70#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/parsers/architecture_parser.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-9.851851">
@@ -1099,52 +1026,6 @@
         <state vertical-scroll-proportion="-39.296295">
           <caret line="120" column="37" selection-start-line="120" selection-start-column="36" selection-end-line="120" selection-end-column="37" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/parsers/g_code_parser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-9.0">
-          <caret line="976" column="65" selection-start-line="976" selection-start-column="65" selection-end-line="976" selection-end-column="65" />
-          <folding>
-            <element signature="e#47#91#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/library/component_example.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-3.125">
-          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/library/component_library_fabrication.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-24.375">
-          <caret line="112" column="7" selection-start-line="2" selection-start-column="4" selection-end-line="112" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/library/component_library_placement.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-17.5">
-          <caret line="52" column="15" selection-start-line="52" selection-start-column="15" selection-end-line="52" selection-end-column="15" />
-          <folding>
-            <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#4;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#8;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#9;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#10;n#ComponentLibrary#0;n#!!top" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1183,6 +1064,71 @@
             <element signature="n#Component#28;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#29;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#30;n#ComponentLibrary#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/component_library_placement.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.52434456">
+          <caret line="52" column="15" selection-start-line="52" selection-start-column="15" selection-end-line="52" selection-end-column="15" />
+          <folding>
+            <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#4;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#8;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#9;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#10;n#ComponentLibrary#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/component_library_fabrication.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7303371">
+          <caret line="112" column="7" selection-start-line="2" selection-start-column="4" selection-end-line="112" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/component_example.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.09363296">
+          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parsers/g_code_parser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="428" column="0" selection-start-line="428" selection-start-column="0" selection-end-line="428" selection-end-column="0" />
+          <folding>
+            <element signature="e#47#91#0" expanded="true" />
+            <element signature="e#348#4121#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/chip_examples/massive_mixers.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-14.708333">
+          <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/view/view.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7050243">
+          <caret line="53" column="52" selection-start-line="53" selection-start-column="52" selection-end-line="53" selection-end-column="52" />
+          <folding>
+            <element signature="e#49#70#0" expanded="true" />
           </folding>
         </state>
       </provider>

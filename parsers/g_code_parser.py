@@ -429,8 +429,8 @@ class MicroMillingFlowGCode:
 
         flow_circle_radius = float(flow_circle.find('Radius').text) * self.scale
 
-        flow_circle_start_x = flow_circle_center_x
-        flow_circle_start_y = flow_circle_center_y
+        flow_circle_start_x = new_coordinates[0]
+        flow_circle_start_y = new_coordinates[1]
 
         angle_list = [float(angle.text) for angle in
                       sorted(list(flow_circle.find('Valves')), key=lambda elem: float(elem.text) % 360.0)]
@@ -442,8 +442,8 @@ class MicroMillingFlowGCode:
                                         str(flow_circle_start_y),
                                         flow_circle_radius)
         elif len(angle_list) == 1:
-            self.one_angle_circle_g_code(flow_circle_center_x,
-                                         flow_circle_center_y,
+            self.one_angle_circle_g_code(new_coordinates[0],
+                                         new_coordinates[1],
                                          flow_circle_radius,
                                          str(flow_circle_start_x + flow_circle_radius), str(flow_circle_start_y),
                                          valve_length_angle / 2, (angle_list[0]+new_coordinates[2]) % 360.0)
@@ -461,9 +461,9 @@ class MicroMillingFlowGCode:
                 if i == 0:
                     if angle_list[i] != 0.0:
                         flow_end_x = str(cos_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                         flow_circle_radius + flow_circle_center_x)
+                                         flow_circle_radius + new_coordinates[0])
                         flow_end_y = str(sin_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                         flow_circle_radius + flow_circle_center_y)
+                                         flow_circle_radius + new_coordinates[1])
                         self.flow_circle_g_code(str(flow_circle_start_x),
                                                 str(flow_circle_start_y),
                                                 flow_end_x,
@@ -473,22 +473,22 @@ class MicroMillingFlowGCode:
                         pass
                 else:
                     flow_start_x = str(cos_ra(angle_list[i-1]+valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                       flow_circle_radius + flow_circle_center_x)
+                                       flow_circle_radius + new_coordinates[0])
                     flow_start_y = str(sin_ra(angle_list[i-1]+valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                       flow_circle_radius + flow_circle_center_y)
+                                       flow_circle_radius + new_coordinates[1])
                     flow_end_x = str(cos_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                     flow_circle_radius + flow_circle_center_x)
+                                     flow_circle_radius + new_coordinates[0])
                     flow_end_y = str(sin_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                     flow_circle_radius + flow_circle_center_y)
+                                     flow_circle_radius + new_coordinates[1])
                     self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y,
                                             flow_circle_radius if angle_list[i] - angle_list[i-1] <= 180
                                             else -flow_circle_radius)
 
                     if i == len(angle_list)-1:
                         flow_start_x = str(cos_ra(angle_list[i]+valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                           flow_circle_radius + flow_circle_center_x)
+                                           flow_circle_radius + new_coordinates[0])
                         flow_start_y = str(sin_ra(angle_list[i]+valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                           flow_circle_radius + flow_circle_center_y)
+                                           flow_circle_radius + new_coordinates[1])
                         if angle_list[0] != 0.0:
                             self.flow_circle_g_code(flow_start_x, flow_start_y,
                                                     str(flow_circle_start_x),
@@ -497,9 +497,9 @@ class MicroMillingFlowGCode:
                                                     else -flow_circle_radius)
                         else:
                             flow_end_x = str(cos_ra(0-valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                             flow_circle_radius + flow_circle_center_x)
+                                             flow_circle_radius + new_coordinates[0])
                             flow_end_y = str(sin_ra(0-valve_length_angle/2+new_coordinates[2] % 360.0) *
-                                             flow_circle_radius + flow_circle_center_y)
+                                             flow_circle_radius + new_coordinates[1])
                             self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y,
                                                     flow_circle_radius if (360.0 - angle_list[i]) <= 180
                                                     else -flow_circle_radius)

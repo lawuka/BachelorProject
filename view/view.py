@@ -42,16 +42,16 @@ class View(Tk):
 
         # Current files needed for the GUI to work.
         self.current_architecture_file = StringVar()
-        self.current_architecture_file.set('chip_examples/massive_mixers.xml')  # Should be ''
-        self.c.get_model().set_current_architecture_file('chip_examples/massive_mixers.xml')  # Should be ''
+        self.current_architecture_file.set('')  # Should be ''
+        self.c.get_model().set_current_architecture_file('')  # Should be ''
 
         self.current_library_file = StringVar()
-        self.current_library_file.set('library/component_library_test.xml')  # Should be ''
-        self.c.get_model().set_current_library_file('library/component_library_test.xml')  # Should be ''
+        self.current_library_file.set('')  # Should be ''
+        self.c.get_model().set_current_library_file('')  # Should be ''
 
         self.current_config_file = StringVar()
-        self.current_config_file.set('config/conf.ini')  # Should be ''
-        self.c.get_model().set_current_config_file('config/conf.ini')  # Should be ''
+        self.current_config_file.set('')  # Should be ''
+        self.c.get_model().set_current_config_file('')  # Should be ''
 
         # Current status message, shown in the GUI.
         self.current_status_msg = StringVar()
@@ -105,9 +105,19 @@ class View(Tk):
 
         # 'GCode View' in GUI
         g_code_text_frame = LabelFrame(right_view, text='GCode View')
+
+        # Line count
+        g_code_text_lines_frame = Frame(g_code_text_frame)
+        Label(g_code_text_lines_frame, text='Lines:', anchor=W).pack(side=LEFT)
+        self.g_code_text_lines = Label(g_code_text_lines_frame, text='0', anchor=W)
+        self.g_code_text_lines.pack(side=LEFT)
+        g_code_text_lines_frame.pack(side=TOP, anchor=E)
+
+        # G-code text field
         self.g_code_text_field = Text(g_code_text_frame, width=30, state=DISABLED, highlightbackground='grey',
-                                      highlightthickness=1)
+                                      highlightthickness=1, height=22)
         self.g_code_text_field.pack(side=TOP, expand=True, fill="y", pady=5)
+
         # Clipboard button
         self.g_code_text_field_copy = Button(g_code_text_frame, text="Copy To Clipboard", state=DISABLED,
                                              command=self.copy_g_code_to_clipboard)
@@ -625,13 +635,25 @@ class View(Tk):
         '''
         if self.c.create_sim_g_code():
             self.g_code_text_field['state'] = NORMAL
+            line_count = 0
             for line in self.c.get_model().get_simulator_g_code():
                 self.g_code_text_field.insert(END, line + "\n")
+                line_count += 1
             self.current_status_msg.set('Produced Simulator G-Code')
             self.g_code_text_field['state'] = DISABLED
             if self.g_code_text_field_copy['state'] == DISABLED:
                 self.g_code_text_field_copy['state'] = NORMAL
-            self.update_view()
+                self.g_code_text_field_save['state'] = NORMAL
+                self.g_code_text_field_save_as['state'] = NORMAL
+
+            self.g_code_text_lines['text'] = int(self.g_code_text_field.index('end-1c').split('.')[0])
+
+            if self.wm_title() == 'Fabrication Tool':
+                self.title('Fabrication Tool - *')
+            elif self.wm_title()[len(self.wm_title())-1:] != '*':
+                self.title(self.wm_title() + '*')
+
+            self.update_status_message()
 
     def produce_sim_control_g_code(self):
 
@@ -652,7 +674,15 @@ class View(Tk):
                 self.g_code_text_field_copy['state'] = NORMAL
                 self.g_code_text_field_save['state'] = NORMAL
                 self.g_code_text_field_save_as['state'] = NORMAL
-            self.update_view()
+
+            self.g_code_text_lines['text'] = int(self.g_code_text_field.index('end-1c').split('.')[0])
+
+            if self.wm_title() == 'Fabrication Tool':
+                self.title('Fabrication Tool - *')
+            elif self.wm_title()[len(self.wm_title())-1:] != '*':
+                self.title(self.wm_title() + '*')
+
+            self.update_status_message()
 
     def produce_mm_control_g_code(self):
         '''
@@ -668,7 +698,15 @@ class View(Tk):
                 self.g_code_text_field_copy['state'] = NORMAL
                 self.g_code_text_field_save['state'] = NORMAL
                 self.g_code_text_field_save_as['state'] = NORMAL
-            self.update_view()
+
+            self.g_code_text_lines['text'] = int(self.g_code_text_field.index('end-1c').split('.')[0])
+
+            if self.wm_title() == 'Fabrication Tool':
+                self.title('Fabrication Tool - *')
+            elif self.wm_title()[len(self.wm_title())-1:] != '*':
+                self.title(self.wm_title() + '*')
+
+            self.update_status_message()
 
     def open_architecture_file(self):
 
@@ -707,9 +745,15 @@ class View(Tk):
             text_to_save = str(self.g_code_text_field.get(1.0, END))
             self.c.write_g_code_to_file(file.name, text_to_save)
             self.current_save_file = file.name
+            self.current_status_msg.set('G-Code saved to "' + self.current_save_file + '"')
+            self.title('Fabrication Tool - ' + self.current_save_file)
+            self.update()
         else:
             text_to_save = str(self.g_code_text_field.get(1.0, END))
             self.c.write_g_code_to_file(self.current_save_file, text_to_save)
+            self.current_status_msg.set('G-Code saved to "' + self.current_save_file + '"')
+            self.title('Fabrication Tool - ' + self.current_save_file)
+            self.update()
 
     def save_as_g_code_to_file(self):
         file = filedialog.asksaveasfile(mode='w', defaultextension=".txt")
@@ -718,6 +762,9 @@ class View(Tk):
         text_to_save = str(self.g_code_text_field.get(1.0, END))
         self.c.write_g_code_to_file(file.name, text_to_save)
         self.current_save_file = file.name
+        self.current_status_msg.set('G-Code saved to "' + self.current_save_file + '"')
+        self.title('Fabrication Tool - ' + self.current_save_file)
+        self.update()
 
     def scale_coords(self, coords_list):
 
@@ -730,6 +777,7 @@ class View(Tk):
         self.flow_hole_map = []
         self.control_map = []
         self.red_box_map = []
+
     def complete_circle_g_code(self, start_x, start_y, flow_circle_radius):
 
         current_drill_level = 0.0
@@ -771,6 +819,7 @@ class View(Tk):
             flow_end_x = str(cos_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_x)
             flow_end_y = str(sin_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_y)
             self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y, -flow_circle_radius)
+
     def update_status_message(self):
         if self.c.error_occurred:
             self.current_status_msg.set('Error(s) occured - see log!')

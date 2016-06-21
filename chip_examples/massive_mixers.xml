@@ -36,7 +36,7 @@
     </lines>
 </architecture>
 -->
-
+<!--
 <architecture>
     <size height="540" width="540"/>
     <components>
@@ -48,7 +48,7 @@
     <lines>
     </lines>
 </architecture>
-
+-->
 <!--
 <architecture>
     <size height="270" width="270"/>
@@ -72,7 +72,7 @@
     </lines>
 </architecture>
 -->
-<!--
+
 <architecture>
     <size height="300" width="240" />
     <components>
@@ -99,7 +99,7 @@
     <lines>
     </lines>
 </architecture>
--->
+
 <!--
 <architecture>
     <size height="60" width="60" />
