@@ -1,4 +1,0 @@
-2016-06-17 14:53:43: Skipping drawing of intersectionx - component not in Library
-2016-06-17 14:53:43: Skipping drawing of intersectionx - component not in Library
-2016-06-17 14:53:44: Skipping drawing of intersectionx - component not in Library
-2016-06-17 14:53:44: Skipping drawing of intersectionx - component not in Library

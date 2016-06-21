@@ -2,11 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="81bdc2fb-570a-49e4-a67e-4bfa57566284" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/chip_examples/aquaflux.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/model/helperFunctions.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/chip_examples/biochip_example2.xml" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Logfile.txt" afterPath="$PROJECT_DIR$/Logfile.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/library/component_library_placement.xml" afterPath="$PROJECT_DIR$/library/component_library_placement.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/chip_examples/massive_mixers.xml" afterPath="$PROJECT_DIR$/chip_examples/massive_mixers.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config/conf.ini" afterPath="$PROJECT_DIR$/config/conf.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/controller.py" afterPath="$PROJECT_DIR$/controller/controller.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/controller/writeToFile.py" afterPath="$PROJECT_DIR$/controller/writeToFile.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/library/component_library_test.xml" afterPath="$PROJECT_DIR$/library/component_library_test.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/mathFunctions.py" afterPath="$PROJECT_DIR$/model/mathFunctions.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/model.py" afterPath="$PROJECT_DIR$/model/model.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parsers/architectureParser.py" afterPath="$PROJECT_DIR$/parsers/architectureParser.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parsers/gParser.py" afterPath="$PROJECT_DIR$/parsers/gParser.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/parsers/libraryParser.py" afterPath="$PROJECT_DIR$/parsers/libraryParser.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/view/view.py" afterPath="$PROJECT_DIR$/view/view.py" />
     </list>
     <ignored path="Python.iws" />
@@ -28,75 +39,64 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="gParser.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/parsers/gParser.py">
+      <file leaf-file-name="libraryParser.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/parsers/libraryParser.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="357" column="41" selection-start-line="357" selection-start-column="41" selection-end-line="357" selection-end-column="41" />
-              <folding>
-                <element signature="e#178#3757#0" expanded="false" />
-                <element signature="e#3824#3960#0" expanded="false" />
-                <element signature="e#4027#5171#0" expanded="false" />
-                <element signature="e#5210#5845#0" expanded="false" />
-                <element signature="e#5882#9275#0" expanded="false" />
-                <element signature="e#9314#9751#0" expanded="false" />
-                <element signature="e#9787#10689#0" expanded="false" />
-                <element signature="e#10732#10860#0" expanded="false" />
-                <element signature="e#26278#27555#0" expanded="false" />
-                <element signature="e#27635#28300#0" expanded="false" />
-                <element signature="e#28667#29977#0" expanded="false" />
-                <element signature="e#30065#31487#0" expanded="false" />
-                <element signature="e#31591#32338#0" expanded="false" />
-                <element signature="e#32412#32645#0" expanded="false" />
-                <element signature="e#34383#34412#0" expanded="false" />
-                <element signature="e#34455#34484#0" expanded="false" />
-                <element signature="e#34525#56788#0" expanded="false" />
-                <element signature="e#34554#34714#0" expanded="false" />
-                <element signature="e#34781#36452#0" expanded="false" />
-                <element signature="e#36491#37126#0" expanded="false" />
-                <element signature="e#37164#39599#0" expanded="false" />
-                <element signature="e#39642#39770#0" expanded="false" />
-                <element signature="e#39946#42353#0" expanded="false" />
-                <element signature="e#42534#44181#0" expanded="false" />
-                <element signature="e#44360#46410#0" expanded="false" />
-                <element signature="e#48782#53557#0" expanded="false" />
-                <element signature="e#53629#54728#0" expanded="false" />
-                <element signature="e#54800#55899#0" expanded="false" />
-                <element signature="e#55941#56788#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Logfile.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Logfile.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="component_library_placement.xml" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/library/component_library_placement.xml">
+      <file leaf-file-name="biochip_example_test.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/chip_examples/biochip_example_test.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.30769232">
-              <caret line="915" column="14" selection-start-line="915" selection-start-column="14" selection-end-line="915" selection-end-column="14" />
+            <state vertical-scroll-proportion="-15.0">
+              <caret line="24" column="15" selection-start-line="24" selection-start-column="15" selection-end-line="24" selection-end-column="15" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="view.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/view/view.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.55851066">
+              <caret line="12" column="42" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="helperFunctions.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/model/helperFunctions.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="45" column="25" selection-start-line="45" selection-start-column="25" selection-end-line="45" selection-end-column="25" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="gParser.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/parsers/gParser.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="5" column="16" selection-start-line="5" selection-start-column="16" selection-end-line="5" selection-end-column="16" />
               <folding>
-                <element signature="e#24#2602#0" expanded="false" />
-                <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#4;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#8;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#9;n#ComponentLibrary#0;n#!!top" expanded="false" />
-                <element signature="n#Component#10;n#ComponentLibrary#0;n#!!top" expanded="false" />
+                <element signature="e#286#3987#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mathFunctions.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/model/mathFunctions.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -105,59 +105,30 @@
         <entry file="file://$PROJECT_DIR$/controller/controller.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
-              <folding>
-                <element signature="e#48#69#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="biochip_example2.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/chip_examples/biochip_example2.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="8" column="64" selection-start-line="8" selection-start-column="64" selection-end-line="8" selection-end-column="64" />
+              <caret line="150" column="33" selection-start-line="150" selection-start-column="33" selection-end-line="150" selection-end-column="33" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="view.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/view/view.py">
+      <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/model/model.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="301" column="59" selection-start-line="301" selection-start-column="59" selection-end-line="301" selection-end-column="59" />
+              <caret line="149" column="30" selection-start-line="149" selection-start-column="30" selection-end-line="149" selection-end-column="30" />
               <folding>
-                <element signature="e#246#1605#0" expanded="false" />
-                <element signature="e#1636#5968#0" expanded="false" />
-                <element signature="e#6014#6212#0" expanded="false" />
-                <element signature="e#6249#7110#0" expanded="false" />
-                <element signature="e#7147#7611#0" expanded="false" />
-                <element signature="e#7648#11297#0" expanded="false" />
-                <element signature="e#11466#14767#0" expanded="false" />
-                <element signature="e#20073#20215#0" expanded="false" />
-                <element signature="e#22965#23875#0" expanded="false" />
-                <element signature="e#25433#25530#0" expanded="false" />
-                <element signature="e#25706#27160#0" expanded="false" />
-                <element signature="e#27203#27325#0" expanded="false" />
-                <element signature="e#27496#29119#0" expanded="false" />
-                <element signature="e#29230#30470#0" expanded="false" />
-                <element signature="e#30509#33314#0" expanded="false" />
-                <element signature="e#33488#35009#0" expanded="false" />
-                <element signature="e#35051#35584#0" expanded="false" />
-                <element signature="e#35633#35637#0" expanded="false" />
-                <element signature="e#35681#36217#0" expanded="false" />
-                <element signature="e#36264#36809#0" expanded="false" />
-                <element signature="e#36847#37055#0" expanded="false" />
-                <element signature="e#37097#37313#0" expanded="false" />
-                <element signature="e#37354#37568#0" expanded="false" />
-                <element signature="e#37614#37703#0" expanded="false" />
-                <element signature="e#37753#37887#0" expanded="false" />
-                <element signature="e#37922#38062#0" expanded="false" />
-                <element signature="e#38107#38409#0" expanded="false" />
-                <element signature="e#38445#38458#0" expanded="false" />
+                <element signature="e#47#89#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="architectureParser.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/parsers/architectureParser.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="34" column="51" selection-start-line="34" selection-start-column="51" selection-end-line="34" selection-end-column="51" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -198,11 +169,8 @@
         <option value="$PROJECT_DIR$/library/component_library.svg" />
         <option value="$PROJECT_DIR$/library/component_library.xml" />
         <option value="$PROJECT_DIR$/config/standard.conf" />
-        <option value="$PROJECT_DIR$/model/mathFunctions.py" />
         <option value="$PROJECT_DIR$/parsers/configParser.py" />
-        <option value="$PROJECT_DIR$/parsers/libraryParser.py" />
         <option value="$PROJECT_DIR$/chip_examples/svg_real_example.svg" />
-        <option value="$PROJECT_DIR$/model/model.py" />
         <option value="$PROJECT_DIR$/library/component_library_placement" />
         <option value="$PROJECT_DIR$/Logfile.txt" />
         <option value="$PROJECT_DIR$/chip_examples/svg_example.svg" />
@@ -211,18 +179,28 @@
         <option value="$PROJECT_DIR$/chip_examples/svg_example.xml" />
         <option value="$PROJECT_DIR$/parsers/svgParser.py" />
         <option value="$PROJECT_DIR$/MMFlowGCode.txt" />
-        <option value="$PROJECT_DIR$/config/conf.ini" />
         <option value="$PROJECT_DIR$/chip_examples/svg_example2.xml" />
-        <option value="$PROJECT_DIR$/chip_examples/massive_mixers.xml" />
         <option value="$PROJECT_DIR$/library/component_library_fabrication.xml" />
-        <option value="$PROJECT_DIR$/library/component_library_test.xml" />
-        <option value="$PROJECT_DIR$/controller/writeToFile.py" />
-        <option value="$PROJECT_DIR$/controller/controller.py" />
         <option value="$PROJECT_DIR$/library/component_example.xml" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/view/view.py" />
-        <option value="$PROJECT_DIR$/parsers/gParser.py" />
         <option value="$PROJECT_DIR$/library/component_library_placement.xml" />
+        <option value="$PROJECT_DIR$/Untitled.txt" />
+        <option value="$PROJECT_DIR$/Untitled1.txt" />
+        <option value="$PROJECT_DIR$/chip_examples/aquaflux.xml" />
+        <option value="$PROJECT_DIR$/chip_examples/biochip_example2.xml" />
+        <option value="$PROJECT_DIR$/config/conf.ini" />
+        <option value="$PROJECT_DIR$/library/component_library_test.xml" />
+        <option value="$PROJECT_DIR$/chip_examples/massive_mixers.xml" />
+        <option value="$PROJECT_DIR$/controller/writeToFile.py" />
+        <option value="$PROJECT_DIR$/model/model.py" />
+        <option value="$PROJECT_DIR$/parsers/libraryParser.py" />
+        <option value="$PROJECT_DIR$/parsers/architectureParser.py" />
+        <option value="$PROJECT_DIR$/controller/controller.py" />
+        <option value="$PROJECT_DIR$/view/view.py" />
+        <option value="$PROJECT_DIR$/model/mathFunctions.py" />
+        <option value="$PROJECT_DIR$/model/helperFunctions.py" />
+        <option value="$PROJECT_DIR$/parsers/gParser.py" />
+        <option value="$PROJECT_DIR$/chip_examples/biochip_example_test.xml" />
       </list>
     </option>
   </component>
@@ -243,7 +221,7 @@
         </expanded-state>
         <selected-state>
           <State>
-            <id>PySingleQuotedDocstringInspection</id>
+            <id>PyDictCreationInspection</id>
           </State>
         </selected-state>
       </profile-state>
@@ -648,7 +626,13 @@
       <option name="project" value="LOCAL" />
       <updated>1466089380600</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Update Placement Library.">
+      <created>1466170980945</created>
+      <option name="number" value="00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1466170980945</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -658,9 +642,10 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24305555" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3270809" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282532" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25322393" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3059789" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -671,7 +656,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3282532" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -699,11 +683,12 @@
     <MESSAGE value="Fully functional program - hopefully!" />
     <MESSAGE value="Forgot Config file ..." />
     <MESSAGE value="Working Fabrication Tool." />
-    <option name="LAST_COMMIT_MESSAGE" value="Working Fabrication Tool." />
+    <MESSAGE value="Update Placement Library." />
+    <option name="LAST_COMMIT_MESSAGE" value="Update Placement Library." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="18" />
+      <option name="time" value="24" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -711,36 +696,71 @@
     <entry file="file://$PROJECT_DIR$/view/view.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
+          <caret line="301" column="59" selection-start-line="301" selection-start-column="59" selection-end-line="301" selection-end-column="59" />
+          <folding>
+            <element signature="e#49#70#0" expanded="true" />
+            <element signature="e#9075#9563#0" expanded="false" />
+            <element signature="e#9601#13896#0" expanded="false" />
+            <element signature="e#14077#17561#0" expanded="false" />
+            <element signature="e#17763#22419#0" expanded="false" />
+            <element signature="e#22460#22605#0" expanded="false" />
+            <element signature="e#22797#24906#0" expanded="false" />
+            <element signature="e#24950#26026#0" expanded="false" />
+            <element signature="e#26213#26879#0" expanded="false" />
+            <element signature="e#26921#27023#0" expanded="false" />
+            <element signature="e#27219#27926#0" expanded="false" />
+            <element signature="e#27971#28097#0" expanded="false" />
+            <element signature="e#28282#29158#0" expanded="false" />
+            <element signature="e#29276#30827#0" expanded="false" />
+            <element signature="e#30868#32008#0" expanded="false" />
+            <element signature="e#32052#32605#0" expanded="false" />
+            <element signature="e#32658#32693#0" expanded="false" />
+            <element signature="e#34218#34451#0" expanded="false" />
+            <element signature="e#34495#34718#0" expanded="false" />
+            <element signature="e#34761#34982#0" expanded="false" />
+            <element signature="e#35032#35124#0" expanded="false" />
+            <element signature="e#35170#35677#0" expanded="false" />
+            <element signature="e#35725#36004#0" expanded="false" />
+            <element signature="e#36056#36194#0" expanded="false" />
+            <element signature="e#36230#36379#0" expanded="false" />
+            <element signature="e#36426#36736#0" expanded="false" />
+            <element signature="e#36773#36786#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/view/view.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
           <caret line="27" column="38" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
           <folding>
-            <element signature="e#246#1605#0" expanded="false" />
-            <element signature="e#1636#5968#0" expanded="false" />
-            <element signature="e#6014#6212#0" expanded="false" />
-            <element signature="e#6249#7110#0" expanded="false" />
-            <element signature="e#7147#7611#0" expanded="false" />
-            <element signature="e#7648#11297#0" expanded="false" />
-            <element signature="e#11466#14767#0" expanded="false" />
-            <element signature="e#20073#20215#0" expanded="false" />
-            <element signature="e#22965#23875#0" expanded="false" />
-            <element signature="e#25433#25530#0" expanded="false" />
-            <element signature="e#25706#27160#0" expanded="false" />
-            <element signature="e#27203#27325#0" expanded="false" />
-            <element signature="e#27496#29119#0" expanded="false" />
-            <element signature="e#29230#30470#0" expanded="false" />
-            <element signature="e#30509#33314#0" expanded="false" />
-            <element signature="e#33488#35009#0" expanded="false" />
-            <element signature="e#35051#35584#0" expanded="false" />
-            <element signature="e#35633#35637#0" expanded="false" />
-            <element signature="e#35681#36217#0" expanded="false" />
-            <element signature="e#36264#36809#0" expanded="false" />
-            <element signature="e#36847#37055#0" expanded="false" />
-            <element signature="e#37097#37313#0" expanded="false" />
-            <element signature="e#37354#37568#0" expanded="false" />
-            <element signature="e#37614#37703#0" expanded="false" />
-            <element signature="e#37753#37887#0" expanded="false" />
-            <element signature="e#37922#38062#0" expanded="false" />
-            <element signature="e#38107#38409#0" expanded="false" />
-            <element signature="e#38445#38458#0" expanded="false" />
+            <element signature="e#49#70#0" expanded="true" />
+            <element signature="e#9075#9563#0" expanded="false" />
+            <element signature="e#9601#13896#0" expanded="false" />
+            <element signature="e#14077#17561#0" expanded="false" />
+            <element signature="e#17763#22419#0" expanded="false" />
+            <element signature="e#22460#22605#0" expanded="false" />
+            <element signature="e#22797#24906#0" expanded="false" />
+            <element signature="e#24950#26026#0" expanded="false" />
+            <element signature="e#26213#26879#0" expanded="false" />
+            <element signature="e#26921#27023#0" expanded="false" />
+            <element signature="e#27219#27926#0" expanded="false" />
+            <element signature="e#27971#28097#0" expanded="false" />
+            <element signature="e#28282#29158#0" expanded="false" />
+            <element signature="e#29276#30827#0" expanded="false" />
+            <element signature="e#30868#32008#0" expanded="false" />
+            <element signature="e#32052#32605#0" expanded="false" />
+            <element signature="e#32658#32693#0" expanded="false" />
+            <element signature="e#34218#34451#0" expanded="false" />
+            <element signature="e#34495#34718#0" expanded="false" />
+            <element signature="e#34761#34982#0" expanded="false" />
+            <element signature="e#35032#35124#0" expanded="false" />
+            <element signature="e#35170#35677#0" expanded="false" />
+            <element signature="e#35725#36004#0" expanded="false" />
+            <element signature="e#36056#36194#0" expanded="false" />
+            <element signature="e#36230#36379#0" expanded="false" />
+            <element signature="e#36426#36736#0" expanded="false" />
+            <element signature="e#36773#36786#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -927,49 +947,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/model/mathFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25454545">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/parsers/configParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.49261084">
-          <caret line="20" column="40" selection-start-line="20" selection-start-column="40" selection-end-line="20" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/model/model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.024630541">
-          <caret line="84" column="20" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/chip_examples/biochip_example.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-12.5">
-          <caret line="20" column="15" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/parsers/libraryParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6">
-          <caret line="33" column="48" selection-start-line="33" selection-start-column="48" selection-end-line="33" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/parsers/architectureParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44170773">
-          <caret line="44" column="48" selection-start-line="44" selection-start-column="48" selection-end-line="44" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/MMControlGCode.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -977,32 +954,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MMFlowGCode.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.58128077">
-          <caret line="170" column="3" selection-start-line="170" selection-start-column="3" selection-end-line="170" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config/conf.ini">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.17948718">
-          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/library/component_library_fabrication.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="5.0">
           <caret line="461" column="0" selection-start-line="461" selection-start-column="0" selection-end-line="461" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/chip_examples/massive_mixers.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.025641026">
-          <caret line="63" column="4" selection-start-line="63" selection-start-column="4" selection-end-line="63" selection-end-column="4" />
           <folding />
         </state>
       </provider>
@@ -1015,14 +970,74 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/library/component_library_test.xml">
+    <entry file="file://$PROJECT_DIR$/chip_examples/biochip_example.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.61196584">
-          <caret line="239" column="31" selection-start-line="239" selection-start-column="31" selection-end-line="239" selection-end-column="31" />
+        <state vertical-scroll-proportion="0.51282054">
+          <caret line="20" column="15" selection-start-line="20" selection-start-column="15" selection-end-line="20" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Logfile.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/MMFlowGCode.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5304348">
+          <caret line="28" column="4" selection-start-line="28" selection-start-column="4" selection-end-line="28" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/chip_examples/aquaflux.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.20833333">
+          <caret line="10" column="15" selection-start-line="10" selection-start-column="15" selection-end-line="10" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/component_library_placement.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.20833333">
+          <caret line="546" column="17" selection-start-line="546" selection-start-column="17" selection-end-line="546" selection-end-column="17" />
           <folding>
+            <element signature="e#24#2602#0" expanded="false" />
+            <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#4;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#8;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#9;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#10;n#ComponentLibrary#0;n#!!top" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/conf.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.5">
+          <caret line="4" column="26" selection-start-line="4" selection-start-column="26" selection-end-line="4" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/library/component_library_test.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-19.416666">
+          <caret line="333" column="38" selection-start-line="333" selection-start-column="38" selection-end-line="333" selection-end-column="38" />
+          <folding>
+            <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
+            <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
             <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
@@ -1053,25 +1068,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
+    <entry file="file://$PROJECT_DIR$/chip_examples/massive_mixers.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.14778325">
-          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.27083334">
+          <caret line="38" column="0" selection-start-line="38" selection-start-column="0" selection-end-line="38" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/chip_examples/biochip_example2.xml">
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="64" selection-start-line="8" selection-start-column="64" selection-end-line="8" selection-end-column="64" />
+        <state vertical-scroll-proportion="0.08955224">
+          <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/controller/writeToFile.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25454545">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.14925373">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parsers/configParser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2835821">
+          <caret line="19" column="35" selection-start-line="19" selection-start-column="35" selection-end-line="19" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parsers/architectureParser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="34" column="51" selection-start-line="34" selection-start-column="51" selection-end-line="34" selection-end-column="51" />
           <folding />
         </state>
       </provider>
@@ -1079,54 +1111,25 @@
     <entry file="file://$PROJECT_DIR$/controller/controller.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="13" column="0" selection-start-line="13" selection-start-column="0" selection-end-line="13" selection-end-column="0" />
+          <caret line="150" column="33" selection-start-line="150" selection-start-column="33" selection-end-line="150" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/model/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="149" column="30" selection-start-line="149" selection-start-column="30" selection-end-line="149" selection-end-column="30" />
           <folding>
-            <element signature="e#48#69#0" expanded="true" />
+            <element signature="e#47#89#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/view/view.py">
+    <entry file="file://$PROJECT_DIR$/model/mathFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="301" column="59" selection-start-line="301" selection-start-column="59" selection-end-line="301" selection-end-column="59" />
-          <folding>
-            <element signature="e#246#1605#0" expanded="false" />
-            <element signature="e#1636#5968#0" expanded="false" />
-            <element signature="e#6014#6212#0" expanded="false" />
-            <element signature="e#6249#7110#0" expanded="false" />
-            <element signature="e#7147#7611#0" expanded="false" />
-            <element signature="e#7648#11297#0" expanded="false" />
-            <element signature="e#11466#14767#0" expanded="false" />
-            <element signature="e#20073#20215#0" expanded="false" />
-            <element signature="e#22965#23875#0" expanded="false" />
-            <element signature="e#25433#25530#0" expanded="false" />
-            <element signature="e#25706#27160#0" expanded="false" />
-            <element signature="e#27203#27325#0" expanded="false" />
-            <element signature="e#27496#29119#0" expanded="false" />
-            <element signature="e#29230#30470#0" expanded="false" />
-            <element signature="e#30509#33314#0" expanded="false" />
-            <element signature="e#33488#35009#0" expanded="false" />
-            <element signature="e#35051#35584#0" expanded="false" />
-            <element signature="e#35633#35637#0" expanded="false" />
-            <element signature="e#35681#36217#0" expanded="false" />
-            <element signature="e#36264#36809#0" expanded="false" />
-            <element signature="e#36847#37055#0" expanded="false" />
-            <element signature="e#37097#37313#0" expanded="false" />
-            <element signature="e#37354#37568#0" expanded="false" />
-            <element signature="e#37614#37703#0" expanded="false" />
-            <element signature="e#37753#37887#0" expanded="false" />
-            <element signature="e#37922#38062#0" expanded="false" />
-            <element signature="e#38107#38409#0" expanded="false" />
-            <element signature="e#38445#38458#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Logfile.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1134,59 +1137,42 @@
     <entry file="file://$PROJECT_DIR$/parsers/gParser.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="357" column="41" selection-start-line="357" selection-start-column="41" selection-end-line="357" selection-end-column="41" />
+          <caret line="5" column="16" selection-start-line="5" selection-start-column="16" selection-end-line="5" selection-end-column="16" />
           <folding>
-            <element signature="e#178#3757#0" expanded="false" />
-            <element signature="e#3824#3960#0" expanded="false" />
-            <element signature="e#4027#5171#0" expanded="false" />
-            <element signature="e#5210#5845#0" expanded="false" />
-            <element signature="e#5882#9275#0" expanded="false" />
-            <element signature="e#9314#9751#0" expanded="false" />
-            <element signature="e#9787#10689#0" expanded="false" />
-            <element signature="e#10732#10860#0" expanded="false" />
-            <element signature="e#26278#27555#0" expanded="false" />
-            <element signature="e#27635#28300#0" expanded="false" />
-            <element signature="e#28667#29977#0" expanded="false" />
-            <element signature="e#30065#31487#0" expanded="false" />
-            <element signature="e#31591#32338#0" expanded="false" />
-            <element signature="e#32412#32645#0" expanded="false" />
-            <element signature="e#34383#34412#0" expanded="false" />
-            <element signature="e#34455#34484#0" expanded="false" />
-            <element signature="e#34525#56788#0" expanded="false" />
-            <element signature="e#34554#34714#0" expanded="false" />
-            <element signature="e#34781#36452#0" expanded="false" />
-            <element signature="e#36491#37126#0" expanded="false" />
-            <element signature="e#37164#39599#0" expanded="false" />
-            <element signature="e#39642#39770#0" expanded="false" />
-            <element signature="e#39946#42353#0" expanded="false" />
-            <element signature="e#42534#44181#0" expanded="false" />
-            <element signature="e#44360#46410#0" expanded="false" />
-            <element signature="e#48782#53557#0" expanded="false" />
-            <element signature="e#53629#54728#0" expanded="false" />
-            <element signature="e#54800#55899#0" expanded="false" />
-            <element signature="e#55941#56788#0" expanded="false" />
+            <element signature="e#286#3987#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/library/component_library_placement.xml">
+    <entry file="file://$PROJECT_DIR$/model/helperFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.30769232">
-          <caret line="915" column="14" selection-start-line="915" selection-start-column="14" selection-end-line="915" selection-end-column="14" />
-          <folding>
-            <element signature="e#24#2602#0" expanded="false" />
-            <element signature="n#Component#0;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#1;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#2;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#3;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#4;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#5;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#6;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#7;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#8;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#9;n#ComponentLibrary#0;n#!!top" expanded="false" />
-            <element signature="n#Component#10;n#ComponentLibrary#0;n#!!top" expanded="false" />
-          </folding>
+        <state vertical-scroll-proportion="0.0">
+          <caret line="45" column="25" selection-start-line="45" selection-start-column="25" selection-end-line="45" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/parsers/libraryParser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/chip_examples/biochip_example_test.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-15.0">
+          <caret line="24" column="15" selection-start-line="24" selection-start-column="15" selection-end-line="24" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/view/view.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.55851066">
+          <caret line="12" column="42" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
+          <folding />
         </state>
       </provider>
     </entry>

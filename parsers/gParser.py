@@ -3,194 +3,199 @@ Created on 2 march 2015
 
 @author Lasse
 '''
-from math import ceil, cos, pi, sin, radians, fabs
-from model.mathFunctions import rotate_coordinate
+from math import ceil, cos, pi, sin, radians
+from model.mathFunctions import rotate_x_y_coordinates, cos_ra, sin_ra
+from model.helperFunctions import rotate_valve_coords, get_rotated_x_list, get_rotated_y_list
 
-class simulatorGCode():
+
+class SimulatorGCode:
 
     def __init__(self):
 
-        self.svgMap = None
+        self.svg_map = None
         self.library = None
         self.conf = None
-        self.simulateGCodeList = None
+        self.simulate_g_code_list = None
 
-        self.newLine = "\n"
-        self.drillTop = "10"
-        self.drillLow = "1"
-        self.drillHoleTop = "10"
-        self.drillHoleLow = "-3"
+        self.new_line = "\n"
+        self.drill_top = "10"
+        self.drill_low = "1"
+        self.drill_hole_top = "10"
+        self.drill_hole_low = "-3"
 
+    def create_simulator_g_code_list(self, svg_map, library, conf):
 
-    def createSimulatorGCodeList(self, svgMap, library, conf):
-
-        self.svgMap = svgMap
+        self.svg_map = svg_map
         self.library = library
         self.conf = conf
-        self.simulateGCodeList = []
+        self.simulate_g_code_list = []
 
         # GCode options
-        self.gCodeOptions()
+        self.g_code_options()
 
         # Starting position
-        self.starterPosition()
+        self.starter_position()
 
         # Flow channels tool
-        self.flowChannelTool()
+        self.flow_channel_tool()
 
         # Flow channels
-        self.flowChannels()
+        self.flow_channels()
 
         # Hole tool
-        self.holeTool()
+        self.hole_tool()
 
         # Holes
         self.holes()
 
         # Ending position and finishing up
-        self.moveBackToOrigin()
+        self.move_back_to_origin()
 
-        return self.simulateGCodeList
+        return self.simulate_g_code_list
 
-    def gCodeOptions(self):
+    def g_code_options(self):
 
         # Machine options
-        self.simulateGCodeList.append("; Height: " + self.svgMap['height'])
-        self.simulateGCodeList.append("; Width: " + self.svgMap['width'])
-        self.simulateGCodeList.append("G21")
-        self.simulateGCodeList.append("G90")
-        self.simulateGCodeList.append("F250")
-        self.simulateGCodeList.append("S2000")
+        self.simulate_g_code_list.append("; Height: " + self.svg_map['height'])
+        self.simulate_g_code_list.append("; Width: " + self.svg_map['width'])
+        self.simulate_g_code_list.append("G21")
+        self.simulate_g_code_list.append("G90")
+        self.simulate_g_code_list.append("F250")
+        self.simulate_g_code_list.append("S2000")
 
-    def starterPosition(self):
+    def starter_position(self):
 
         line = "G00 X0 Y0 Z10"
-        self.simulateGCodeList.append(line)
+        self.simulate_g_code_list.append(line)
         line = "X10 Y10 Z10"
-        self.simulateGCodeList.append(line)
+        self.simulate_g_code_list.append(line)
 
-    def flowChannelTool(self):
+    def flow_channel_tool(self):
 
-        self.simulateGCodeList.append("T1 M6")
+        self.simulate_g_code_list.append("T1 M6")
 
-    def holeTool(self):
+    def hole_tool(self):
 
-        self.simulateGCodeList.append("T2 M6")
+        self.simulate_g_code_list.append("T2 M6")
 
-    def flowChannels(self):
+    def flow_channels(self):
 
         # Lines with fixed x-axis
         # xAxisLines = []
         # Lines with fixed y-axis
-        yAxisLines = []
+        y_axis_lines = []
         '''
         Remember to add 10mm to all measures. This is only for the simulator.
         '''
-        for line in self.svgMap['lines']:
+        for line in self.svg_map['lines']:
             if line[0] == line[2]:
                 line1 = "G1 X" + str(int(line[0])/10 + 10) + " Y" + str(int(line[1])/10 + 10) + " Z" + \
-                        self.drillTop + self.newLine
-                line2 = "Z" + self.drillLow + self.newLine
-                line3 = "Y" + str(int(line[3])/10 + 10) + self.newLine
-                line4 = "Z" + self.drillTop
-                self.simulateGCodeList.append(line1 + line2 + line3 + line4)
+                        self.drill_top + self.new_line
+                line2 = "Z" + self.drill_low + self.new_line
+                line3 = "Y" + str(int(line[3])/10 + 10) + self.new_line
+                line4 = "Z" + self.drill_top
+                self.simulate_g_code_list.append(line1 + line2 + line3 + line4)
             else:
                 line1 = "G1 X" + str(int(line[0])/10 + 10) + " Y" + str(int(line[1])/10 + 10) + " Z" + \
-                        self.drillTop + self.newLine
-                line2 = "Z" + self.drillLow + self.newLine
-                line3 = "X" + str(int(line[2])/10 + 10) + self.newLine
-                line4 = "Z" + self.drillTop
-                yAxisLines.append(line1 + line2 + line3 + line4)
+                        self.drill_top + self.new_line
+                line2 = "Z" + self.drill_low + self.new_line
+                line3 = "X" + str(int(line[2])/10 + 10) + self.new_line
+                line4 = "Z" + self.drill_top
+                y_axis_lines.append(line1 + line2 + line3 + line4)
 
-        for element in yAxisLines:
-            self.simulateGCodeList.append(element)
-
-
-
+        for element in y_axis_lines:
+            self.simulate_g_code_list.append(element)
 
     def holes(self):
 
         '''
         Remember to add 10.5mm to all measures. This is only for the simulator.
         '''
-        for hole in self.svgMap['holes']:
-            line1 = "G1 X" + str(int(hole[0])/10 + 10.5) + " Y" + str(int(hole[1])/10 + 10.5) + self.newLine
-            line2 = "Z" + self.drillHoleLow + self.newLine
-            line3 = "Z" + self.drillHoleTop
-            self.simulateGCodeList.append(line1 + line2 + line3)
+        for hole in self.svg_map['holes']:
+            line1 = "G1 X" + str(int(hole[0])/10 + 10.5) + " Y" + str(int(hole[1])/10 + 10.5) + self.new_line
+            line2 = "Z" + self.drill_hole_low + self.new_line
+            line3 = "Z" + self.drill_hole_top
+            self.simulate_g_code_list.append(line1 + line2 + line3)
 
-    def moveBackToOrigin(self):
+    def move_back_to_origin(self):
 
         line = "G0 X0 Y0"
-        self.simulateGCodeList.append(line)
-        self.simulateGCodeList.append("G28")
-        self.simulateGCodeList.append("M30")
+        self.simulate_g_code_list.append(line)
+        self.simulate_g_code_list.append("G28")
+        self.simulate_g_code_list.append("M30")
 
-    def getSimulatorGCode(self):
+    def get_simulator_g_code(self):
 
-        return self.simulateGCodeList
+        return self.simulate_g_code_list
 
-class microMillingFlowGCode():
+
+class MicroMillingFlowGCode:
 
     def __init__(self):
 
-        self.svgMap = None
+        self.architecture_map = None
         self.library = None
         self.conf = None
-        self.mmGCodeList = None
-        self.flowHoleList = None
+        self.mm_g_code_list = None
+        self.flow_hole_list = None
+        self.scale = None
 
-    def createMMGCodeList(self, svgMap, library, conf):
+    def create_mm_g_code_list(self, architecture_map, library, conf):
 
-        self.svgMap = svgMap
+        self.architecture_map = architecture_map
         self.library = library
         self.conf = conf
-        self.mmGCodeList = []
-        self.flowHoleList = []
+        self.mm_g_code_list = []
+        self.flow_hole_list = []
 
         # Current config
-        self.drillFlowDepth = self.conf['drillOptions']['flow']['depth']
-        self.drillHoleDepth = self.conf['drillOptions']['hole']['depth']
-        self.drillSize = self.conf['drillOptions']['drillSize']
-        self.discontinuityWidth = float(self.conf['valveOptions']['discontinuityWidth'])
+        self.drill_flow_depth = self.conf['Flow_Layer_Options']['Flow_Depth']
+        self.drill_hole_depth = self.conf['Flow_Layer_Options']['Hole_Depth']
+        self.drill_flow_size = self.conf['Flow_Layer_Options']['Flow_Drill_Size']
+        self.drill_hole_size = self.conf['Flow_Layer_Options']['Hole_Drill_Size']
+        self.drill_top = self.conf['Flow_Layer_Options']['Drill_Z_Top']
+        self.discontinuity_width = float(self.conf['Flow_Layer_Options']['Valve_Discontinuity_Width'])
+
+        # Scale config
+        self.scale = float(self.drill_flow_size)
 
         # Calculate number of drilling in one flow channel
-        if ((float(self.drillFlowDepth) * -1.0) / (float(self.drillSize) / 4.0)) <= 1.0 :
+        if ((float(self.drill_flow_depth) * -1.0) / (self.scale / 4.0)) <= 1.0:
             self.repeat = 1
-        else :
-            self.repeat = int(ceil((float(self.drillFlowDepth) * -1.0) / (float(self.drillSize) / 4.0)))
+        else:
+            self.repeat = int(ceil((float(self.drill_flow_depth) * -1.0) / (self.scale / 4.0)))
 
-        if len(self.svgMap['lines']) != 0 or len(self.svgMap['components']) != 0:
+        if len(self.architecture_map['lines']) != 0 or len(self.architecture_map['components']) != 0:
 
-            self.gCodeOptions()
+            self.g_code_options()
 
             self.components()
 
-            self.flowChannels()
+            self.flow_channels()
 
-            self.flowHoles()
+            self.flow_holes()
 
-            self.moveBackToOrigin()
+            self.move_back_to_origin()
 
         else:
-            self.mmGCodeList.append('(No Components or Lines in Biochip Architecture!)')
+            self.mm_g_code_list.append('(No Components or Lines in Biochip Architecture!)')
 
-        return self.mmGCodeList
+        return self.mm_g_code_list
 
-    def gCodeOptions(self):
+    def g_code_options(self):
 
         '''
         Parenthese in GCode is comments
         '''
-        self.mmGCodeList.append("(PROGRAM START)")
+        self.mm_g_code_list.append("(PROGRAM START)")
         '''
         Drill used for flow channels
         '''
-        self.mmGCodeList.append("(" + self.drillSize +"MM FLOW DRILL)")
+        self.mm_g_code_list.append("(" + self.drill_flow_size + "MM FLOW DRILL)")
         '''
         M00 is break in Gcode, and machine pauses (Drill change or similar)
         '''
-        self.mmGCodeList.append("M00")
+        self.mm_g_code_list.append("M00")
         '''
         With a spindle controller, the spindle speed is ignored.
         self.mmGCodeList.append("S2000")
@@ -198,571 +203,501 @@ class microMillingFlowGCode():
         '''
         Feed rate - how fast drill moves in X,Y or Z direction
         '''
-        self.mmGCodeList.append("F250")
+        self.mm_g_code_list.append("F250")
 
     def components(self):
 
-        if self.svgMap['components']:
+        if self.architecture_map['components']:
             # Start going through each component in 'components'
-            for component in self.svgMap['components']:
+            for component in self.architecture_map['components']:
                 if component[0] in self.library:
-                    componentX = float(component[1]) * float(self.drillSize)
-                    componentY = float(component[2]) * float(self.drillSize)
-                    componentWidth = float(self.library[component[0]]['Size'].find('Width').text) * float(self.drillSize)
-                    componentHeight = float(self.library[component[0]]['Size'].find('Height').text) * float(self.drillSize)
-                    componentActualPositionX = componentX - componentWidth/2
-                    componentActualPositionY = componentY - componentHeight/2
+                    component_x = float(component[1]) * self.scale
+                    component_y = float(component[2]) * self.scale
+                    component_width = float(self.library[component[0]]['Size'].find('Width').text) * self.scale
+                    component_height = float(self.library[component[0]]['Size'].find('Height').text) * self.scale
+                    component_actual_position_x = component_x - component_width/2
+                    component_actual_position_y = component_y - component_height/2
 
-                    for iComponent in self.library[component[0]]['Internal']:
-                        if iComponent.tag == 'FlowLine':
-                            self.internalFlowChannel(iComponent,
-                                                     [componentActualPositionX],
-                                                     [componentActualPositionY],
-                                                     [component[3] % 360],
-                                                     [componentWidth],
-                                                     [componentHeight],
-                                                     self.rotateValveCoords(self.library[component[0]]['Control'],
-                                                                    [componentActualPositionX], [componentActualPositionY],
-                                                                    [component[3] % 360.0],
-                                                                    [componentWidth],
-                                                                    [componentHeight]))
-                        elif iComponent.tag == 'FlowCircle':
-                            self.internalFlowCircle(iComponent,
-                                                    [componentActualPositionX],
-                                                    [componentActualPositionY],
+                    for i_component in self.library[component[0]]['Internal']:
+                        if i_component.tag == 'FlowLine':
+                            self.internal_flow_channel(i_component,
+                                                       [component_actual_position_x],
+                                                       [component_actual_position_y],
+                                                       [component[3] % 360],
+                                                       [component_width],
+                                                       [component_height],
+                                                       rotate_valve_coords(self.library[component[0]]['Control'],
+                                                                           [component_actual_position_x],
+                                                                           [component_actual_position_y],
+                                                                           [component[3] % 360.0],
+                                                                           [component_width],
+                                                                           [component_height]))
+                        elif i_component.tag == 'FlowCircle':
+                            self.internal_flow_circle(i_component,
+                                                      [component_actual_position_x],
+                                                      [component_actual_position_y],
+                                                      [component[3] % 360],
+                                                      [component_width],
+                                                      [component_height])
+                        elif i_component.tag == "FlowHole":
+                            self.internal_flow_hole(i_component,
+                                                    [component_actual_position_x],
+                                                    [component_actual_position_y],
                                                     [component[3] % 360],
-                                                    [componentWidth],
-                                                    [componentHeight])
-                        elif iComponent.tag == "FlowHole":
-                            self.internalFlowHole(iComponent,
-                                                  [componentActualPositionX],
-                                                  [componentActualPositionY],
-                                                  [component[3] % 360],
-                                                  [componentWidth],
-                                                  [componentHeight])
+                                                    [component_width],
+                                                    [component_height])
                         else:
-                            self.internalComponent(iComponent,
-                                                [componentActualPositionX],
-                                                [componentActualPositionY],
-                                                [component[3] % 360],
-                                                [componentWidth],
-                                                [componentHeight])
+                            self.internal_component(i_component,
+                                                    [component_actual_position_x],
+                                                    [component_actual_position_y],
+                                                    [component[3] % 360],
+                                                    [component_width],
+                                                    [component_height])
                 else:
                     print("Component \"" + component[0] + "\" not found in library - skipping!")
 
-    def flowChannels(self):
+    def flow_channels(self):
 
-        if self.svgMap['lines']:
+        if self.architecture_map['lines']:
             # Start going through each line in 'lines'
-            for line in self.svgMap['lines']:
-                self.flowChannelGCode(float(line[0]) * float(self.drillSize),
-                                      float(line[1]) * float(self.drillSize),
-                                      float(line[2]) * float(self.drillSize),
-                                      float(line[3]) * float(self.drillSize))
+            for line in self.architecture_map['lines']:
+                self.flow_channel_g_code(float(line[0]) * self.scale,
+                                         float(line[1]) * self.scale,
+                                         float(line[2]) * self.scale,
+                                         float(line[3]) * self.scale)
 
-    def flowHoles(self):
+    def flow_holes(self):
 
         '''
         Pausing the drilling, since drill for drilling all the way through is different than flow channels
         '''
 
-        if len(self.flowHoleList) != 0:
-            self.mmGCodeList.append("(PAUSE FOR DRILL CHANGE)")
-            self.mmGCodeList.append("(*************************************************)")
-            self.mmGCodeList.append("(*                                               *)")
-            self.mmGCodeList.append("(* REMEMBER PLATE UNDER FOR PENETRATION DRILLING *)")
-            self.mmGCodeList.append("(*                                               *)")
-            self.mmGCodeList.append("(*************************************************)")
-            self.mmGCodeList.append("M00")
-            self.mmGCodeList.append("(" + self.drillSize + "MM HOLE DRILL)")
+        if len(self.flow_hole_list) != 0:
+            self.mm_g_code_list.append("(PAUSE FOR DRILL CHANGE)")
+            self.mm_g_code_list.append("(" + self.drill_hole_size + "MM HOLE DRILL)")
+            self.mm_g_code_list.append("(*************************************************)")
+            self.mm_g_code_list.append("(*                                               *)")
+            self.mm_g_code_list.append("(* REMEMBER PLATE UNDER FOR PENETRATION DRILLING *)")
+            self.mm_g_code_list.append("(*                                               *)")
+            self.mm_g_code_list.append("(*************************************************)")
+            self.mm_g_code_list.append("M00")
 
-        for flowHole in self.flowHoleList:
-            self.flowHoleGCode(flowHole[0],flowHole[1])
+            for flowHole in self.flow_hole_list:
+                self.flow_hole_g_code(flowHole[0], flowHole[1])
 
-    def moveBackToOrigin(self):
+    def move_back_to_origin(self):
 
-        self.mmGCodeList.append("G00 X0.0 Y0.0")
-        self.mmGCodeList.append("M30")
-        self.mmGCodeList.append("(PROGRAM END)")
+        self.mm_g_code_list.append("G00 X0.0 Y0.0")
+        self.mm_g_code_list.append("M30")
+        self.mm_g_code_list.append("(PROGRAM END)")
 
-    def internalComponent(self, component, componentXList, componentYList,
-                          componentRotationList, componentWidthList, componentHeightList):
+    def internal_component(self, component, component_x_list, component_y_list,
+                           component_rotation_list, component_width_list, component_height_list):
         if component.tag in self.library:
-            componentX = float(component.find('X').text) * float(self.drillSize)
-            componentY = float(component.find('Y').text) * float(self.drillSize)
-            componentWidth = float(self.library[component.tag]['Size'].find('Width').text) * float(self.drillSize)
-            componentHeight = float(self.library[component.tag]['Size'].find('Height').text) * float(self.drillSize)
-            componentXList.append(componentX - componentWidth/2)
-            componentYList.append(componentY - componentHeight/2)
-            componentRotationList.append(float(component.find('Rotation').text) % 360.0)
-            componentWidthList.append(componentWidth)
-            componentHeightList.append(componentHeight)
+            component_x = float(component.find('X').text) * self.scale
+            component_y = float(component.find('Y').text) * self.scale
+            component_width = float(self.library[component.tag]['Size'].find('Width').text) * self.scale
+            component_height = float(self.library[component.tag]['Size'].find('Height').text) * self.scale
+            component_x_list.append(component_x - component_width / 2)
+            component_y_list.append(component_y - component_height / 2)
+            component_rotation_list.append(float(component.find('Rotation').text) % 360.0)
+            component_width_list.append(component_width)
+            component_height_list.append(component_height)
 
-            for iComponent in self.library[component.tag]['Internal']:
-               if iComponent.tag == 'FlowLine':
-                    self.internalFlowChannel(iComponent,
-                                             componentXList,
-                                             componentYList,
-                                             componentRotationList,
-                                             componentWidthList,
-                                             componentHeightList,
-                                             self.rotateValveCoords(self.library[component.tag]['Control'],
-                                                               componentXList, componentYList,
-                                                               componentRotationList, componentWidthList,
-                                                               componentHeightList))
-               elif iComponent.tag == 'FlowCircle':
-                    self.internalFlowCircle(iComponent,
-                                            componentXList,
-                                            componentYList,
-                                            componentRotationList,
-                                            componentWidthList,
-                                            componentHeightList)
-               elif iComponent.tag == 'FlowHole':
-                   self.internalFlowHole(iComponent,
-                                         componentXList,
-                                         componentYList,
-                                         componentRotationList,
-                                         componentWidthList,
-                                         componentHeightList)
-               else:
-                    self.internalComponent(iComponent,
-                                           componentXList,
-                                           componentYList,
-                                           componentRotationList,
-                                           componentWidthList,
-                                           componentHeightList)
-                    componentXList.pop()
-                    componentYList.pop()
-                    componentRotationList.pop()
-                    componentWidthList.pop()
-                    componentHeightList.pop()
+            for i_component in self.library[component.tag]['Internal']:
+                if i_component.tag == 'FlowLine':
+                    self.internal_flow_channel(i_component,
+                                               component_x_list,
+                                               component_y_list,
+                                               component_rotation_list,
+                                               component_width_list,
+                                               component_height_list,
+                                               rotate_valve_coords(self.library[component.tag]['Control'],
+                                                                   component_x_list, component_y_list,
+                                                                   component_rotation_list, component_width_list,
+                                                                   component_height_list))
+                elif i_component.tag == 'FlowCircle':
+                    self.internal_flow_circle(i_component,
+                                              component_x_list,
+                                              component_y_list,
+                                              component_rotation_list,
+                                              component_width_list,
+                                              component_height_list)
+                elif i_component.tag == 'FlowHole':
+                    self.internal_flow_hole(i_component,
+                                            component_x_list,
+                                            component_y_list,
+                                            component_rotation_list,
+                                            component_width_list,
+                                            component_height_list)
+                else:
+                    self.internal_component(i_component,
+                                            component_x_list,
+                                            component_y_list,
+                                            component_rotation_list,
+                                            component_width_list,
+                                            component_height_list)
+                    component_x_list.pop()
+                    component_y_list.pop()
+                    component_rotation_list.pop()
+                    component_width_list.pop()
+                    component_height_list.pop()
         else:
             print("Component \"" + component.tag + "\" not found in library - skipping!")
 
-    def internalFlowChannel(self, flowChannel, componentXList, componentYList, componentRotationList,
-                            componentWidthList, componentHeightList, controlValves):
-        flowStartX = float(flowChannel.find('Start').find('X').text) * float(self.drillSize)
-        flowStartY = float(flowChannel.find('Start').find('Y').text) * float(self.drillSize)
-        flowEndX = float(flowChannel.find('End').find('X').text) * float(self.drillSize)
-        flowEndY = float(flowChannel.find('End').find('Y').text) * float(self.drillSize)
+    def internal_flow_channel(self, flow_channel, component_x_list, component_y_list, component_rotation_list,
+                              component_width_list, component_height_list, control_valves):
+        flow_start_x = float(flow_channel.find('Start').find('X').text) * self.scale
+        flow_start_y = float(flow_channel.find('Start').find('Y').text) * self.scale
+        flow_end_x = float(flow_channel.find('End').find('X').text) * self.scale
+        flow_end_y = float(flow_channel.find('End').find('Y').text) * self.scale
 
-        for i in range(len(componentXList)-1,-1,-1):
-            if componentRotationList[i] != 0.0:
-                tempFlowStartX = rotate_coordinate(flowStartX - componentWidthList[i]/2,
-                                                       flowStartY - componentHeightList[i]/2,
-                                                       componentRotationList[i],
-                                                       'x')
-                tempFlowStartY = rotate_coordinate(flowStartX - componentWidthList[i]/2,
-                                                       flowStartY - componentHeightList[i]/2,
-                                                       componentRotationList[i],
-                                                       'y')
-                tempFlowEndX = rotate_coordinate(flowEndX - componentWidthList[i]/2,
-                                                     flowEndY - componentHeightList[i]/2,
-                                                     componentRotationList[i],
-                                                     'x')
-                tempFlowEndY = rotate_coordinate(flowEndX - componentWidthList[i]/2,
-                                                     flowEndY - componentHeightList[i]/2,
-                                                     componentRotationList[i],
-                                                     'y')
+        new_start_coordinates = rotate_x_y_coordinates(flow_start_x, flow_start_y,
+                                                       component_x_list, component_y_list,
+                                                       component_width_list, component_height_list,
+                                                       component_rotation_list)
 
-                flowStartX = tempFlowStartX + componentXList[i] + componentWidthList[i]/2
-                flowStartY = tempFlowStartY + componentYList[i] + componentHeightList[i]/2
-                flowEndX = tempFlowEndX + componentXList[i] + componentWidthList[i]/2
-                flowEndY = tempFlowEndY + componentYList[i] + componentHeightList[i]/2
-            else:
-                flowStartX += componentXList[i]
-                flowStartY += componentYList[i]
-                flowEndX += componentXList[i]
-                flowEndY += componentYList[i]
+        new_end_coordinates = rotate_x_y_coordinates(flow_end_x, flow_end_y,
+                                                     component_x_list, component_y_list,
+                                                     component_width_list, component_height_list,
+                                                     component_rotation_list)
 
-        if controlValves is not None:
-            currentY = flowStartY
-            currentX = flowStartX
-            if flowStartY == flowEndY:
-                if flowStartX < flowEndX:
-                    sortedValves = sorted(controlValves, key = lambda valve: valve[0])
+        if control_valves is not None:
+            current_y = new_start_coordinates[1]
+            current_x = new_start_coordinates[0]
+            if new_start_coordinates[1] == new_end_coordinates[1]:
+                if new_start_coordinates[0] < new_end_coordinates[0]:
+                    sorted_valves = sorted(control_valves, key=lambda elem: elem[0])
                 else:
-                    sortedValves = sorted(controlValves, key = lambda valve: -valve[0])
+                    sorted_valves = sorted(control_valves, key=lambda elem: -elem[0])
 
-                for valve in sortedValves:
+                for valve in sorted_valves:
                     x = valve[0]
                     y = valve[1]
-                    if flowStartY == y and ((x > flowStartX and x < flowEndX) or (x < flowStartX and x > flowEndX)):
-                        if flowStartX < flowEndX:
-                            nextX = x - self.discontinuityWidth/2
+                    if new_start_coordinates[1] == y and ((new_start_coordinates[0] < x < new_end_coordinates[0]) or
+                                                          (new_start_coordinates[0] > x > new_end_coordinates[0])):
+                        if new_start_coordinates[0] < new_end_coordinates[0]:
+                            next_x = x - self.discontinuity_width / 2
                         else:
-                            nextX = x + self.discontinuityWidth/2
-                        self.flowChannelGCode(currentX,
-                                              flowStartY,
-                                              nextX,
-                                              flowEndY)
-                        if flowStartX < flowEndX:
-                            currentX = x + self.discontinuityWidth/2
+                            next_x = x + self.discontinuity_width / 2
+                        self.flow_channel_g_code(current_x,
+                                                 new_start_coordinates[1],
+                                                 next_x,
+                                                 new_end_coordinates[1])
+                        if new_start_coordinates[0] < new_end_coordinates[0]:
+                            current_x = x + self.discontinuity_width / 2
                         else:
-                            currentX = x - self.discontinuityWidth/2
-                self.flowChannelGCode(currentX,
-                                      flowStartY,
-                                      flowEndX,
-                                      flowEndY)
+                            current_x = x - self.discontinuity_width / 2
+                self.flow_channel_g_code(current_x,
+                                         new_start_coordinates[1],
+                                         new_end_coordinates[0],
+                                         new_end_coordinates[1])
             else:
-                if flowStartY < flowEndY:
-                    sortedValves = sorted(controlValves, key = lambda valve: valve[1])
+                if new_start_coordinates[1] < new_end_coordinates[1]:
+                    sorted_valves = sorted(control_valves, key=lambda elem: elem[1])
                 else:
-                    sortedValves = sorted(controlValves, key = lambda valve: -valve[1])
+                    sorted_valves = sorted(control_valves, key=lambda elem: -elem[1])
 
-                for valve in sortedValves:
+                for valve in sorted_valves:
                     x = valve[0]
                     y = valve[1]
-                    if flowStartX == x and ((y > flowStartY and y < flowEndY) or (y < flowStartY and y > flowEndY)):
-                        if flowStartY < flowEndY:
-                            nextY = y - self.discontinuityWidth/2
+                    if new_start_coordinates[0] == x and ((new_start_coordinates[1] < y < new_end_coordinates[1]) or
+                                                          (new_start_coordinates[1] > y > new_end_coordinates[1])):
+                        if new_start_coordinates[1] < new_end_coordinates[1]:
+                            next_y = y - self.discontinuity_width / 2
                         else:
-                            nextY = y + self.discontinuityWidth/2
-                        self.flowChannelGCode(flowStartX,
-                                              currentY,
-                                              flowEndX,
-                                              nextY)
-                        if flowStartY < flowEndY:
-                            currentY = y + self.discontinuityWidth/2
+                            next_y = y + self.discontinuity_width / 2
+                        self.flow_channel_g_code(new_start_coordinates[0],
+                                                 current_y,
+                                                 new_end_coordinates[0],
+                                                 next_y)
+                        if new_start_coordinates[1] < new_end_coordinates[1]:
+                            current_y = y + self.discontinuity_width / 2
                         else:
-                            currentY = y - self.discontinuityWidth/2
+                            current_y = y - self.discontinuity_width / 2
 
-                self.flowChannelGCode(flowStartX,
-                                      currentY,
-                                      flowEndX,
-                                      flowEndY)
+                self.flow_channel_g_code(new_start_coordinates[0],
+                                         current_y,
+                                         new_end_coordinates[0],
+                                         new_end_coordinates[1])
         else:
-            self.flowChannelGCode(flowStartX,flowStartY,flowEndX,flowEndY)
+            self.flow_channel_g_code(new_start_coordinates[0],
+                                     new_start_coordinates[1],
+                                     new_end_coordinates[0],
+                                     new_end_coordinates[1])
 
-    def internalFlowCircle(self, flowCircle, componentXList, componentYList, componentRotationList,
-                           componentWidthList, componentHeightList):
-        flowCircleCenterX = float(flowCircle.find('Center').find('X').text) * float(self.drillSize)
-        flowCircleCenterY = float(flowCircle.find('Center').find('Y').text) * float(self.drillSize)
+    def internal_flow_circle(self, flow_circle, component_x_list, component_y_list, component_rotation_list,
+                             component_width_list, component_height_list):
+        flow_circle_center_x = float(flow_circle.find('Center').find('X').text) * self.scale
+        flow_circle_center_y = float(flow_circle.find('Center').find('Y').text) * self.scale
 
-        totalRotation = 0
+        new_coordinates = rotate_x_y_coordinates(flow_circle_center_x, flow_circle_center_y,
+                                                 component_x_list, component_y_list,
+                                                 component_width_list, component_height_list,
+                                                 component_rotation_list)
 
-        for i in range(len(componentXList)-1,-1,-1):
-            if componentRotationList[i] != 0.0:
-                tempCircleCenterX = rotate_coordinate(flowCircleCenterX - componentWidthList[i]/2,
-                                                      flowCircleCenterY - componentHeightList[i]/2,
-                                                      componentRotationList[i],
-                                                      'x')
-                tempCircleCenterY = rotate_coordinate(flowCircleCenterX - componentWidthList[i]/2,
-                                                      flowCircleCenterY - componentHeightList[i]/2,
-                                                      componentRotationList[i],
-                                                      'y')
-                flowCircleCenterX = tempCircleCenterX + componentXList[i] + componentWidthList[i]/2
-                flowCircleCenterY = tempCircleCenterY + componentYList[i] + componentHeightList[i]/2
-            else:
-                flowCircleCenterX += componentXList[i]
-                flowCircleCenterY += componentYList[i]
+        flow_circle_radius = float(flow_circle.find('Radius').text) * self.scale
 
-            totalRotation += componentRotationList[i]
+        flow_circle_start_x = flow_circle_center_x
+        flow_circle_start_y = flow_circle_center_y
 
-        flowCircleRadius = float(flowCircle.find('Radius').text) * float(self.drillSize)
+        angle_list = [float(angle.text) for angle in
+                      sorted(list(flow_circle.find('Valves')), key=lambda elem: float(elem.text) % 360.0)]
 
-        flowCircleStartX = flowCircleCenterX
-        flowCircleStartY = flowCircleCenterY
+        valve_length_angle = (360 * float(self.discontinuity_width)) / (2 * flow_circle_radius * pi)
 
-        angleList = [float(angle.text) for angle in
-                     sorted(list(flowCircle.find('Valves')),key=lambda elem: float(elem.text)%360.0)]
-
-        valveLengthAngle = (360 * float(self.discontinuityWidth))/(2 * flowCircleRadius * pi)
-
-        if len(angleList) == 0:
-            self.completeCircleGCode(str(flowCircleStartX + flowCircleRadius),
-                                     str(flowCircleStartY),
-                                     flowCircleRadius)
-        elif len(angleList) == 1:
-            self.oneAngleCircleGCode(flowCircleCenterX,
-                                     flowCircleCenterY,
-                                     flowCircleRadius,
-                                     str(flowCircleStartX + flowCircleRadius), str(flowCircleStartY),
-                                     valveLengthAngle/2, (angleList[0]+totalRotation)%360.0)
+        if len(angle_list) == 0:
+            self.complete_circle_g_code(str(flow_circle_start_x + flow_circle_radius),
+                                        str(flow_circle_start_y),
+                                        flow_circle_radius)
+        elif len(angle_list) == 1:
+            self.one_angle_circle_g_code(flow_circle_center_x,
+                                         flow_circle_center_y,
+                                         flow_circle_radius,
+                                         str(flow_circle_start_x + flow_circle_radius), str(flow_circle_start_y),
+                                         valve_length_angle / 2, (angle_list[0]+new_coordinates[2]) % 360.0)
         else:
-            if totalRotation % 360 == 90:
-                flowCircleStartY += flowCircleRadius
-            elif totalRotation % 360 == 180:
-                flowCircleStartX -= flowCircleRadius
-            elif totalRotation % 360 == 270:
-                flowCircleStartY -= flowCircleRadius
+            if new_coordinates[2] % 360 == 90:
+                flow_circle_start_y += flow_circle_radius
+            elif new_coordinates[2] % 360 == 180:
+                flow_circle_start_x -= flow_circle_radius
+            elif new_coordinates[2] % 360 == 270:
+                flow_circle_start_y -= flow_circle_radius
             else:
-                flowCircleStartX += flowCircleRadius
+                flow_circle_start_x += flow_circle_radius
 
-            for i in range(0,len(angleList)):
-                if i == len(angleList)-1:
-                    flowStartX = str(self.cos_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(self.sin_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
-                    flowEndX = str(self.cos_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(self.sin_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
-
-                    if len(angleList) == 2:
-                        self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY,
-                                             flowCircleRadius if angleList[i] <= 180 else -flowCircleRadius)
-                    else:
-                        self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY,
-                                             flowCircleRadius)
-
-                    flowStartX = str(self.cos_ra(angleList[i]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(self.sin_ra(angleList[i]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
-                    if angleList[0] != 0.0:
-                        self.flowCircleGCode(flowStartX, flowStartY, str(flowCircleStartX), str(flowCircleStartY),
-                                             -flowCircleRadius if angleList[i] < 180 else flowCircleRadius)
-                    else:
-                        flowEndX = str(self.cos_ra(0-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
-                        flowEndY = str(self.sin_ra(0-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
-                        self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY,
-                                             -flowCircleRadius if angleList[i] < 180 else flowCircleRadius)
-                elif i == 0:
-                    if angleList[i] != 0.0:
-                        flowEndX = str(self.cos_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
-                        flowEndY = str(self.sin_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
-                        self.flowCircleGCode(str(flowCircleStartX),
-                                         str(flowCircleStartY),
-                                         flowEndX,
-                                         flowEndY,
-                                         flowCircleRadius)
+            for i in range(0, len(angle_list)):
+                if i == 0:
+                    if angle_list[i] != 0.0:
+                        flow_end_x = str(cos_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                         flow_circle_radius + flow_circle_center_x)
+                        flow_end_y = str(sin_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                         flow_circle_radius + flow_circle_center_y)
+                        self.flow_circle_g_code(str(flow_circle_start_x),
+                                                str(flow_circle_start_y),
+                                                flow_end_x,
+                                                flow_end_y,
+                                                flow_circle_radius if angle_list[i] <= 180 else -flow_circle_radius)
                     else:
                         pass
                 else:
-                    flowStartX = str(self.cos_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
-                    flowStartY = str(self.sin_ra(angleList[i-1]+valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
-                    flowEndX = str(self.cos_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterX)
-                    flowEndY = str(self.sin_ra(angleList[i]-valveLengthAngle/2+totalRotation%360.0) * flowCircleRadius + flowCircleCenterY)
-                    self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius)
+                    flow_start_x = str(cos_ra(angle_list[i-1]+valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                       flow_circle_radius + flow_circle_center_x)
+                    flow_start_y = str(sin_ra(angle_list[i-1]+valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                       flow_circle_radius + flow_circle_center_y)
+                    flow_end_x = str(cos_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                     flow_circle_radius + flow_circle_center_x)
+                    flow_end_y = str(sin_ra(angle_list[i]-valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                     flow_circle_radius + flow_circle_center_y)
+                    self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y,
+                                            flow_circle_radius if angle_list[i] - angle_list[i-1] <= 180
+                                            else -flow_circle_radius)
 
-    def internalFlowHole(self, flowHole, componentXList, componentYList, componentRotationList,
-                           componentWidthList, componentHeightList):
+                    if i == len(angle_list)-1:
+                        flow_start_x = str(cos_ra(angle_list[i]+valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                           flow_circle_radius + flow_circle_center_x)
+                        flow_start_y = str(sin_ra(angle_list[i]+valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                           flow_circle_radius + flow_circle_center_y)
+                        if angle_list[0] != 0.0:
+                            self.flow_circle_g_code(flow_start_x, flow_start_y,
+                                                    str(flow_circle_start_x),
+                                                    str(flow_circle_start_y),
+                                                    flow_circle_radius if (360.0 - angle_list[i]) <= 180
+                                                    else -flow_circle_radius)
+                        else:
+                            flow_end_x = str(cos_ra(0-valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                             flow_circle_radius + flow_circle_center_x)
+                            flow_end_y = str(sin_ra(0-valve_length_angle/2+new_coordinates[2] % 360.0) *
+                                             flow_circle_radius + flow_circle_center_y)
+                            self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y,
+                                                    flow_circle_radius if (360.0 - angle_list[i]) <= 180
+                                                    else -flow_circle_radius)
 
-        flowHoleCenterX = float(flowHole.find('Center').find('X').text)
-        flowHoleCenterY = float(flowHole.find('Center').find('Y').text)
+    def internal_flow_hole(self, flow_hole, component_x_list, component_y_list, component_rotation_list,
+                           component_width_list, component_height_list):
 
-        for i in range(len(componentXList)-1,-1,-1):
-            if componentRotationList[i] != 0.0:
-                tempHoleCenterX = rotate_coordinate(flowHoleCenterX - componentWidthList[i]/2,
-                                                    flowHoleCenterY - componentHeightList[i]/2,
-                                                    componentRotationList[i],
-                                                    'x')
-                tempHoleCenterY = rotate_coordinate(flowHoleCenterX - componentWidthList[i]/2,
-                                                    flowHoleCenterY - componentHeightList[i]/2,
-                                                    componentRotationList[i],
-                                                    'y')
+        flow_hole_center_x = float(flow_hole.find('Center').find('X').text)
+        flow_hole_center_y = float(flow_hole.find('Center').find('Y').text)
 
-                flowHoleCenterX = tempHoleCenterX + componentXList[i] + componentWidthList[i]/2
-                flowHoleCenterY = tempHoleCenterY + componentYList[i] + componentHeightList[i]/2
-            else:
-                flowHoleCenterX += componentXList[i]
-                flowHoleCenterY += componentYList[i]
+        new_coordinates = rotate_x_y_coordinates(flow_hole_center_x, flow_hole_center_y,
+                                                 component_x_list, component_y_list,
+                                                 component_width_list, component_height_list,
+                                                 component_rotation_list)
 
-        self.flowHoleList.append([flowHoleCenterX, flowHoleCenterY])
+        self.flow_hole_list.append([new_coordinates[0], new_coordinates[1]])
 
-    def completeCircleGCode(self, startX, startY, flowCircleRadius):
+    def complete_circle_g_code(self, start_x, start_y, flow_circle_radius):
 
-        currentDrillLevel = 0.0
+        current_drill_level = 0.0
 
-        self.mmGCodeList.append("G00 X" + startX + " Y" + startY + " Z" + self.drillSize)
+        self.mm_g_code_list.append("G00 X" + start_x + " Y" + start_y + " Z" + self.drill_top)
 
         for i in range(0, self.repeat):
-            currentDrillLevel -= (float(self.drillSize) / 4.0)
-            if currentDrillLevel < float(self.drillFlowDepth):
-                currentDrillLevel = float(self.drillFlowDepth)
-            self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+            current_drill_level -= (self.scale / 4.0)
+            if current_drill_level < float(self.drill_flow_depth):
+                current_drill_level = float(self.drill_flow_depth)
+            self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
             if i % 2 == 0:
-                self.mmGCodeList.append("G03 I-" + str(flowCircleRadius))
+                self.mm_g_code_list.append("G03 I-" + str(flow_circle_radius))
             else:
-                self.mmGCodeList.append("G02 I-" + str(flowCircleRadius))
-        self.mmGCodeList.append("G01 Z" + self.drillSize)
+                self.mm_g_code_list.append("G02 I-" + str(flow_circle_radius))
+        self.mm_g_code_list.append("G01 Z" + self.drill_top)
 
-    def oneAngleCircleGCode(self, flowCircleCenterX,
-                                  flowCircleCenterY,
-                                  flowCircleRadius,
-                                  flowCircleStartX,
-                                  flowCircleStartY,
-                                  valveLengthAngle,
-                                  angle):
+    def one_angle_circle_g_code(self, flow_circle_center_x,
+                                flow_circle_center_y,
+                                flow_circle_radius,
+                                flow_circle_start_x,
+                                flow_circle_start_y,
+                                valve_length_angle,
+                                angle):
 
         if angle != 0:
-            flowEndX = str(self.cos_ra(angle-valveLengthAngle) * flowCircleRadius + flowCircleCenterX)
-            flowEndY = str(self.sin_ra(angle-valveLengthAngle) * flowCircleRadius + flowCircleCenterY)
-            self.flowCircleGCode(flowCircleStartX, flowCircleStartY, flowEndX, flowEndY,
-                                 flowCircleRadius if angle <= 180.0 else -flowCircleRadius)
-            flowStartX = str(self.cos_ra(angle+valveLengthAngle) * flowCircleRadius + flowCircleCenterX)
-            flowStartY = str(self.sin_ra(angle+valveLengthAngle) * flowCircleRadius + flowCircleCenterY)
-            self.flowCircleGCode(flowStartX, flowStartY, flowCircleStartX, flowCircleStartY,
-                                 -flowCircleRadius if angle <= 180.0 else flowCircleRadius)
+            flow_end_x = str(cos_ra(angle - valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_end_y = str(sin_ra(angle - valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            self.flow_circle_g_code(flow_circle_start_x, flow_circle_start_y, flow_end_x, flow_end_y,
+                                    flow_circle_radius if angle <= 180.0 else -flow_circle_radius)
+            flow_start_x = str(cos_ra(angle + valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_start_y = str(sin_ra(angle + valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            self.flow_circle_g_code(flow_start_x, flow_start_y, flow_circle_start_x, flow_circle_start_y,
+                                    -flow_circle_radius if angle <= 180.0 else flow_circle_radius)
         else:
-            flowStartX = str(self.cos_ra(valveLengthAngle) * flowCircleRadius + flowCircleCenterX)
-            flowStartY = str(self.sin_ra(valveLengthAngle) * flowCircleRadius + flowCircleCenterY)
-            flowEndX = str(self.cos_ra(360-(valveLengthAngle)) * flowCircleRadius + flowCircleCenterX)
-            flowEndY = str(self.sin_ra(360-(valveLengthAngle)) * flowCircleRadius + flowCircleCenterY)
-            self.flowCircleGCode(flowStartX, flowStartY, flowEndX, flowEndY, -flowCircleRadius)
+            flow_start_x = str(cos_ra(valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_start_y = str(sin_ra(valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            flow_end_x = str(cos_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_x)
+            flow_end_y = str(sin_ra(360 - valve_length_angle) * flow_circle_radius + flow_circle_center_y)
+            self.flow_circle_g_code(flow_start_x, flow_start_y, flow_end_x, flow_end_y, -flow_circle_radius)
 
+    def flow_channel_g_code(self, flow_start_x, flow_start_y, flow_end_x, flow_end_y):
 
-    def flowChannelGCode(self, flowStartX, flowStartY, flowEndX, flowEndY):
-
-        currentDrillLevel = 0.0
-        if flowStartX == flowEndX:
-            self.mmGCodeList.append("G00 X" + str(flowStartX) + " Y" + str(flowStartY) + " Z" + self.drillSize)
-            for i in range(0,self.repeat) :
-                currentDrillLevel -= (float(self.drillSize) / 4.0)
-                if currentDrillLevel < float(self.drillFlowDepth):
-                    currentDrillLevel = float(self.drillFlowDepth)
-                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+        current_drill_level = 0.0
+        if flow_start_x == flow_end_x:
+            self.mm_g_code_list.append("G00 X" + str(flow_start_x) + " Y" + str(flow_start_y) + " Z" + self.drill_top)
+            for i in range(0, self.repeat):
+                current_drill_level -= self.scale / 4.0
+                if current_drill_level < float(self.drill_flow_depth):
+                    current_drill_level = float(self.drill_flow_depth)
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
                 if i % 2 == 0:
-                    self.mmGCodeList.append("Y" + str(flowEndY))
-                else :
-                    self.mmGCodeList.append("Y" + str(flowStartY))
-            self.mmGCodeList.append("Z" + self.drillSize)
+                    self.mm_g_code_list.append("Y" + str(flow_end_y))
+                else:
+                    self.mm_g_code_list.append("Y" + str(flow_start_y))
+            self.mm_g_code_list.append("Z" + self.drill_top)
         else:
-            self.mmGCodeList.append("G00 X" + str(flowStartX) + " Y" + str(flowStartY) + " Z" + self.drillSize)
-            for i in range(0,self.repeat) :
-                currentDrillLevel -= (float(self.drillSize) / 4.0)
-                if currentDrillLevel < float(self.drillFlowDepth):
-                    currentDrillLevel = float(self.drillFlowDepth)
-                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+            self.mm_g_code_list.append("G00 X" + str(flow_start_x) + " Y" + str(flow_start_y) + " Z" + self.drill_top)
+            for i in range(0, self.repeat):
+                current_drill_level -= self.scale / 4.0
+                if current_drill_level < float(self.drill_flow_depth):
+                    current_drill_level = float(self.drill_flow_depth)
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
                 if i % 2 == 0:
-                    self.mmGCodeList.append("X" + str(flowEndX))
-                else :
-                    self.mmGCodeList.append("X" + str(flowStartX))
-            self.mmGCodeList.append("Z" + self.drillSize)
+                    self.mm_g_code_list.append("X" + str(flow_end_x))
+                else:
+                    self.mm_g_code_list.append("X" + str(flow_start_x))
+            self.mm_g_code_list.append("Z" + self.drill_top)
 
-    def flowCircleGCode(self, flowStartX, flowStartY, flowEndX, flowEndY, flowCircleRadius):
+    def flow_circle_g_code(self, flow_start_x, flow_start_y, flow_end_x, flow_end_y, flow_circle_radius):
 
-        currentDrillLevel = 0.0
+        current_drill_level = 0.0
 
-        self.mmGCodeList.append("G00 X" + flowStartX + " Y" + flowStartY + " Z" + self.drillSize)
+        self.mm_g_code_list.append("G00 X" + flow_start_x + " Y" + flow_start_y + " Z" + self.drill_top)
 
         for i in range(0, self.repeat):
-            currentDrillLevel -= (float(self.drillSize) / 4.0)
-            if currentDrillLevel < float(self.drillFlowDepth):
-                currentDrillLevel = float(self.drillFlowDepth)
-            self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
+            current_drill_level -= (self.scale / 4.0)
+            if current_drill_level < float(self.drill_flow_depth):
+                current_drill_level = float(self.drill_flow_depth)
+            self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
             if i % 2 == 0:
-                self.mmGCodeList.append("G03 X" + flowEndX + " Y" + flowEndY + " R" + str(flowCircleRadius))
+                self.mm_g_code_list.append("G03 X" + flow_end_x + " Y" + flow_end_y + " R" +
+                                           str(flow_circle_radius))
             else:
-                self.mmGCodeList.append("G02 X" + flowStartX + " Y" + flowStartY + " R" + str(flowCircleRadius))
-        self.mmGCodeList.append("G01 Z" + self.drillSize)
+                self.mm_g_code_list.append("G02 X" + flow_start_x + " Y" + flow_start_y + " R" +
+                                           str(flow_circle_radius))
+        self.mm_g_code_list.append("G01 Z" + self.drill_top)
 
-    def flowHoleGCode(self, flowHoleCenterX, flowHoleCenterY):
+    def flow_hole_g_code(self, flow_hole_center_x, flow_hole_center_y):
 
-        self.mmGCodeList.append("G00 X" + str(flowHoleCenterX)
-                                +" Y" + str(flowHoleCenterY))
-        self.mmGCodeList.append("G01 Z" + self.drillHoleDepth)
-        self.mmGCodeList.append("Z" + self.drillSize)
+        self.mm_g_code_list.append("G00 X" + str(flow_hole_center_x) +
+                                   " Y" + str(flow_hole_center_y))
+        self.mm_g_code_list.append("G01 Z" + self.drill_hole_depth)
+        self.mm_g_code_list.append("Z" + self.drill_top)
 
-    def rotateValveCoords(self, valveList, componentXList, componentYList,
-                       componentRotationList, componentWidthList, componentHeightList):
 
-        if valveList is None:
-            return None
-        else:
-            newValveList = []
-
-            for valve in valveList:
-                valveCenterX = float(valve.find('X').text)
-                valveCenterY = float(valve.find('Y').text)
-
-                for i in range(len(componentXList)-1,-1,-1):
-                    if componentRotationList[i] != 0.0:
-                        tempValveCenterX = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
-                                                             valveCenterY - componentHeightList[i]/2,
-                                                             componentRotationList[i],
-                                                             'x')
-                        tempValveCenterY = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
-                                                             valveCenterY - componentHeightList[i]/2,
-                                                             componentRotationList[i],
-                                                             'y')
-                        valveCenterX = tempValveCenterX + componentXList[i] + componentWidthList[i]/2
-                        valveCenterY = tempValveCenterY + componentYList[i] + componentHeightList[i]/2
-                    else:
-                        valveCenterX += componentXList[i]
-                        valveCenterY += componentYList[i]
-
-                newValveList.append([valveCenterX, valveCenterY])
-
-            return newValveList
-
-    def cos_ra(self, argument):
-
-        return cos(radians(argument))
-
-    def sin_ra(self, argument):
-
-        return sin(radians(argument))
-
-class microMillingControlGCode():
+class MicroMillingControlGCode:
 
     def __init__(self):
 
-        self.svgMap = None
+        self.svg_map = None
         self.library = None
         self.conf = None
-        self.mmGCodeList = None
-        self.controlMap = None
+        self.mm_g_code_list = None
+        self.control_map = None
         self.scale = None
 
-    def createMMGCodeList(self, svgMap, library, conf):
+    def create_mm_g_code_list(self, svg_map, library, conf):
 
-        self.svgMap = svgMap
+        self.svg_map = svg_map
         self.library = library
         self.conf = conf
-        self.mmGCodeList = []
-        self.controlMap = []
+        self.mm_g_code_list = []
+        self.control_map = []
 
         # Current config
-        self.drillFlowDepth = self.conf['drillOptions']['flow']['depth']
-        self.drillHoleDepth = self.conf['drillOptions']['hole']['depth']
-        self.drillSize = self.conf['drillOptions']['drillSize']
-        self.valveWidth = self.conf['valveOptions']['width']
-        self.valveHeight = self.conf['valveOptions']['height']
+        self.drill_valve_subsidence_depth = self.conf['Control_Layer_Options']['Subsidence_Depth']
+        self.drill_valve_hole_depth = self.conf['Control_Layer_Options']['Hole_Depth']
+        self.drill_subsidence_size = self.conf['Control_Layer_Options']['Subsidence_Drill_Size']
+        self.drill_hole_size = self.conf['Control_Layer_Options']['Hole_Drill_Size']
+        self.drill_top = self.conf['Control_Layer_Options']['Drill_Z_Top']
+        self.valve_width = '9'
+        self.valve_height = '6'
 
         # Calculate number of drilling in one flow channel
-        if ((float(self.drillFlowDepth) * -1.0) / (float(self.drillSize) / 4.0)) <= 1.0 :
+        if ((float(self.drill_valve_subsidence_depth) * -1.0) / (float(self.drill_subsidence_size) / 4.0)) <= 1.0:
             self.repeat = 1
-        else :
-            self.repeat = int(ceil((float(self.drillFlowDepth) * -1.0) / (float(self.drillSize) / 4.0)))
+        else:
+            self.repeat = int(ceil((float(self.drill_valve_subsidence_depth) * -1.0) /
+                                   (float(self.drill_subsidence_size) / 4.0)))
 
         # Scale for scaling according to drillsize
-        self.scale = float(self.drillSize)
+        self.scale = float(self.drill_subsidence_size)
 
         # Use chip size, to modify control layer so it fits correctly on top
-        self.svgMapWidth = float(self.svgMap['width']) * self.scale
-        self.svgMapHeight = float(self.svgMap['height']) * self.scale
+        self.svg_map_width = float(self.svg_map['width']) * self.scale
+        self.svg_map_height = float(self.svg_map['height']) * self.scale
 
         # Create GCode List
-        if len(self.svgMap['lines']) != 0 or len(self.svgMap['components']) != 0:
+        if len(self.svg_map['lines']) != 0 or len(self.svg_map['components']) != 0:
 
-            self.fetchValves()
+            self.fetch_valves()
 
-            if len(self.controlMap) != 0:
-                self.gCodeOptions()
+            if len(self.control_map) != 0:
+                self.g_code_options()
 
                 self.valves()
 
-                self.valveHolesGCode()
+                self.valve_holes_g_code()
 
-                self.moveBackToOrigin()
+                self.move_back_to_origin()
             else:
-                self.mmGCodeList.append('(No Valves in Biochip Architecture!')
+                self.mm_g_code_list.append('(No Valves in Biochip Architecture!')
         else:
-            self.mmGCodeList.append('(No Components or Lines in Biochip Architecture!)')
+            self.mm_g_code_list.append('(No Components or Lines in Biochip Architecture!)')
 
-        return self.mmGCodeList
+        return self.mm_g_code_list
 
-    def gCodeOptions(self):
+    def g_code_options(self):
 
         '''
         Parenthese in GCode is comments
         '''
-        self.mmGCodeList.append("(PROGRAM START)")
+        self.mm_g_code_list.append("(PROGRAM START)")
         '''
         Drill used for flow channels
         '''
-        self.mmGCodeList.append("(" + self.drillSize +"MM FLOW DRILL)")
+        self.mm_g_code_list.append("(" + self.drill_subsidence_size + "MM SUBSIDENCE DRILL)")
         '''
         M00 is break in Gcode, and machine pauses (Drill change or similar)
         '''
-        self.mmGCodeList.append("M00")
+        self.mm_g_code_list.append("M00")
         '''
         With a spindle controller, the spindle speed is ignored.
         self.mmGCodeList.append("S2000")
@@ -770,361 +705,305 @@ class microMillingControlGCode():
         '''
         Feed rate - how fast drill moves in X,Y or Z direction
         '''
-        self.mmGCodeList.append("F250")
+        self.mm_g_code_list.append("F250")
 
-    def fetchValves(self):
+    def fetch_valves(self):
 
-        if self.svgMap['components']:
+        if self.svg_map['components']:
             # Start going through each component in 'components'
-            for component in self.svgMap['components']:
+            for component in self.svg_map['components']:
                 if component[0] in self.library:
-                    componentX = float(component[1]) * self.scale
-                    componentY = float(component[2]) * self.scale
-                    componentWidth = float(self.library[component[0]]['Size'].find('Width').text) * self.scale
-                    componentHeight = float(self.library[component[0]]['Size'].find('Height').text) * self.scale
-                    componentActualPositionX = componentX - componentWidth/2
-                    componentActualPositionY = componentY - componentHeight/2
+                    component_x = float(component[1]) * self.scale
+                    component_y = float(component[2]) * self.scale
+                    component_width = float(self.library[component[0]]['Size'].find('Width').text) * self.scale
+                    component_height = float(self.library[component[0]]['Size'].find('Height').text) * self.scale
+                    component_actual_position_x = component_x - component_width/2
+                    component_actual_position_y = component_y - component_height/2
 
-                    controlValves = self.library[component[0]]['Control']
-                    if controlValves != None and len(controlValves) != 0:
-                        self.appendControlValves(controlValves, [componentActualPositionX], [componentActualPositionY],
-                                                 [component[3] % 360],
-                                                 [componentWidth],
-                                                 [componentHeight])
+                    control_valves = self.library[component[0]]['Control']
+                    if control_valves is not None and len(control_valves) != 0:
+                        self.append_control_valves(control_valves,
+                                                   [component_actual_position_x],
+                                                   [component_actual_position_y],
+                                                   [component[3] % 360],
+                                                   [component_width],
+                                                   [component_height])
 
-                    for iComponent in self.library[component[0]]['Internal']:
-                        if iComponent.tag in {'FlowLine', 'FlowHole'}:
+                    for i_component in self.library[component[0]]['Internal']:
+                        if i_component.tag in {'FlowLine', 'FlowHole'}:
                             pass
-                        elif iComponent.tag == 'FlowCircle':
-                            self.internalFlowCircle(iComponent,
-                                                    [componentActualPositionX],
-                                                    [componentActualPositionY],
-                                                    [component[3] % 360],
-                                                    [componentWidth],
-                                                    [componentHeight])
+                        elif i_component.tag == 'FlowCircle':
+                            self.internal_flow_circle(i_component,
+                                                      [component_actual_position_x],
+                                                      [component_actual_position_y],
+                                                      [component[3] % 360],
+                                                      [component_width],
+                                                      [component_height])
                         else:
-                            self.internalComponent(iComponent,
-                                                [componentActualPositionX],
-                                                [componentActualPositionY],
-                                                [component[3] % 360],
-                                                [componentWidth],
-                                                [componentHeight])
+                            self.internal_component(i_component,
+                                                    [component_actual_position_x],
+                                                    [component_actual_position_y],
+                                                    [component[3] % 360],
+                                                    [component_width],
+                                                    [component_height])
                 else:
                     print("Component \"" + component[0] + "\" not found in library - skipping!")
 
-    def moveBackToOrigin(self):
+    def move_back_to_origin(self):
 
-        self.mmGCodeList.append("G00 X0.0 Y0.0")
-        self.mmGCodeList.append("M30")
-        self.mmGCodeList.append("(PROGRAM END)")
+        self.mm_g_code_list.append("G00 X0.0 Y0.0")
+        self.mm_g_code_list.append("M30")
+        self.mm_g_code_list.append("(PROGRAM END)")
 
-    def internalComponent(self, component, componentXList, componentYList,
-                          componentRotationList, componentWidthList, componentHeightList):
+    def internal_component(self, component, component_x_list, component_y_list,
+                           component_rotation_list, component_width_list, component_height_list):
         if component.tag in self.library:
-            componentX = float(component.find('X').text) * self.scale
-            componentY = float(component.find('Y').text) * self.scale
-            componentWidth = float(self.library[component.tag]['Size'].find('Width').text) * self.scale
-            componentHeight = float(self.library[component.tag]['Size'].find('Height').text) * self.scale
-            componentXList.append(componentX - componentWidth/2)
-            componentYList.append(componentY - componentHeight/2)
-            componentRotationList.append(float(component.find('Rotation').text) % 360.0)
-            componentWidthList.append(componentWidth)
-            componentHeightList.append(componentHeight)
+            component_x = float(component.find('X').text) * self.scale
+            component_y = float(component.find('Y').text) * self.scale
+            component_width = float(self.library[component.tag]['Size'].find('Width').text) * self.scale
+            component_height = float(self.library[component.tag]['Size'].find('Height').text) * self.scale
+            component_x_list.append(component_x - component_width / 2)
+            component_y_list.append(component_y - component_height / 2)
+            component_rotation_list.append(float(component.find('Rotation').text) % 360.0)
+            component_width_list.append(component_width)
+            component_height_list.append(component_height)
 
-            controlValves = self.library[component.tag]['Control']
-            if controlValves != None and len(controlValves) != 0:
-                self.appendControlValves(controlValves, componentXList, componentYList,
-                                         componentRotationList, componentWidthList, componentHeightList)
+            control_valves = self.library[component.tag]['Control']
+            if control_valves is not None and len(control_valves) != 0:
+                self.append_control_valves(control_valves, component_x_list, component_y_list,
+                                           component_rotation_list, component_width_list, component_height_list)
 
-            for iComponent in self.library[component.tag]['Internal']:
-                if iComponent.tag in {'FlowLine', 'FlowHole'}:
+            for i_component in self.library[component.tag]['Internal']:
+                if i_component.tag in {'FlowLine', 'FlowHole'}:
                     pass
-                elif iComponent.tag == 'FlowCircle':
-                    self.internalFlowCircle(iComponent,
-                                            componentXList,
-                                            componentYList,
-                                            componentRotationList,
-                                            componentWidthList,
-                                            componentHeightList)
+                elif i_component.tag == 'FlowCircle':
+                    self.internal_flow_circle(i_component,
+                                              component_x_list,
+                                              component_y_list,
+                                              component_rotation_list,
+                                              component_width_list,
+                                              component_height_list)
                 else:
-                    self.internalComponent(iComponent,
-                                           componentXList,
-                                           componentYList,
-                                           componentRotationList,
-                                           componentWidthList,
-                                           componentHeightList)
-                    if len(componentXList) != 0:
-                        componentXList.pop()
-                        componentYList.pop()
-                        componentRotationList.pop()
-                        componentWidthList.pop()
-                        componentHeightList.pop()
+                    self.internal_component(i_component,
+                                            component_x_list,
+                                            component_y_list,
+                                            component_rotation_list,
+                                            component_width_list,
+                                            component_height_list)
+                    if len(component_x_list) != 0:
+                        component_x_list.pop()
+                        component_y_list.pop()
+                        component_rotation_list.pop()
+                        component_width_list.pop()
+                        component_height_list.pop()
         else:
             print("Component \"" + component.tag + "\" not found in library - skipping!")
 
-    def appendControlValves(self, valveList, componentXList, componentYList,
-                            componentRotationList, componentWidthList, componentHeightList):
+    def append_control_valves(self, valve_list, component_x_list, component_y_list,
+                              component_rotation_list, component_width_list, component_height_list):
 
-        for valve in valveList:
-            valveCenterX = float(valve.find('X').text) * self.scale
-            valveCenterY = float(valve.find('Y').text) * self.scale
-            valveRotation = float(valve.find('Rotation').text)
+        for valve in valve_list:
+            valve_center_x = float(valve.find('X').text) * self.scale
+            valve_center_y = float(valve.find('Y').text) * self.scale
+            valve_rotation = float(valve.find('Rotation').text)
 
-            totalRotation = 0.0
+            new_coordinates = rotate_x_y_coordinates(valve_center_x, valve_center_y,
+                                                     component_x_list, component_y_list,
+                                                     component_width_list, component_height_list,
+                                                     component_rotation_list)
 
-            for i in range(len(componentXList)-1,-1,-1):
-                if componentRotationList[i] != 0.0:
-                    tempValveCenterX = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
-                                                         valveCenterY - componentHeightList[i]/2,
-                                                         componentRotationList[i],
-                                                         'x')
-                    tempValveCenterY = rotate_coordinate(valveCenterX - componentWidthList[i]/2,
-                                                         valveCenterY - componentHeightList[i]/2,
-                                                         componentRotationList[i],
-                                                         'y')
-                    valveCenterX = tempValveCenterX + componentXList[i] + componentWidthList[i]/2
-                    valveCenterY = tempValveCenterY + componentYList[i] + componentHeightList[i]/2
-                else:
-                    valveCenterX += componentXList[i]
-                    valveCenterY += componentYList[i]
-
-                totalRotation += componentRotationList[i]
-
-
-            xyxy = [self.svgMapWidth - valveCenterX,
-                    valveCenterY,
-                    (valveRotation - totalRotation)%360.0,
+            xyxy = [self.svg_map_width - new_coordinates[0],
+                    new_coordinates[1],
+                    (valve_rotation - new_coordinates[2]) % 360.0,
                     None]
 
-            self.controlMap.append(xyxy)
+            self.control_map.append(xyxy)
 
-    def internalFlowCircle(self, flowCircle, componentXList, componentYList, componentRotationList,
-                           componentWidthList, componentHeightList):
-        flowCircleCenterX = float(flowCircle.find('Center').find('X').text) * self.scale
-        flowCircleCenterY = float(flowCircle.find('Center').find('Y').text) * self.scale
+    def internal_flow_circle(self, flow_circle, component_x_list, component_y_list, component_rotation_list,
+                             component_width_list, component_height_list):
+        flow_circle_center_x = float(flow_circle.find('Center').find('X').text) * self.scale
+        flow_circle_center_y = float(flow_circle.find('Center').find('Y').text) * self.scale
 
-        totalRotation = 0
+        new_coordinates = rotate_x_y_coordinates(flow_circle_center_x, flow_circle_center_y,
+                                                 component_x_list, component_y_list,
+                                                 component_width_list, component_height_list,
+                                                 component_rotation_list)
 
-        for i in range(len(componentXList)-1,-1,-1):
-            if componentRotationList[i] != 0.0:
-                tempCircleCenterX = rotate_coordinate(flowCircleCenterX - componentWidthList[i]/2,
-                                                      flowCircleCenterY - componentHeightList[i]/2,
-                                                      componentRotationList[i],
-                                                      'x')
-                tempCircleCenterY = rotate_coordinate(flowCircleCenterX - componentWidthList[i]/2,
-                                                      flowCircleCenterY - componentHeightList[i]/2,
-                                                      componentRotationList[i],
-                                                      'y')
-                flowCircleCenterX = tempCircleCenterX + componentXList[i] + componentWidthList[i]/2
-                flowCircleCenterY = tempCircleCenterY + componentYList[i] + componentHeightList[i]/2
-            else:
-                flowCircleCenterX += componentXList[i]
-                flowCircleCenterY += componentYList[i]
+        flow_circle_radius = float(flow_circle.find('Radius').text) * self.scale
 
-            totalRotation += componentRotationList[i]
+        angle_list = sorted(list(flow_circle.find('Valves')), key=lambda elem: float(elem.text) % 360.0)
 
-        flowCircleRadius = float(flowCircle.find('Radius').text) * self.scale
+        for valve in angle_list:
+            valve_degree = float(valve.text)
+            valve_center_x = new_coordinates[0] + (cos(radians(valve_degree+new_coordinates[2] % 360.0)) *
+                                                   flow_circle_radius)
+            valve_center_y = new_coordinates[1] + (sin(radians(valve_degree+new_coordinates[2] % 360.0)) *
+                                                   flow_circle_radius)
 
-        angleList = sorted(list(flowCircle.find('Valves')),key=lambda elem: float(elem.text)%360.0)
+            xy = [self.svg_map_width - valve_center_x,
+                  valve_center_y,
+                  None,
+                  (valve_degree-new_coordinates[2]) % 360.0]
 
-        for valve in angleList:
-            valveDegree = float(valve.text)
-            valveCenterX = flowCircleCenterX + cos(radians(valveDegree+totalRotation%360.0)) * flowCircleRadius
-            valveCenterY = flowCircleCenterY + sin(radians(valveDegree+totalRotation%360.0)) * flowCircleRadius
-
-            xyxy = [self.svgMapWidth - valveCenterX,
-                    valveCenterY,
-                    None,
-                    (valveDegree-totalRotation)%360.0]
-
-            self.controlMap.append(xyxy)
+            self.control_map.append(xy)
 
     def valves(self):
-        valveWidth = float(self.valveWidth) * self.scale
-        valveHeight = float(self.valveHeight) * self.scale
-        valveOuterR = float(2.5/6) * valveHeight * self.scale
-        valveInnerR = float(1.5/6) * valveHeight * self.scale
+        valve_width = float(self.valve_width) * self.scale
+        valve_height = float(self.valve_height) * self.scale
+        valve_outer_r = float(2.5/6) * valve_height * self.scale
+        valve_inner_r = float(1.5/6) * valve_height * self.scale
 
-        for valve in self.controlMap:
+        for valve in self.control_map:
 
             x = valve[0]
             y = valve[1]
-            valveRot = valve[2]
-            circleRot = valve[3]
+            valve_rot = valve[2]
+            circle_rot = valve[3]
 
-            xLeft = x + (-1.5/9) * valveWidth
-            xLeftLeft = x + (-2.0/9) * valveWidth
-            xRight = x + (1.5/9) * valveWidth
-            xRightRight = x + (2.0/9) * valveWidth
+            x_left = x + (-1.5/9) * valve_width
+            x_left_left = x + (-2.0/9) * valve_width
+            x_right = x + (1.5/9) * valve_width
+            x_right_right = x + (2.0/9) * valve_width
 
-            yTopTop = y + (2.5/6) * valveHeight
-            yTopMiddle = y + (1.5/6) * valveHeight
-            yTopLow = y + (0.5/6) * valveHeight
-            yLowTop = y + (-0.5/6) * valveHeight
-            yLowMiddle = y + (-1.5/6) * valveHeight
-            yLowLow = y + (-2.5/6) * valveHeight
+            y_top_top = y + (2.5/6) * valve_height
+            y_top_middle = y + (1.5/6) * valve_height
+            y_top_low = y + (0.5/6) * valve_height
+            y_low_top = y + (-0.5/6) * valve_height
+            y_low_middle = y + (-1.5/6) * valve_height
+            y_low_low = y + (-2.5/6) * valve_height
 
-            xList = [xLeft, xLeftLeft,
-                     xRight, xRightRight]
+            x_list = [x_left, x_left_left,
+                      x_right, x_right_right]
 
-            yList = [yTopTop, yTopMiddle,
-                     yTopLow, yLowTop,
-                     yLowMiddle, yLowLow]
+            y_list = [y_top_top, y_top_middle,
+                      y_top_low, y_low_top,
+                      y_low_middle, y_low_low]
 
-            if valveRot != None:
-                if valveRot in {90.0, 270.0}:
-                    self.valveGCode(self.getRotatedXList(x, y, xList, yList, valveRot),
-                                    self.getRotatedYList(x, y, xList, yList, valveRot),
-                                    90, valveOuterR, valveInnerR)
+            if valve_rot is not None:
+                if valve_rot in {90.0, 270.0}:
+                    self.valve_g_code(get_rotated_x_list(x, y, x_list, y_list, valve_rot),
+                                      get_rotated_y_list(x, y, x_list, y_list, valve_rot),
+                                      90.0, valve_outer_r, valve_inner_r)
 
                 else:
-                    self.valveGCode(xList, yList, None, valveOuterR, valveInnerR)
+                    self.valve_g_code(x_list, y_list, None, 2.5, 1.5)
             else:
-                if circleRot in {90.0, 270.0}:
-                    self.valveGCode(xList, yList, None, valveOuterR, valveInnerR)
+                if circle_rot in {90.0, 270.0}:
+                    self.valve_g_code(x_list, y_list, None, 2.5, 1.5)
 
-                elif circleRot in {0.0, 180.0}:
-                    self.valveGCode(self.getRotatedXList(x, y, xList, yList, circleRot + 90.0),
-                                    self.getRotatedYList(x, y, xList, yList, circleRot + 90.0),
-                                    90.0, valveOuterR, valveInnerR)
+                elif circle_rot in {0.0, 180.0}:
+                    self.valve_g_code(get_rotated_x_list(x, y, x_list, y_list, circle_rot + 90.0),
+                                      get_rotated_y_list(x, y, x_list, y_list, circle_rot + 90.0),
+                                      90.0, valve_outer_r, valve_inner_r)
                 else:
-                    self.valveGCode(self.getRotatedXList(x, y, xList, yList, 90.0-circleRot),
-                                    self.getRotatedYList(x, y, xList, yList, 90.0-circleRot),
-                                    circleRot, valveOuterR, valveInnerR)
+                    self.valve_g_code(get_rotated_x_list(x, y, x_list, y_list, 90.0 - circle_rot),
+                                      get_rotated_y_list(x, y, x_list, y_list, 90.0 - circle_rot),
+                                      circle_rot, valve_outer_r, valve_inner_r)
 
-    def valveGCode(self, xList, yList, valveRotate, valveOuterR, valveInnerR):
+    def valve_g_code(self, x_list, y_list, valve_rotate, valve_outer_r, valve_inner_r):
 
-        currentDrillLevel = 0.0
+        current_drill_level = 0.0
 
         for i in range(0, self.repeat):
-            currentDrillLevel -= self.scale / 4.0
-            if currentDrillLevel < float(self.drillFlowDepth):
-                currentDrillLevel = float(self.drillFlowDepth)
+            current_drill_level -= self.scale / 4.0
+            if current_drill_level < float(self.drill_valve_subsidence_depth):
+                current_drill_level = float(self.drill_valve_subsidence_depth)
 
-            if valveRotate == None:
-                self.mmGCodeList.append("G00 X" + str(xList[0]) +
-                                        " Y" + str(yList[0]) +
-                                        " Z" + self.drillSize)
-                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
-                self.mmGCodeList.append("X" + str(xList[2]) +
-                                        " Y" + str(yList[0]))
-                self.mmGCodeList.append("G02 X" + str(xList[2]) +
-                                        " Y" + str(yList[5]) +
-                                        " R" + str(valveOuterR))
-                self.mmGCodeList.append("G01 X" + str(xList[0]) +
-                                        " Y" + str(yList[5]))
-                self.mmGCodeList.append("G02 X" + str(xList[0]) +
-                                        " Y" + str(yList[0]) +
-                                        " R" + str(valveOuterR))
-                self.mmGCodeList.append("G01 X" + str(xList[0]) +
-                                        " Y" + str(yList[1]))
-                self.mmGCodeList.append("X" + str(xList[2]) +
-                                        " Y" + str(yList[1]))
-                self.mmGCodeList.append("G02 X" + str(xList[2]) +
-                                        " Y" + str(yList[4]) +
-                                        " R" + str(valveInnerR))
-                self.mmGCodeList.append("G01 X" + str(xList[0]) +
-                                        " Y" + str(yList[4]))
+            if valve_rotate is None:
+                self.mm_g_code_list.append("G00 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[0]) +
+                                           " Z" + self.drill_top)
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+                self.mm_g_code_list.append("X" + str(x_list[2]) +
+                                           " Y" + str(y_list[0]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
+                                           " Y" + str(y_list[5]) +
+                                           " R" + str(valve_outer_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[5]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[0]) +
+                                           " R" + str(valve_outer_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[1]))
+                self.mm_g_code_list.append("X" + str(x_list[2]) +
+                                           " Y" + str(y_list[1]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
+                                           " Y" + str(y_list[4]) +
+                                           " R" + str(valve_inner_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[4]))
 
-                self.mmGCodeList.append("G02 X" + str(xList[0]) +
-                                        " Y" + str(yList[1]) +
-                                        " R" + str(valveInnerR))
-
-                self.mmGCodeList.append("G01 X" + str(xList[1]) +
-                                        " Y" + str(yList[2]))
-                self.mmGCodeList.append("X" + str(xList[3]) +
-                                        " Y" + str(yList[2]))
-                self.mmGCodeList.append("X" + str(xList[3]) +
-                                        " Y" + str(yList[3]))
-                self.mmGCodeList.append("X" + str(xList[1]) +
-                                        " Y" + str(yList[3]))
-                self.mmGCodeList.append("Z" + self.drillSize)
+                self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[1]) +
+                                           " R" + str(valve_inner_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[2]))
+                self.mm_g_code_list.append("X" + str(x_list[2]) +
+                                           " Y" + str(y_list[2]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
+                                           " Y" + str(y_list[3]) +
+                                           " R" + str(float(self.drill_subsidence_size) / 2))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[3]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[2]) +
+                                           " R" + str(float(self.drill_subsidence_size) / 2))
+                self.mm_g_code_list.append("G01 Z" + self.drill_top)
             else:
-                self.mmGCodeList.append("G00 X" + str(xList[0]) +
-                                        " Y" + str(yList[0]) +
-                                        " Z" + self.drillSize)
-                self.mmGCodeList.append("G01 Z" + str(currentDrillLevel))
-                self.mmGCodeList.append("X" + str(xList[1]) +
-                                        " Y" + str(yList[1]))
-                self.mmGCodeList.append("G02 X" + str(xList[2]) +
-                                        " Y" + str(yList[2]) +
-                                        " R" + str(valveOuterR))
-                self.mmGCodeList.append("G01 X" + str(xList[3]) +
-                                        " Y" + str(yList[3]))
-                self.mmGCodeList.append("G02 X" + str(xList[0]) +
-                                        " Y" + str(yList[0]) +
-                                        " R" + str(valveOuterR))
-                self.mmGCodeList.append("G01 X" + str(xList[4]) +
-                                        " Y" + str(yList[4]))
-                self.mmGCodeList.append("X" + str(xList[5]) +
-                                        " Y" + str(yList[5]))
-                self.mmGCodeList.append("G02 X" + str(xList[6]) +
-                                        " Y" + str(yList[6]) +
-                                        " R" + str(valveInnerR))
-                self.mmGCodeList.append("G01 X" + str(xList[7]) +
-                                        " Y" + str(yList[7]))
+                self.mm_g_code_list.append("G00 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[0]) +
+                                           " Z" + self.drill_top)
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+                self.mm_g_code_list.append("X" + str(x_list[1]) +
+                                           " Y" + str(y_list[1]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
+                                           " Y" + str(y_list[2]) +
+                                           " R" + str(valve_outer_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[3]) +
+                                           " Y" + str(y_list[3]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[0]) +
+                                           " R" + str(valve_outer_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[4]) +
+                                           " Y" + str(y_list[4]))
+                self.mm_g_code_list.append("X" + str(x_list[5]) +
+                                           " Y" + str(y_list[5]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[6]) +
+                                           " Y" + str(y_list[6]) +
+                                           " R" + str(valve_inner_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[7]) +
+                                           " Y" + str(y_list[7]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[4]) +
+                                           " Y" + str(y_list[4]) +
+                                           " R" + str(valve_inner_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[8]) +
+                                           " Y" + str(y_list[8]))
+                self.mm_g_code_list.append("X" + str(x_list[9]) +
+                                           " Y" + str(y_list[9]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[10]) +
+                                           " Y" + str(y_list[10]) +
+                                           " R" + str(float(self.drill_subsidence_size) / 2))
+                self.mm_g_code_list.append("G01 X" + str(x_list[11]) +
+                                           " Y" + str(y_list[11]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[8]) +
+                                           " Y" + str(y_list[8]) +
+                                           " R" + str(float(self.drill_subsidence_size) / 2))
+                self.mm_g_code_list.append("G01 Z" + self.drill_top)
 
-                self.mmGCodeList.append("G02 X" + str(xList[4]) +
-                                        " Y" + str(yList[4]) +
-                                        " R" + str(valveInnerR))
+    def valve_holes_g_code(self):
 
-                self.mmGCodeList.append("G01 X" + str(xList[8]) +
-                                        " Y" + str(yList[8]))
-                self.mmGCodeList.append("X" + str(xList[9]) +
-                                        " Y" + str(yList[9]))
-                self.mmGCodeList.append("X" + str(xList[10]) +
-                                        " Y" + str(yList[10]))
-                self.mmGCodeList.append("X" + str(xList[11]) +
-                                        " Y" + str(yList[11]))
-                self.mmGCodeList.append("Z" + self.drillSize)
+        self.mm_g_code_list.append("(PAUSE FOR DRILL CHANGE)")
+        self.mm_g_code_list.append("(" + self.drill_hole_size + "MM HOLE DRILL)")
+        self.mm_g_code_list.append("(*************************************************)")
+        self.mm_g_code_list.append("(*                                               *)")
+        self.mm_g_code_list.append("(* REMEMBER PLATE UNDER FOR PENETRATION DRILLING *)")
+        self.mm_g_code_list.append("(*                                               *)")
+        self.mm_g_code_list.append("(*************************************************)")
+        self.mm_g_code_list.append("M00")
 
-    def getRotatedXList(self, x, y, xList, yList, valveRot):
+        for valve in self.control_map:
 
-        rotatedXList = [rotate_coordinate(xList[0] - x, yList[0] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[2] - x, yList[0] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[2] - x, yList[5] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[0] - x, yList[5] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[0] - x, yList[1] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[2] - x, yList[1] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[2] - x, yList[4] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[0] - x, yList[4] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[1] - x, yList[2] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[3] - x, yList[2] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[3] - x, yList[3] - y, valveRot, 'x') + x,
-                        rotate_coordinate(xList[1] - x, yList[3] - y, valveRot, 'x') + x]
-        return rotatedXList
-
-    def getRotatedYList(self, x, y, xList, yList, valveRot):
-
-        rotatedYList = [rotate_coordinate(xList[0] - x, yList[0] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[2] - x, yList[0] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[2] - x, yList[5] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[0] - x, yList[5] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[0] - x, yList[1] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[2] - x, yList[1] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[2] - x, yList[4] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[0] - x, yList[4] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[1] - x, yList[2] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[3] - x, yList[2] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[3] - x, yList[3] - y, valveRot, 'y') + y,
-                        rotate_coordinate(xList[1] - x, yList[3] - y, valveRot, 'y') + y]
-        return rotatedYList
-
-    def valveHolesGCode(self):
-
-        self.mmGCodeList.append("(PAUSE FOR DRILL CHANGE)")
-        self.mmGCodeList.append("(*************************************************)")
-        self.mmGCodeList.append("(*                                               *)")
-        self.mmGCodeList.append("(* REMEMBER PLATE UNDER FOR PENETRATION DRILLING *)")
-        self.mmGCodeList.append("(*                                               *)")
-        self.mmGCodeList.append("(*************************************************)")
-        self.mmGCodeList.append("M00")
-        self.mmGCodeList.append("(" + self.drillSize + "MM HOLE DRILL)")
-
-        for valve in self.controlMap:
-
-            self.mmGCodeList.append("G00 X" + str(valve[0]) + " Y" + str(valve[1]))
-            self.mmGCodeList.append("G01 Z" + self.drillHoleDepth)
-            self.mmGCodeList.append("Z" + self.drillSize)
-
-
+            self.mm_g_code_list.append("G00 X" + str(valve[0]) + " Y" + str(valve[1]))
+            self.mm_g_code_list.append("G01 Z" + self.drill_valve_hole_depth)
+            self.mm_g_code_list.append("Z" + self.drill_top)

@@ -15,7 +15,7 @@ class LibraryParser:
 
         self.file = None
         self.root = None
-        self.componentLibrary = None
+        self.component_library = None
 
     def parse_component_library(self, file_name):
 
@@ -23,30 +23,30 @@ class LibraryParser:
         self.root = Etree.parse(self.file).getroot()
 
         components = self.root.findall('Component')
-        self.componentLibrary = {}
+        self.component_library = {}
 
         try:
             for component in components:
                 component_type = component.find('Type').text
-                self.componentLibrary[component_type] = {}
+                self.component_library[component_type] = {}
 
                 size = component.find('Size')
-                self.componentLibrary[component_type]['Size'] = size
+                self.component_library[component_type]['Size'] = size
 
                 external = component.find('External')
-                self.componentLibrary[component_type]['External'] = external
+                self.component_library[component_type]['External'] = external
 
                 internal = component.find('Internal')
-                self.componentLibrary[component_type]['Internal'] = internal
+                self.component_library[component_type]['Internal'] = internal
 
                 control = component.find('Control')
-                self.componentLibrary[component_type]['Control'] = control
+                self.component_library[component_type]['Control'] = control
 
             self.file.close()
         except LibraryParseError:
             pass
 
-        return self.componentLibrary
+        return self.component_library
 
 
 class LibraryParseError(Exception):

@@ -1,0 +1,11 @@
+<architecture>
+
+    <size height="180" width="270"/>
+
+    <components>
+        <component type="AquaFlux" y="90" x="135" rotation="0"/>
+    </components>
+
+    <lines>
+    </lines>
+</architecture>

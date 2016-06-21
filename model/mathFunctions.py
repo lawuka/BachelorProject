@@ -7,8 +7,45 @@ Created on 8 june 2016
 from math import cos, radians, sin
 
 
+def cos_ra(argument):
+
+    return cos(radians(argument))
+
+
+def sin_ra(argument):
+
+    return sin(radians(argument))
+
+
 def rotate_coordinate(x_coord, y_coord, rotation, return_coord):
     if return_coord == 'x':
-        return x_coord * cos(radians(rotation)) - y_coord * sin(radians(rotation))
+        return x_coord * cos_ra(rotation) - y_coord * sin_ra(rotation)
     elif return_coord == 'y':
-        return x_coord * sin(radians(rotation)) + y_coord * cos(radians(rotation))
+        return x_coord * sin_ra(rotation) + y_coord * cos_ra(rotation)
+
+
+def rotate_x_y_coordinates(x, y, component_x_list, component_y_list,
+                           component_width_list, component_height_list,
+                           component_rotation_list):
+
+    total_rotation = 0
+
+    for i in range(len(component_x_list) - 1, -1, -1):
+        if component_rotation_list[i] != 0.0:
+            temp_valve_center_x = rotate_coordinate(x - component_width_list[i] / 2,
+                                                    y - component_height_list[i] / 2,
+                                                    component_rotation_list[i],
+                                                    'x')
+            temp_valve_center_y = rotate_coordinate(x - component_width_list[i] / 2,
+                                                    y - component_height_list[i] / 2,
+                                                    component_rotation_list[i],
+                                                    'y')
+            x = temp_valve_center_x + component_x_list[i] + component_width_list[i] / 2
+            y = temp_valve_center_y + component_y_list[i] + component_height_list[i] / 2
+        else:
+            x += component_x_list[i]
+            y += component_y_list[i]
+
+        total_rotation += component_rotation_list[i]
+
+    return [x, y, total_rotation]

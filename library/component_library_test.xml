@@ -1090,7 +1090,9 @@
                 </Center>
                 <Radius>17</Radius>
                 <Valves>
-                    <Angle>19</Angle>
+                    <Angle>20</Angle>
+                    <Angle>220</Angle>
+                    <Angle>330</Angle>
                 </Valves>
             </FlowCircle>
             <FlowLine>
