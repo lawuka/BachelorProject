@@ -4,11 +4,11 @@ Created on 8 june 2016
 @author Lasse
 '''
 
-from parsers.gParser import SimulatorGCode
-from parsers.gParser import MicroMillingFlowGCode, MicroMillingControlGCode
-from parsers.architectureParser import ArchitectureParser
-from parsers.libraryParser import LibraryParser
-from parsers.configParser import ConfigParser
+from parsers.g_code_parser import SimulatorGCode
+from parsers.g_code_parser import MicroMillingFlowGCode, MicroMillingControlGCode
+from parsers.architecture_parser import ArchitectureParser
+from parsers.library_parser import LibraryParser
+from parsers.config_parser import ConfigParser
 
 
 class Model:

@@ -9,8 +9,8 @@ Created on 24 feb 2015
 from tkinter import *
 from tkinter import filedialog
 from math import pi, cos, sin, radians
-from model.mathFunctions import rotate_x_y_coordinates
-from model.helperFunctions import rotate_valve_coords
+from model.math_functions import rotate_x_y_coordinates
+from model.helper_functions import rotate_valve_coords
 
 
 class View(Tk):

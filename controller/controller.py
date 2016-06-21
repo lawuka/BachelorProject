@@ -7,9 +7,9 @@ Created on 16 june 2015
 import time
 import datetime
 import model.model as model
-from controller.writeToFile import WriteToFile
+from controller.write_to_file import WriteToFile
 from view.view import View
-from parsers.architectureParser import ArchitectureFileErrorException
+from parsers.architecture_parser import ArchitectureFileErrorException
 
 
 class Controller:

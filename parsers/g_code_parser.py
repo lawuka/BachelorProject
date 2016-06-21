@@ -4,8 +4,8 @@ Created on 2 march 2015
 @author Lasse
 '''
 from math import ceil, cos, pi, sin, radians
-from model.mathFunctions import rotate_x_y_coordinates, cos_ra, sin_ra
-from model.helperFunctions import rotate_valve_coords, get_rotated_x_list, get_rotated_y_list
+from model.math_functions import rotate_x_y_coordinates, cos_ra, sin_ra
+from model.helper_functions import rotate_valve_coords, get_rotated_x_list, get_rotated_y_list
 
 
 class SimulatorGCode:

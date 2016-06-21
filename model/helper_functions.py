@@ -5,7 +5,7 @@ Created on 8 june 2015
 @author Lasse
 
 '''
-from model.mathFunctions import rotate_x_y_coordinates, rotate_coordinate
+from model.math_functions import rotate_x_y_coordinates, rotate_coordinate
 
 
 def rotate_valve_coords(valve_list, component_x_list, component_y_list,
