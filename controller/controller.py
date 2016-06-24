@@ -40,8 +40,10 @@ class Controller:
         # Try creating the Simulator G-code, and catch exception if occuring
         try:
             self.update_data()
-            self.model.set_simulator_g_code()
             self.error_update(0)
+            self.check_for_architecture_parser_errors()
+            self.model.set_simulator_g_code()
+            self.view.update_status_message()
             return True
         except model.NoFileException as msg:
             self.add_to_log(msg)
@@ -62,8 +64,10 @@ class Controller:
         # Try creating the Micro Milling Flow Layer G-code, and catch exception if occuring
         try:
             self.update_data()
-            self.model.set_micro_milling_flow_g_code()
             self.error_update(0)
+            self.check_for_architecture_parser_errors()
+            self.model.set_micro_milling_flow_g_code()
+            self.view.update_status_message()
             return True
         except model.NoFileException as msg:
             self.add_to_log(msg)
@@ -84,8 +88,10 @@ class Controller:
         # Try creating the Micro Milling Control Layer G-code, and catch exception if occuring
         try:
             self.update_data()
-            self.model.set_micro_milling_control_g_code()
             self.error_update(0)
+            self.check_for_architecture_parser_errors()
+            self.model.set_micro_milling_control_g_code()
+            self.view.update_status_message()
             return True
         except model.NoFileException as msg:
             self.add_to_log(msg)
@@ -118,14 +124,7 @@ class Controller:
         try:
             self.update_data()
             self.error_update(0)
-            # Check for parser errors in components
-            if self.model.architecture_parser.component_errors:
-                for error in self.model.architecture_parser.component_errors:
-                    self.add_to_log(error)
-            # Check for parser errors in lines
-            if self.model.architecture_parser.line_errors:
-                for error in self.model.architecture_parser.line_errors:
-                    self.add_to_log(error)
+            self.check_for_architecture_parser_errors()
             self.view.update_status_message()
             return self.model.get_architecture_data()
         except model.NoFileException as msg:
@@ -191,6 +190,16 @@ class Controller:
         else:
             self.error_occurred = False
         pass
+
+    def check_for_architecture_parser_errors(self):
+        # Check for parser errors in components
+        if self.model.architecture_parser.component_errors:
+            for error in self.model.architecture_parser.component_errors:
+                self.add_to_log(error)
+        # Check for parser errors in lines
+        if self.model.architecture_parser.line_errors:
+            for error in self.model.architecture_parser.line_errors:
+                self.add_to_log(error)
 
     def get_model(self):
 

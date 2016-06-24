@@ -970,4 +970,23 @@
         <Internal></Internal>
         <Control></Control>
     </Component>
+    <Component>
+        <Type>Detector</Type>
+        <Size>
+            <Width>20</Width>
+            <Height>20</Height>
+        </Size>
+        <External>
+            <InputConnectionPoint>
+                <X>0</X>
+                <Y>10</Y>
+            </InputConnectionPoint>
+            <OutputConnectionPoint>
+                <X>20</X>
+                <Y>10</Y>
+            </OutputConnectionPoint>
+        </External>
+        <Internal></Internal>
+        <Control></Control>
+    </Component>
 </ComponentLibrary>

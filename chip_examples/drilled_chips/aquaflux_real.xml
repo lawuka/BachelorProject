@@ -1,0 +1,13 @@
+<architecture>
+
+    <!-- Drilled using Fabrication Library and conf_half_scaled.ini -->
+
+    <size width="264" height="159"/>
+
+    <components>
+        <component type="AquaFlux" x="132" y="79.5" rotation="0"/>
+    </components>
+
+    <lines>
+    </lines>
+</architecture>

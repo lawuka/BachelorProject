@@ -42,16 +42,16 @@ class View(Tk):
 
         # Current files needed for the GUI to work.
         self.current_architecture_file = StringVar()
-        self.current_architecture_file.set('')  # Should be ''
-        self.c.get_model().set_current_architecture_file('')  # Should be ''
+        self.current_architecture_file.set('chip_examples/drilled_chips/mixer.xml')  # Should be ''
+        self.c.get_model().set_current_architecture_file('chip_examples/drilled_chips/mixer.xml')  # Should be ''
 
         self.current_library_file = StringVar()
-        self.current_library_file.set('')  # Should be ''
-        self.c.get_model().set_current_library_file('')  # Should be ''
+        self.current_library_file.set('library/component_library_placement.xml')  # Should be ''
+        self.c.get_model().set_current_library_file('library/component_library_placement.xml')  # Should be ''
 
         self.current_config_file = StringVar()
-        self.current_config_file.set('')  # Should be ''
-        self.c.get_model().set_current_config_file('')  # Should be ''
+        self.current_config_file.set('config/conf.ini')  # Should be ''
+        self.c.get_model().set_current_config_file('config/conf.ini')  # Should be ''
 
         # Current status message, shown in the GUI.
         self.current_status_msg = StringVar()
@@ -108,6 +108,8 @@ class View(Tk):
 
         # Line count
         g_code_text_lines_frame = Frame(g_code_text_frame)
+        self.g_code_text_type = Label(g_code_text_lines_frame, text='', anchor=W)
+        self.g_code_text_type.pack(side=LEFT)
         Label(g_code_text_lines_frame, text='Lines:', anchor=W).pack(side=LEFT)
         self.g_code_text_lines = Label(g_code_text_lines_frame, text='0', anchor=W)
         self.g_code_text_lines.pack(side=LEFT)
@@ -184,11 +186,13 @@ class View(Tk):
     def show_layout(self):
 
         self.canvas_map = self.c.get_chip_layout()
-        self.library = self.c.get_library_data()
-        self.conf = self.c.get_config_data()
-        self.discontinuity_width = float(self.conf['Flow_Layer_Options']['Valve_Discontinuity_Width'])
+        if self.canvas_map:
+            self.library = self.c.get_library_data()
+            if self.library:
+                self.conf = self.c.get_config_data()
 
         if self.canvas_map is not None and self.library is not None and self.conf is not None:
+            self.discontinuity_width = float(self.conf['Flow_Layer_Options']['Valve_Discontinuity_Width'])
             # Allow check buttons to be used
             self.show_layout_check['state'] = NORMAL
             self.show_control_check['state'] = NORMAL
@@ -275,7 +279,7 @@ class View(Tk):
                                                                    [component_actual_position_y],
                                                                    [component[3] % 360.0],
                                                                    [component_width],
-                                                                   [component_height]))
+                                                                   [component_height], 1.0))
                     elif i_component.tag == 'FlowCircle':
                         self.append_flow_circles(i_component,
                                                  [component_actual_position_x],
@@ -334,7 +338,7 @@ class View(Tk):
                                            rotate_valve_coords(self.library[component.tag]['Control'],
                                                                component_x_list, component_y_list,
                                                                component_rotation_list, component_width_list,
-                                                               component_height_list))
+                                                               component_height_list, 1.0))
                 elif i_component.tag == 'FlowCircle':
                     self.append_flow_circles(i_component, component_x_list, component_y_list,
                                              component_rotation_list,
@@ -646,6 +650,7 @@ class View(Tk):
                 self.g_code_text_field_save['state'] = NORMAL
                 self.g_code_text_field_save_as['state'] = NORMAL
 
+            self.g_code_text_type['text'] = 'Simulator Flow'
             self.g_code_text_lines['text'] = int(self.g_code_text_field.index('end-1c').split('.')[0])
 
             if self.wm_title() == 'Fabrication Tool':
@@ -675,6 +680,7 @@ class View(Tk):
                 self.g_code_text_field_save['state'] = NORMAL
                 self.g_code_text_field_save_as['state'] = NORMAL
 
+            self.g_code_text_type['text'] = 'Machine Flow'
             self.g_code_text_lines['text'] = int(self.g_code_text_field.index('end-1c').split('.')[0])
 
             if self.wm_title() == 'Fabrication Tool':
@@ -699,6 +705,7 @@ class View(Tk):
                 self.g_code_text_field_save['state'] = NORMAL
                 self.g_code_text_field_save_as['state'] = NORMAL
 
+            self.g_code_text_type['text'] = 'Machine Control'
             self.g_code_text_lines['text'] = int(self.g_code_text_field.index('end-1c').split('.')[0])
 
             if self.wm_title() == 'Fabrication Tool':

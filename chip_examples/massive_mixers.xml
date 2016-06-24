@@ -72,7 +72,7 @@
     </lines>
 </architecture>
 -->
-
+<!--
 <architecture>
     <size height="300" width="240" />
     <components>
@@ -99,7 +99,24 @@
     <lines>
     </lines>
 </architecture>
-
+-->
+<architecture>
+    <size height="120" width="300" />
+    <components>
+        <component type="Mixer1" x="30" y="" rotation="0" />
+        <component type="Mixer2" x="90" y="30" rotation="0" />
+        <component type="Mixer3" x="150" y="30" rotation="0" />
+        <component type="Mixer4" x="210" y="30" rotation="0" />
+        <component type="Mixer5" x="270" y="30" rotation="0" />
+        <component type="Mixer" x="30" y="90" rotation="0" />
+        <component type="Mixer" x="90" y="90" rotation="90" />
+        <component type="Mixer" x="150" y="90" rotation="180" />
+        <component type="Mixer" x="210" y="90" rotation="270" />
+        <component type="Mixer" x="270" y="90" rotation="360" />
+    </components>
+    <lines>
+    </lines>
+</architecture>
 <!--
 <architecture>
     <size height="60" width="60" />

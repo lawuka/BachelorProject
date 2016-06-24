@@ -156,6 +156,9 @@ class MicroMillingFlowGCode:
         self.drill_hole_size = self.conf['Flow_Layer_Options']['Hole_Drill_Size']
         self.drill_top = self.conf['Flow_Layer_Options']['Drill_Z_Top']
         self.discontinuity_width = float(self.conf['Flow_Layer_Options']['Valve_Discontinuity_Width'])
+        self.flow_feed_rate = self.conf['Flow_Layer_Options']['Flow_Feed_Rate']
+        self.flow_feed_rate_down = self.conf['Flow_Layer_Options']['Flow_Feed_Rate_Down']
+        self.hole_feed_rate_down = self.conf['Flow_Layer_Options']['Hole_Feed_Rate_Down']
 
         # Scale config
         self.scale = float(self.drill_flow_size)
@@ -201,7 +204,7 @@ class MicroMillingFlowGCode:
         # self.mmGCodeList.append("S2000")
 
         # Feed rate - how fast drill moves in X,Y or Z direction
-        self.mm_g_code_list.append("F250")
+        #self.mm_g_code_list.append("F250")
 
     def components(self):
 
@@ -229,7 +232,7 @@ class MicroMillingFlowGCode:
                                                                            [component_actual_position_y],
                                                                            [component[3] % 360.0],
                                                                            [component_width],
-                                                                           [component_height]))
+                                                                           [component_height], self.scale))
                         elif i_component.tag == 'FlowCircle':
                             self.internal_flow_circle(i_component,
                                                       [component_actual_position_x],
@@ -278,6 +281,7 @@ class MicroMillingFlowGCode:
             self.mm_g_code_list.append("(*                                               *)")
             self.mm_g_code_list.append("(*************************************************)")
             self.mm_g_code_list.append("M00")
+            self.mm_g_code_list.append("F" + self.hole_feed_rate_down)
 
             for flowHole in self.flow_hole_list:
                 self.flow_hole_g_code(flowHole[0], flowHole[1])
@@ -306,7 +310,7 @@ class MicroMillingFlowGCode:
                                                rotate_valve_coords(self.library[component.tag]['Control'],
                                                                    component_x_list, component_y_list,
                                                                    component_rotation_list, component_width_list,
-                                                                   component_height_list))
+                                                                   component_height_list, self.scale))
                 elif i_component.tag == 'FlowCircle':
                     self.internal_flow_circle(i_component,
                                               component_x_list,
@@ -368,17 +372,17 @@ class MicroMillingFlowGCode:
                     if new_start_coordinates[1] == y and ((new_start_coordinates[0] < x < new_end_coordinates[0]) or
                                                           (new_start_coordinates[0] > x > new_end_coordinates[0])):
                         if new_start_coordinates[0] < new_end_coordinates[0]:
-                            next_x = x - self.discontinuity_width / 2
+                            next_x = x - (self.discontinuity_width / 2) * self.scale
                         else:
-                            next_x = x + self.discontinuity_width / 2
+                            next_x = x + (self.discontinuity_width / 2) * self.scale
                         self.flow_channel_g_code(current_x,
                                                  new_start_coordinates[1],
                                                  next_x,
                                                  new_end_coordinates[1])
                         if new_start_coordinates[0] < new_end_coordinates[0]:
-                            current_x = x + self.discontinuity_width / 2
+                            current_x = x + (self.discontinuity_width / 2) * self.scale
                         else:
-                            current_x = x - self.discontinuity_width / 2
+                            current_x = x - (self.discontinuity_width / 2) * self.scale
                 self.flow_channel_g_code(current_x,
                                          new_start_coordinates[1],
                                          new_end_coordinates[0],
@@ -395,17 +399,17 @@ class MicroMillingFlowGCode:
                     if new_start_coordinates[0] == x and ((new_start_coordinates[1] < y < new_end_coordinates[1]) or
                                                           (new_start_coordinates[1] > y > new_end_coordinates[1])):
                         if new_start_coordinates[1] < new_end_coordinates[1]:
-                            next_y = y - self.discontinuity_width / 2
+                            next_y = y - (self.discontinuity_width / 2) * self.scale
                         else:
-                            next_y = y + self.discontinuity_width / 2
+                            next_y = y + (self.discontinuity_width / 2) * self.scale
                         self.flow_channel_g_code(new_start_coordinates[0],
                                                  current_y,
                                                  new_end_coordinates[0],
                                                  next_y)
                         if new_start_coordinates[1] < new_end_coordinates[1]:
-                            current_y = y + self.discontinuity_width / 2
+                            current_y = y + (self.discontinuity_width / 2) * self.scale
                         else:
-                            current_y = y - self.discontinuity_width / 2
+                            current_y = y - (self.discontinuity_width / 2) * self.scale
 
                 self.flow_channel_g_code(new_start_coordinates[0],
                                          current_y,
@@ -435,7 +439,7 @@ class MicroMillingFlowGCode:
         angle_list = [float(angle.text) for angle in
                       sorted(list(flow_circle.find('Valves')), key=lambda elem: float(elem.text) % 360.0)]
 
-        valve_length_angle = (360 * float(self.discontinuity_width)) / (2 * flow_circle_radius * pi)
+        valve_length_angle = (360 * float(self.discontinuity_width) * self.scale) / (2 * flow_circle_radius * pi)
 
         if len(angle_list) == 0:
             self.complete_circle_g_code(str(flow_circle_start_x + flow_circle_radius),
@@ -526,11 +530,11 @@ class MicroMillingFlowGCode:
                 current_drill_level -= self.scale / 4.0
                 if current_drill_level < float(self.drill_flow_depth):
                     current_drill_level = float(self.drill_flow_depth)
-                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level) + " F" + self.flow_feed_rate_down)
                 if i % 2 == 0:
-                    self.mm_g_code_list.append("Y" + str(flow_end_y))
+                    self.mm_g_code_list.append("Y" + str(flow_end_y) + " F" + self.flow_feed_rate)
                 else:
-                    self.mm_g_code_list.append("Y" + str(flow_start_y))
+                    self.mm_g_code_list.append("Y" + str(flow_start_y) + " F" + self.flow_feed_rate)
             self.mm_g_code_list.append("Z" + self.drill_top)
         else:
             self.mm_g_code_list.append("G00 X" + str(flow_start_x) + " Y" + str(flow_start_y) + " Z" + self.drill_top)
@@ -538,11 +542,11 @@ class MicroMillingFlowGCode:
                 current_drill_level -= self.scale / 4.0
                 if current_drill_level < float(self.drill_flow_depth):
                     current_drill_level = float(self.drill_flow_depth)
-                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level) + " F" + self.flow_feed_rate_down)
                 if i % 2 == 0:
-                    self.mm_g_code_list.append("X" + str(flow_end_x))
+                    self.mm_g_code_list.append("X" + str(flow_end_x) + " F" + self.flow_feed_rate)
                 else:
-                    self.mm_g_code_list.append("X" + str(flow_start_x))
+                    self.mm_g_code_list.append("X" + str(flow_start_x) + " F" + self.flow_feed_rate)
             self.mm_g_code_list.append("Z" + self.drill_top)
 
     def flow_circle_g_code(self, flow_start_x, flow_start_y, flow_end_x, flow_end_y, flow_circle_radius):
@@ -555,13 +559,13 @@ class MicroMillingFlowGCode:
             current_drill_level -= (self.scale / 4.0)
             if current_drill_level < float(self.drill_flow_depth):
                 current_drill_level = float(self.drill_flow_depth)
-            self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+            self.mm_g_code_list.append("G01 Z" + str(current_drill_level) + " F" + self.flow_feed_rate_down)
             if i % 2 == 0:
                 self.mm_g_code_list.append("G03 X" + flow_end_x + " Y" + flow_end_y + " R" +
-                                           str(flow_circle_radius))
+                                           str(flow_circle_radius)  + " F" + self.flow_feed_rate)
             else:
                 self.mm_g_code_list.append("G02 X" + flow_start_x + " Y" + flow_start_y + " R" +
-                                           str(flow_circle_radius))
+                                           str(flow_circle_radius) + " F" + self.flow_feed_rate)
         self.mm_g_code_list.append("G01 Z" + self.drill_top)
 
     def complete_circle_g_code(self, start_x, start_y, flow_circle_radius):
@@ -575,11 +579,11 @@ class MicroMillingFlowGCode:
             current_drill_level -= (self.scale / 4.0)
             if current_drill_level < float(self.drill_flow_depth):
                 current_drill_level = float(self.drill_flow_depth)
-            self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+            self.mm_g_code_list.append("G01 Z" + str(current_drill_level) + " F" + self.flow_feed_rate_down)
             if i % 2 == 0:
-                self.mm_g_code_list.append("G03 I-" + str(flow_circle_radius))
+                self.mm_g_code_list.append("G03 I-" + str(flow_circle_radius) + " F" + self.flow_feed_rate)
             else:
-                self.mm_g_code_list.append("G02 I-" + str(flow_circle_radius))
+                self.mm_g_code_list.append("G02 I-" + str(flow_circle_radius) + " F" + self.flow_feed_rate)
         self.mm_g_code_list.append("G01 Z" + self.drill_top)
 
     def one_angle_circle_g_code(self, flow_circle_center_x,
@@ -645,6 +649,9 @@ class MicroMillingControlGCode:
         self.drill_subsidence_size = self.conf['Control_Layer_Options']['Subsidence_Drill_Size']
         self.drill_hole_size = self.conf['Control_Layer_Options']['Hole_Drill_Size']
         self.drill_top = self.conf['Control_Layer_Options']['Drill_Z_Top']
+        self.subsidence_feed_rate = self.conf['Control_Layer_Options']['Subsidence_Feed_Rate']
+        self.subsidence_feed_rate_down = self.conf['Control_Layer_Options']['Subsidence_Feed_Rate_Down']
+        self.hole_feed_rate_down = self.conf['Control_Layer_Options']['Hole_Feed_Rate_Down']
         self.valve_width = '9'
         self.valve_height = '6'
 
@@ -701,9 +708,8 @@ class MicroMillingControlGCode:
         '''
         '''
         Feed rate - how fast drill moves in X,Y or Z direction
-        '''
         self.mm_g_code_list.append("F250")
-
+        '''
     def fetch_valves(self):
 
         if self.architecture_map['components']:
@@ -745,12 +751,6 @@ class MicroMillingControlGCode:
                                                     [component_height])
                 else:
                     print("Component \"" + component[0] + "\" not found in library - skipping!")
-
-    def move_back_to_origin(self):
-
-        self.mm_g_code_list.append("G00 X0.0 Y0.0")
-        self.mm_g_code_list.append("M30")
-        self.mm_g_code_list.append("(PROGRAM END)")
 
     def internal_component(self, component, component_x_list, component_y_list,
                            component_rotation_list, component_width_list, component_height_list):
@@ -849,7 +849,9 @@ class MicroMillingControlGCode:
         valve_width = float(self.valve_width) * self.scale
         valve_height = float(self.valve_height) * self.scale
         valve_outer_r = float(2.5/6) * valve_height * self.scale
-        valve_inner_r = float(1.5/6) * valve_height * self.scale
+        valve_middle_top_r = float(1.75/6) * valve_height * self.scale
+        valve_middle_low_r = float(0.75/6) * valve_height * self.scale
+        valve_inner_r = float(0.25/6) * valve_height * self.scale
 
         for valve in self.control_map:
 
@@ -864,41 +866,50 @@ class MicroMillingControlGCode:
             x_right_right = x + (2.0/9) * valve_width
 
             y_top_top = y + (2.5/6) * valve_height
-            y_top_middle = y + (1.5/6) * valve_height
-            y_top_low = y + (0.5/6) * valve_height
-            y_low_top = y + (-0.5/6) * valve_height
-            y_low_middle = y + (-1.5/6) * valve_height
+            y_top_middle = y + (1.75/6) * valve_height
+            y_top_low = y + (1/6) * valve_height
+            y_middle_top = y + (0.25/6) * valve_height
+            y_middle_low = y + (-0.25/6) * valve_height
+            y_low_top = y + (-1/6) * valve_height
+            y_low_middle = y + (-1.75/6) * valve_height
             y_low_low = y + (-2.5/6) * valve_height
 
             x_list = [x_left, x_left_left,
                       x_right, x_right_right]
 
             y_list = [y_top_top, y_top_middle,
-                      y_top_low, y_low_top,
+                      y_top_low, y_middle_top,
+                      y_middle_low, y_low_top,
                       y_low_middle, y_low_low]
 
             if valve_rot is not None:
                 if valve_rot in {90.0, 270.0}:
                     self.valve_g_code(get_rotated_x_list(x, y, x_list, y_list, valve_rot),
                                       get_rotated_y_list(x, y, x_list, y_list, valve_rot),
-                                      90.0, valve_outer_r, valve_inner_r)
+                                      90.0, valve_outer_r, valve_middle_top_r,
+                                      valve_middle_low_r, valve_inner_r)
 
                 else:
-                    self.valve_g_code(x_list, y_list, None, 2.5, 1.5)
+                    self.valve_g_code(x_list, y_list, None, valve_outer_r, valve_middle_top_r,
+                                      valve_middle_low_r, valve_inner_r)
             else:
                 if circle_rot in {90.0, 270.0}:
-                    self.valve_g_code(x_list, y_list, None, 2.5, 1.5)
+                    self.valve_g_code(x_list, y_list, None, valve_outer_r, valve_middle_top_r,
+                                      valve_middle_low_r, valve_inner_r)
 
                 elif circle_rot in {0.0, 180.0}:
                     self.valve_g_code(get_rotated_x_list(x, y, x_list, y_list, circle_rot + 90.0),
                                       get_rotated_y_list(x, y, x_list, y_list, circle_rot + 90.0),
-                                      90.0, valve_outer_r, valve_inner_r)
+                                      90.0, valve_outer_r, valve_middle_top_r,
+                                      valve_middle_low_r, valve_inner_r)
                 else:
                     self.valve_g_code(get_rotated_x_list(x, y, x_list, y_list, 90.0 - circle_rot),
                                       get_rotated_y_list(x, y, x_list, y_list, 90.0 - circle_rot),
-                                      circle_rot, valve_outer_r, valve_inner_r)
+                                      circle_rot, valve_outer_r, valve_middle_top_r,
+                                      valve_middle_low_r, valve_inner_r)
 
-    def valve_g_code(self, x_list, y_list, valve_rotate, valve_outer_r, valve_inner_r):
+    def valve_g_code(self, x_list, y_list, valve_rotate, valve_outer_r, valve_middle_top_r,
+                     valve_middle_low_r, valve_inner_r):
 
         current_drill_level = 0.0
 
@@ -911,14 +922,16 @@ class MicroMillingControlGCode:
                 self.mm_g_code_list.append("G00 X" + str(x_list[0]) +
                                            " Y" + str(y_list[0]) +
                                            " Z" + self.drill_top)
-                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level) +
+                                           " F" + self.subsidence_feed_rate_down)
                 self.mm_g_code_list.append("X" + str(x_list[2]) +
-                                           " Y" + str(y_list[0]))
+                                           " Y" + str(y_list[0]) +
+                                           " F" + self.subsidence_feed_rate)
                 self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
-                                           " Y" + str(y_list[5]) +
+                                           " Y" + str(y_list[7]) +
                                            " R" + str(valve_outer_r))
                 self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
-                                           " Y" + str(y_list[5]))
+                                           " Y" + str(y_list[7]))
                 self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
                                            " Y" + str(y_list[0]) +
                                            " R" + str(valve_outer_r))
@@ -926,35 +939,50 @@ class MicroMillingControlGCode:
                                            " Y" + str(y_list[1]))
                 self.mm_g_code_list.append("X" + str(x_list[2]) +
                                            " Y" + str(y_list[1]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
+                                           " Y" + str(y_list[6]) +
+                                           " R" + str(valve_middle_top_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[6]))
+
+                self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[1]) +
+                                           " R" + str(valve_middle_top_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[2]))
+                self.mm_g_code_list.append("X" + str(x_list[2]) +
+                                           " Y" + str(y_list[2]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
+                                           " Y" + str(y_list[5]) +
+                                           " R" + str(valve_middle_low_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[5]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[2]) +
+                                           " R" + str(valve_middle_low_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
+                                           " Y" + str(y_list[3]))
+                self.mm_g_code_list.append("X" + str(x_list[2]) +
+                                           " Y" + str(y_list[3]))
                 self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
                                            " Y" + str(y_list[4]) +
                                            " R" + str(valve_inner_r))
                 self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
                                            " Y" + str(y_list[4]))
-
                 self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
-                                           " Y" + str(y_list[1]) +
-                                           " R" + str(valve_inner_r))
-                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
-                                           " Y" + str(y_list[2]))
-                self.mm_g_code_list.append("X" + str(x_list[2]) +
-                                           " Y" + str(y_list[2]))
-                self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
                                            " Y" + str(y_list[3]) +
-                                           " R" + str(float(self.drill_subsidence_size) / 2))
-                self.mm_g_code_list.append("G01 X" + str(x_list[0]) +
-                                           " Y" + str(y_list[3]))
-                self.mm_g_code_list.append("G02 X" + str(x_list[0]) +
-                                           " Y" + str(y_list[2]) +
-                                           " R" + str(float(self.drill_subsidence_size) / 2))
+                                           " R" + str(valve_inner_r))
+
                 self.mm_g_code_list.append("G01 Z" + self.drill_top)
             else:
                 self.mm_g_code_list.append("G00 X" + str(x_list[0]) +
                                            " Y" + str(y_list[0]) +
                                            " Z" + self.drill_top)
-                self.mm_g_code_list.append("G01 Z" + str(current_drill_level))
+                self.mm_g_code_list.append("G01 Z" + str(current_drill_level) +
+                                           " F" + self.subsidence_feed_rate_down)
                 self.mm_g_code_list.append("X" + str(x_list[1]) +
-                                           " Y" + str(y_list[1]))
+                                           " Y" + str(y_list[1]) +
+                                           " F" + self.subsidence_feed_rate)
                 self.mm_g_code_list.append("G02 X" + str(x_list[2]) +
                                            " Y" + str(y_list[2]) +
                                            " R" + str(valve_outer_r))
@@ -969,24 +997,36 @@ class MicroMillingControlGCode:
                                            " Y" + str(y_list[5]))
                 self.mm_g_code_list.append("G02 X" + str(x_list[6]) +
                                            " Y" + str(y_list[6]) +
-                                           " R" + str(valve_inner_r))
+                                           " R" + str(valve_middle_top_r))
                 self.mm_g_code_list.append("G01 X" + str(x_list[7]) +
                                            " Y" + str(y_list[7]))
                 self.mm_g_code_list.append("G02 X" + str(x_list[4]) +
                                            " Y" + str(y_list[4]) +
-                                           " R" + str(valve_inner_r))
+                                           " R" + str(valve_middle_top_r))
                 self.mm_g_code_list.append("G01 X" + str(x_list[8]) +
                                            " Y" + str(y_list[8]))
                 self.mm_g_code_list.append("X" + str(x_list[9]) +
                                            " Y" + str(y_list[9]))
                 self.mm_g_code_list.append("G02 X" + str(x_list[10]) +
                                            " Y" + str(y_list[10]) +
-                                           " R" + str(float(self.drill_subsidence_size) / 2))
+                                           " R" + str(valve_middle_low_r))
                 self.mm_g_code_list.append("G01 X" + str(x_list[11]) +
                                            " Y" + str(y_list[11]))
                 self.mm_g_code_list.append("G02 X" + str(x_list[8]) +
                                            " Y" + str(y_list[8]) +
-                                           " R" + str(float(self.drill_subsidence_size) / 2))
+                                           " R" + str(valve_middle_low_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[12]) +
+                                           " Y" + str(y_list[12]))
+                self.mm_g_code_list.append("X" + str(x_list[13]) +
+                                           " Y" + str(y_list[13]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[14]) +
+                                           " Y" + str(y_list[14]) +
+                                           " R" + str(valve_inner_r))
+                self.mm_g_code_list.append("G01 X" + str(x_list[15]) +
+                                           " Y" + str(y_list[15]))
+                self.mm_g_code_list.append("G02 X" + str(x_list[12]) +
+                                           " Y" + str(y_list[12]) +
+                                           " R" + str(valve_inner_r))
                 self.mm_g_code_list.append("G01 Z" + self.drill_top)
 
     def valve_holes_g_code(self):
@@ -999,9 +1039,16 @@ class MicroMillingControlGCode:
         self.mm_g_code_list.append("(*                                               *)")
         self.mm_g_code_list.append("(*************************************************)")
         self.mm_g_code_list.append("M00")
+        self.mm_g_code_list.append("F" + self.hole_feed_rate_down)
 
         for valve in self.control_map:
 
             self.mm_g_code_list.append("G00 X" + str(valve[0]) + " Y" + str(valve[1]))
             self.mm_g_code_list.append("G01 Z" + self.drill_valve_hole_depth)
             self.mm_g_code_list.append("Z" + self.drill_top)
+
+    def move_back_to_origin(self):
+
+        self.mm_g_code_list.append("G00 X0.0 Y0.0")
+        self.mm_g_code_list.append("M30")
+        self.mm_g_code_list.append("(PROGRAM END)")

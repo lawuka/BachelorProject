@@ -60,7 +60,7 @@ class Model:
     def set_architecture_data(self):
 
         if self.current_architecture_file is None:
-            raise NoFileException("Missing SVG File!")
+            raise NoFileException("Missing Architecture File!")
         else:
             self.architecture_data = self.architecture_parser.parse_architecture(self.current_architecture_file)
 
@@ -84,11 +84,18 @@ class Model:
                          self.config_data['Flow_Layer_Options']['Flow_Depth'],
                          self.config_data['Flow_Layer_Options']['Hole_Drill_Size'],
                          self.config_data['Flow_Layer_Options']['Hole_Depth'],
+                         self.config_data['Flow_Layer_Options']['Flow_Feed_Rate'],
+                         self.config_data['Flow_Layer_Options']['Flow_Feed_Rate_Down'],
+                         self.config_data['Flow_Layer_Options']['Hole_Feed_Rate_Down'],
                          self.config_data['Control_Layer_Options']['Drill_Z_Top'],
                          self.config_data['Control_Layer_Options']['Subsidence_Drill_Size'],
                          self.config_data['Control_Layer_Options']['Subsidence_Depth'],
                          self.config_data['Control_Layer_Options']['Hole_Drill_Size'],
-                         self.config_data['Control_Layer_Options']['Hole_Depth']]
+                         self.config_data['Control_Layer_Options']['Hole_Depth'],
+                         self.config_data['Control_Layer_Options']['Subsidence_Feed_Rate'],
+                         self.config_data['Control_Layer_Options']['Subsidence_Feed_Rate_Down'],
+                         self.config_data['Control_Layer_Options']['Hole_Feed_Rate_Down']]
+
 
             config_count = 0
             for conf in conf_list:

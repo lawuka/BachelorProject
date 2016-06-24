@@ -1,0 +1,54 @@
+<architecture>
+    <size height="181" width="213" />
+    <components>
+        <component rotation="0" type="Pump" x="30" y="29" />
+        <component rotation="0" type="Incubator" x="80" y="107" />
+        <component rotation="0" type="Input" x="6" y="6" />
+        <component rotation="0" type="Input" x="206" y="14" />
+        <component rotation="0" type="Input" x="10" y="18" />
+        <component rotation="0" type="Output" x="194" y="174" />
+        <component rotation="0" type="Input" x="202" y="10" />
+        <component rotation="0" type="Input" x="186" y="36" />
+        <component rotation="0" type="Output" x="198" y="22" />
+        <component rotation="0" type="Pump" x="166" y="167" />
+        <component rotation="0" type="Pump" x="130" y="47" />
+        <component rotation="0" type="Output" x="190" y="40" />
+    </components>
+    <lines>
+        <line x1="12" x2="184" y1="34" y2="34" />
+        <line x1="184" x2="198" y1="167" y2="167" />
+        <line x1="12" x2="206" y1="16" y2="16" />
+        <line x1="6" x2="12" y1="8" y2="8" />
+        <line x1="184" x2="186" y1="38" y2="38" />
+        <line x1="10" x2="202" y1="20" y2="20" />
+        <line x1="190" x2="190" y1="42" y2="167" />
+        <line x1="48" x2="48" y1="29" y2="162" />
+        <line x1="112" x2="148" y1="52" y2="52" />
+        <line x1="112" x2="112" y1="29" y2="162" />
+        <line x1="48" x2="112" y1="29" y2="29" />
+        <line x1="184" x2="184" y1="167" y2="176" />
+        <line x1="202" x2="202" y1="12" y2="20" />
+        <line x1="184" x2="184" y1="34" y2="38" />
+        <line x1="198" x2="198" y1="24" y2="167" />
+        <line x1="184" x2="194" y1="176" y2="176" />
+        <line x1="48" x2="148" y1="162" y2="162" />
+        <line x1="148" x2="148" y1="47" y2="167" />
+        <line x1="12" x2="12" y1="8" y2="34" />
+        <line x1="13" x2="12" y1="29" y2="29" />
+        <line x1="48" x2="47" y1="29" y2="29" />
+        <line x1="50" x2="50" y1="162" y2="161" />
+        <line x1="110" x2="110" y1="162" y2="161" />
+        <line x1="6" x2="6" y1="8" y2="7" />
+        <line x1="206" x2="206" y1="16" y2="15" />
+        <line x1="10" x2="10" y1="20" y2="19" />
+        <line x1="194" x2="194" y1="176" y2="175" />
+        <line x1="202" x2="202" y1="12" y2="11" />
+        <line x1="186" x2="186" y1="38" y2="37" />
+        <line x1="198" x2="198" y1="24" y2="23" />
+        <line x1="149" x2="148" y1="167" y2="167" />
+        <line x1="184" x2="183" y1="167" y2="167" />
+        <line x1="113" x2="112" y1="47" y2="47" />
+        <line x1="148" x2="147" y1="47" y2="47" />
+        <line x1="190" x2="190" y1="42" y2="41" />
+    </lines>
+</architecture>
